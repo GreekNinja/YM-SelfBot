@@ -1,0 +1,1730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>YM SelfBot • FN Party Manager</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- React & ReactDOM -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  
+  <!-- Babel -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  
+  <!-- Font Awesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <style>
+    * { font-family: 'Inter', sans-serif; }
+    body { 
+      background: linear-gradient(145deg, #0a0f1e 0%, #0b1525 100%);
+      min-height: 100vh;
+      color: #f8fafc;
+      position: relative;
+      overflow-x: hidden;
+    }
+    
+    /* Animated background */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: 
+        radial-gradient(circle at 20% 30%, rgba(79, 70, 229, 0.08) 0%, transparent 30%),
+        radial-gradient(circle at 80% 70%, rgba(139, 92, 246, 0.08) 0%, transparent 30%),
+        repeating-linear-gradient(45deg, rgba(255,255,255,0.01) 0px, rgba(255,255,255,0.01) 1px, transparent 1px, transparent 10px);
+      pointer-events: none;
+      z-index: 0;
+      animation: pulse 8s ease-in-out infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 0.5; }
+      50% { opacity: 0.8; }
+    }
+    
+    #root { position: relative; z-index: 1; }
+    
+    /* Glass morphism */
+    .glass {
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(79, 70, 229, 0.15);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      transition: all 0.3s ease;
+    }
+    
+    .glass:hover {
+      border-color: rgba(79, 70, 229, 0.3);
+      box-shadow: 0 8px 32px rgba(79, 70, 229, 0.2);
+    }
+    
+    /* Toast animations */
+    @keyframes slideIn { 
+      from { opacity: 0; transform: translateX(20px); } 
+      to { opacity: 1; transform: translateX(0); } 
+    }
+    @keyframes slideOut {
+      from { opacity: 1; transform: translateX(0); }
+      to { opacity: 0; transform: translateX(20px); }
+    }
+    .toast-anim { 
+      animation: slideIn 0.2s ease forwards; 
+    }
+    .toast-exit {
+      animation: slideOut 0.2s ease forwards;
+    }
+    
+    /* Custom scrollbar */
+    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #4f46e5; border-radius: 4px; }
+    
+    /* Button glow effects */
+    .btn-glow {
+      box-shadow: 0 0 10px rgba(79, 70, 229, 0.2);
+      transition: all 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-glow:hover:not(:disabled) {
+      box-shadow: 0 0 20px rgba(79, 70, 229, 0.5);
+      transform: translateY(-1px);
+    }
+    .btn-glow:active:not(:disabled) {
+      transform: translateY(1px);
+    }
+    
+    /* Ripple effect */
+    .btn-glow::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 5px;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.5);
+      opacity: 0;
+      border-radius: 100%;
+      transform: scale(1, 1) translate(-50%);
+      transform-origin: 50% 50%;
+    }
+    
+    .btn-glow:focus:not(:active)::after {
+      animation: ripple 1s ease-out;
+    }
+    
+    @keyframes ripple {
+      0% {
+        transform: scale(0, 0);
+        opacity: 0.5;
+      }
+      20% {
+        transform: scale(25, 25);
+        opacity: 0.3;
+      }
+      100% {
+        opacity: 0;
+        transform: scale(40, 40);
+      }
+    }
+    
+    .gradient-text {
+      background: linear-gradient(135deg, #818cf8, #c084fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-size: 200% 200%;
+      animation: gradient 3s ease infinite;
+    }
+    
+    @keyframes gradient {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    
+    .cosmetic-image {
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .cosmetic-image:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 15px rgba(79, 70, 229, 0.5);
+    }
+    
+    .copy-btn {
+      transition: all 0.2s;
+    }
+    .copy-btn:hover:not(:disabled) {
+      transform: scale(1.1) rotate(5deg);
+    }
+    
+    .credits {
+      position: fixed;
+      bottom: 8px;
+      right: 12px;
+      font-size: 10px;
+      color: #4f46e5;
+      opacity: 0.6;
+      z-index: 100;
+      background: rgba(15, 23, 42, 0.5);
+      padding: 4px 10px;
+      border-radius: 20px;
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(79, 70, 229, 0.3);
+      letter-spacing: 0.5px;
+      transition: opacity 0.3s, transform 0.3s;
+    }
+    .credits:hover {
+      opacity: 1;
+      transform: scale(1.05);
+    }
+    
+    /* Cooldown animation */
+    @keyframes cooldown {
+      from { width: 100%; }
+      to { width: 0%; }
+    }
+    .cooldown-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #4f46e5, #818cf8);
+      animation: cooldown 10s linear forwards;
+    }
+    
+    /* Button disabled state */
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none !important;
+      filter: grayscale(0.5);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    /* Fade animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fadeIn {
+      animation: fadeIn 0.3s ease forwards;
+    }
+    
+    /* Ghost mode indicator */
+    .ghost-active {
+      background: rgba(139, 92, 246, 0.2);
+      border: 1px solid #8b5cf6;
+      box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+    }
+  </style>
+</head>
+<body>
+  <div id="root">
+    <div class="min-h-screen flex items-center justify-center">
+      <div class="text-center">
+        <div class="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full spinner mx-auto mb-3"></div>
+        <p class="text-indigo-400 text-sm font-mono animate-pulse">Loading YM SelfBot...</p>
+      </div>
+    </div>
+  </div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useCallback, useRef } = React;
+
+    // --- CONFIG & CONSTANTS ---
+    const CORS_PROXY = "https://corsproxy.io/?"; 
+    const ACCOUNT_URL = "https://account-public-service-prod.ol.epicgames.com";
+    const PARTY_URL = "https://party-service-prod.ol.epicgames.com";
+    const FORTNITE_API = "https://fortnite-api.com";
+    
+    const PC_CLIENT = btoa("34a02cf8f4414e29b15921876da36f9a:daafbccc737745039dffe53d94fc76cf");
+    const FN_CLIENT = btoa("ec684b8c687f479fadea3cb2ad83f5c6:e1f31c211f28413186262d37a13fc84d");
+    
+    const PLATFORMS = { WIN:"PC", MAC:"Mac", PSN:"PlayStation", XBL:"Xbox", SWT:"Switch", IOS:"Mobile", AND:"Android", GFN:"GFN" };
+    const PLAT_EMOJI = { WIN:"💻", MAC:"🍎", PSN:"🎮", XBL:"🎯", SWT:"🕹", IOS:"📱", AND:"📱", GFN:"☁️" };
+
+    // --- COOLDOWN MANAGER (10 seconds per button) ---
+    class CooldownManager {
+      constructor() {
+        this.cooldowns = new Map();
+        this.listeners = new Set();
+      }
+
+      addListener(callback) {
+        this.listeners.add(callback);
+        return () => this.listeners.delete(callback);
+      }
+
+      notifyListeners() {
+        const cooldowns = this.getCooldowns();
+        this.listeners.forEach(cb => cb(cooldowns));
+      }
+
+      setCooldown(buttonId) {
+        this.cooldowns.set(buttonId, Date.now() + 10000); // 10 seconds
+        this.notifyListeners();
+
+        // Auto remove after 10 seconds
+        setTimeout(() => {
+          if (this.cooldowns.get(buttonId) <= Date.now()) {
+            this.cooldowns.delete(buttonId);
+            this.notifyListeners();
+          }
+        }, 10000);
+      }
+
+      isOnCooldown(buttonId) {
+        const expiry = this.cooldowns.get(buttonId);
+        if (!expiry) return false;
+        if (expiry <= Date.now()) {
+          this.cooldowns.delete(buttonId);
+          this.notifyListeners();
+          return false;
+        }
+        return true;
+      }
+
+      getRemainingTime(buttonId) {
+        const expiry = this.cooldowns.get(buttonId);
+        if (!expiry) return 0;
+        const remaining = Math.max(0, Math.ceil((expiry - Date.now()) / 1000));
+        if (remaining <= 0) {
+          this.cooldowns.delete(buttonId);
+          this.notifyListeners();
+          return 0;
+        }
+        return remaining;
+      }
+
+      getCooldowns() {
+        const result = {};
+        this.cooldowns.forEach((expiry, id) => {
+          if (expiry > Date.now()) {
+            result[id] = Math.ceil((expiry - Date.now()) / 1000);
+          }
+        });
+        return result;
+      }
+    }
+
+    // Create global cooldown manager
+    const cooldownManager = new CooldownManager();
+
+    // --- UTILITIES ---
+    const DB = {
+      save: (key, data) => localStorage.setItem(key, JSON.stringify(data)),
+      load: (key) => JSON.parse(localStorage.getItem(key) || "null")
+    };
+
+    const tokenCache = new Map();
+    const cosmeticCache = new Map();
+    const genUUID = () => [...Array(32)].map(()=>Math.floor(Math.random()*16).toString(16)).join('').toUpperCase();
+    
+    const safeJson = async (res) => { try { return await res.json(); } catch { return {}; } };
+
+    const proxyFetch = async (url, options = {}) => {
+      const finalUrl = CORS_PROXY ? CORS_PROXY + encodeURIComponent(url) : url;
+      return fetch(finalUrl, options);
+    };
+
+    const epicPost = async (url, clientAuth, dataObj) => {
+      const bodyParams = new URLSearchParams(dataObj).toString();
+      const res = await proxyFetch(url, {
+        method: "POST",
+        headers: { 
+          "Authorization": `Basic ${clientAuth}`, 
+          "Content-Type": "application/x-www-form-urlencoded" 
+        },
+        body: bodyParams
+      });
+      const data = await safeJson(res);
+      if (!res.ok) throw new Error(data.errorMessage || data.error_description || "Authentication failed");
+      return data;
+    };
+
+    const refreshTokenIfNeeded = async (account) => {
+      if (!account) return account;
+      
+      if (Date.now() > account.tokenExpiresAt - 300000) {
+        try {
+          const res = await epicPost(`${ACCOUNT_URL}/account/api/oauth/token`, PC_CLIENT, { 
+            grant_type: "refresh_token", 
+            refresh_token: account.refreshToken 
+          });
+          
+          return {
+            ...account,
+            accessToken: res.access_token,
+            refreshToken: res.refresh_token,
+            tokenExpiresAt: Date.now() + (res.expires_in * 1000)
+          };
+        } catch (e) {
+          console.error("Token refresh failed:", e);
+          throw new Error("Session expired. Please relink.");
+        }
+      }
+      return account;
+    };
+
+    // Parse meta helpers
+    const parseMeta = (m, key) => {
+      try { const v = m?.meta?.[key]; return v ? JSON.parse(v) : {}; } catch { return {}; }
+    };
+    
+    const getDisplayName = m => m?.meta?.["urn:epic:member:dn_s"] || m?.account_id?.slice(0,8) || "?";
+    
+    const getPlatform = m => {
+      const pd = parseMeta(m, "Default:PlatformData_j");
+      return pd?.PlatformData?.platform?.platformDescription?.name
+          || m?.connections?.[0]?.meta?.["urn:epic:conn:platform_s"]
+          || "WIN";
+    };
+    
+    const getLevel = m => parseMeta(m,"Default:BattlePassInfo_j")?.BattlePassInfo?.passLevel || 1;
+    
+    const getCrowns = m => parseMeta(m,"Default:AthenaCosmeticLoadout_j")?.AthenaCosmeticLoadout?.cosmeticStats?.find(x=>x.statName==="TotalVictoryCrowns")?.statValue || 0;
+    
+    const getCosmetics = (m) => {
+      const loadout = parseMeta(m, "Default:AthenaCosmeticLoadout_j")?.AthenaCosmeticLoadout || {};
+      const emote = parseMeta(m, "Default:FrontendEmote_j")?.FrontendEmote || {};
+      
+      return {
+        skin: loadout.characterPrimaryAssetId || "None",
+        backpack: loadout.backpackDef || "None",
+        pickaxe: loadout.pickaxeDef || "None",
+        emote: emote.pickable || "None",
+        skinId: loadout.characterPrimaryAssetId?.replace("AthenaCharacter:", "").replace("/BRCosmetics/Athena/Items/Cosmetics/Characters/", "").replace(".", ""),
+        emoteId: emote.pickable?.replace("/BRCosmetics/Athena/Items/Cosmetics/Dances/", "").replace(".", "")
+      };
+    };
+
+    const getCosmeticImage = async (cosmeticId, type) => {
+      if (!cosmeticId || cosmeticId === "None") return null;
+      
+      const cacheKey = `${type}_${cosmeticId}`;
+      if (cosmeticCache.has(cacheKey)) return cosmeticCache.get(cacheKey);
+      
+      try {
+        let apiType = "outfit";
+        if (type === "emote") apiType = "emote";
+        if (type === "backpack") apiType = "backpack";
+        if (type === "pickaxe") apiType = "pickaxe";
+        
+        let cleanId = cosmeticId;
+        if (cleanId.includes(":")) cleanId = cleanId.split(":")[1];
+        if (cleanId.includes("/")) cleanId = cleanId.split("/").pop().split(".")[0];
+        
+        const response = await fetch(`${FORTNITE_API}/v2/cosmetics/br/search?id=${encodeURIComponent(cleanId)}&type=${apiType}`);
+        const data = await response.json();
+        
+        if (data.data && data.data.images) {
+          const imgUrl = data.data.images.smallIcon || data.data.images.icon;
+          cosmeticCache.set(cacheKey, imgUrl);
+          return imgUrl;
+        }
+      } catch (e) {
+        console.log("Failed to fetch cosmetic:", cosmeticId);
+      }
+      return null;
+    };
+
+    // --- TOAST SYSTEM ---
+    let _tid = 0;
+    let lastToastTime = 0;
+    let lastToastMsg = "";
+    
+    function Toasts() {
+      const [list, setList] = useState([]);
+      const [exiting, setExiting] = useState(new Set());
+      
+      useEffect(() => { 
+        const fn = (t) => {
+          const now = Date.now();
+          if (t.msg === lastToastMsg && now - lastToastTime < 2000) return;
+          
+          lastToastTime = now;
+          lastToastMsg = t.msg;
+          
+          if (t.rm) {
+            setExiting(prev => new Set([...prev, t.id]));
+            setTimeout(() => {
+              setList(p => p.filter(x => x.id !== t.id));
+              setExiting(prev => {
+                const newSet = new Set(prev);
+                newSet.delete(t.id);
+                return newSet;
+              });
+            }, 200);
+          } else {
+            setList(p => [...p, t]);
+            setTimeout(() => {
+              setExiting(prev => new Set([...prev, t.id]));
+              setTimeout(() => {
+                setList(current => current.filter(x => x.id !== t.id));
+                setExiting(prev => {
+                  const newSet = new Set(prev);
+                  newSet.delete(t.id);
+                  return newSet;
+                });
+              }, 200);
+            }, 2000);
+          }
+        };
+        
+        window._toast = fn; 
+        return () => window._toast = null; 
+      }, []);
+      
+      return (
+        <div className="fixed bottom-4 right-4 flex flex-col gap-2 z-50">
+          {list.map(t => (
+            <div 
+              key={t.id} 
+              className={`${exiting.has(t.id) ? 'toast-exit' : 'toast-anim'} flex items-center gap-2 px-4 py-2.5 rounded-lg shadow-2xl border text-sm ${
+                t.type === 'er' ? 'bg-red-950/90 border-red-500/50 text-red-200' : 'bg-green-950/90 border-green-500/50 text-green-200'
+              }`}
+            >
+              <i className={`fas ${t.type === 'er' ? 'fa-exclamation-circle' : 'fa-check-circle'} text-xs animate-pulse`}></i>
+              <span>{t.msg}</span>
+            </div>
+          ))}
+        </div>
+      );
+    }
+    
+    const toast = { 
+      s: (m) => window._toast?.({id: ++_tid, msg: m, type: "ok"}), 
+      e: (m) => window._toast?.({id: ++_tid, msg: m, type: "er"}) 
+    };
+
+    // --- COOLDOWN BUTTON COMPONENT ---
+    function CooldownButton({ buttonId, onClick, children, className, disabled, title }) {
+      const [cooldowns, setCooldowns] = useState({});
+      const [remaining, setRemaining] = useState(0);
+
+      useEffect(() => {
+        const update = (newCooldowns) => {
+          setCooldowns(newCooldowns);
+          setRemaining(newCooldowns[buttonId] || 0);
+        };
+        
+        update(cooldownManager.getCooldowns());
+        return cooldownManager.addListener(update);
+      }, [buttonId]);
+
+      const isOnCooldown = cooldowns[buttonId] > 0;
+
+      const handleClick = async (e) => {
+        if (isOnCooldown || disabled) return;
+        
+        cooldownManager.setCooldown(buttonId);
+        if (onClick) await onClick(e);
+      };
+
+      return (
+        <button
+          onClick={handleClick}
+          disabled={isOnCooldown || disabled}
+          className={`${className} relative overflow-hidden`}
+          title={isOnCooldown ? `Wait ${cooldowns[buttonId]}s` : title}
+        >
+          {children}
+          {isOnCooldown && (
+            <>
+              <span className="absolute inset-0 bg-indigo-900/30 flex items-center justify-center text-[10px] font-bold">
+                {cooldowns[buttonId]}s
+              </span>
+              <div 
+                className="cooldown-bar" 
+                style={{ animation: 'cooldown 10s linear forwards' }}
+              />
+            </>
+          )}
+        </button>
+      );
+    }
+
+    // --- SEARCH INPUT ---
+    function SearchInput({ type, placeholder, onSelect }) {
+      const [q, setQ] = useState("");
+      const [res, setRes] = useState([]);
+      const [op, setOp] = useState(false);
+      const [loading, setLoading] = useState(false);
+      
+      useEffect(() => {
+        const t = setTimeout(async () => {
+          if (q.length < 2) {
+            setOp(false);
+            return;
+          }
+          
+          setLoading(true);
+          try {
+            const r = await fetch(`${FORTNITE_API}/v2/cosmetics/br/search/all?name=${encodeURIComponent(q)}&language=en&matchMethod=contains&type=${type}`);
+            const d = await r.json(); 
+            if (d.data) { 
+              setRes(d.data.slice(0, 5)); 
+              setOp(true); 
+            }
+            else { setRes([]); }
+          } catch {}
+          setLoading(false);
+        }, 400); 
+        return () => clearTimeout(t);
+      }, [q, type]);
+      
+      return (
+        <div className="relative w-full">
+          <div className="relative">
+            <input 
+              type="text" 
+              placeholder={placeholder} 
+              value={q} 
+              onChange={e=>setQ(e.target.value)} 
+              onBlur={()=>setTimeout(()=>setOp(false),200)} 
+              className="w-full bg-slate-900/50 border border-indigo-500/30 rounded-lg px-3 py-2 outline-none focus:border-indigo-500 transition-all duration-300 text-sm pr-8"
+            />
+            {loading && (
+              <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                <i className="fas fa-spinner fa-spin text-indigo-400 text-xs"></i>
+              </div>
+            )}
+          </div>
+          
+          {op && res.length > 0 && (
+            <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-slate-800/95 backdrop-blur border border-indigo-500/30 rounded-lg shadow-xl overflow-hidden animate-fadeIn">
+              {res.map((s, idx) => (
+                <div 
+                  key={s.id} 
+                  onMouseDown={()=>{onSelect(s.id); setQ(""); setOp(false);}} 
+                  className="flex items-center gap-2 p-2 hover:bg-indigo-600/30 cursor-pointer border-b border-indigo-500/20 last:border-0 transition-all duration-200"
+                  style={{ animationDelay: `${idx * 50}ms` }}
+                >
+                  {(s.images?.smallIcon || s.images?.icon) && (
+                    <img src={s.images.smallIcon || s.images.icon} className="w-8 h-8 rounded animate-pulse" alt="icon"/>
+                  )}
+                  <div>
+                    <span className="text-xs font-bold text-white">{s.name}</span>
+                    <span className="text-[10px] text-indigo-300 block">{s.id}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // --- COSMETIC IMAGE COMPONENT ---
+    function CosmeticImage({ id, type, className = "w-8 h-8" }) {
+      const [imgUrl, setImgUrl] = useState(null);
+      const [loading, setLoading] = useState(true);
+
+      useEffect(() => {
+        if (!id || id === "None") {
+          setLoading(false);
+          return;
+        }
+        
+        getCosmeticImage(id, type).then(url => {
+          setImgUrl(url);
+          setLoading(false);
+        });
+      }, [id, type]);
+
+      if (loading) {
+        return <div className={`${className} bg-slate-800 rounded-lg flex items-center justify-center animate-pulse`}>
+          <i className="fas fa-spinner fa-spin text-indigo-400 text-xs"></i>
+        </div>;
+      }
+
+      if (imgUrl) {
+        return (
+          <div className="relative group">
+            <img src={imgUrl} className={`${className} rounded-lg cosmetic-image object-cover`} alt={type} />
+            <div className="absolute inset-0 bg-indigo-500/0 group-hover:bg-indigo-500/20 rounded-lg transition-all duration-300"></div>
+          </div>
+        );
+      }
+
+      return <div className={`${className} bg-slate-800 rounded-lg flex items-center justify-center text-indigo-400`}>
+        <i className={`fas ${type === 'skin' ? 'fa-user' : type === 'backpack' ? 'fa-shopping-bag' : type === 'pickaxe' ? 'fa-pickaxe' : 'fa-music'} text-xs`}></i>
+      </div>;
+    }
+
+    // --- MAIN APP ---
+    function App() {
+      const [accounts, setAccts] = useState([]);
+      const [active, setActive] = useState(null);
+      const [party, setParty] = useState(null);
+      const [loading, setLd] = useState(false);
+      const [tab, setTab] = useState("match");
+      const [authCode, setAuthCode] = useState("");
+      const [busy, setBusy] = useState({});
+      const [level, setLv] = useState(100);
+      const [autoEmote, setAutoEmote] = useState("EID_IceKing");
+      const [memberDetails, setMemberDetails] = useState({});
+      const [ghostMode, setGhostMode] = useState(false);
+
+      // Auto refresh token
+      useEffect(() => {
+        if (!active) return;
+        
+        const interval = setInterval(async () => {
+          try {
+            const refreshed = await refreshTokenIfNeeded(active);
+            if (refreshed !== active) {
+              setActive(refreshed);
+              const upd = accounts.map(a => a.accountId === refreshed.accountId ? refreshed : a);
+              setAccts(upd);
+              DB.save("accounts", upd);
+              toast.s("Token refreshed");
+            }
+          } catch (e) {
+            toast.e("Token expired");
+            setActive(null);
+            setParty(null);
+          }
+        }, 60000);
+        
+        return () => clearInterval(interval);
+      }, [active, accounts]);
+
+      useEffect(() => {
+        const saved = DB.load("accounts");
+        if(saved && saved.length) { setAccts(saved); selectAccount(saved[0]); }
+      }, []);
+
+      // Load member details
+      useEffect(() => {
+        if (!party || !party.members) return;
+        
+        const loadDetails = async () => {
+          const details = {};
+          for (const member of party.members) {
+            const cosmetics = getCosmetics(member);
+            details[member.account_id] = cosmetics;
+          }
+          setMemberDetails(details);
+        };
+        
+        loadDetails();
+      }, [party]);
+
+      const removeAccount = (accountId) => {
+        const ups = accounts.filter(x => x.accountId !== accountId);
+        setAccts(ups); DB.save("accounts", ups);
+        if (active && active.accountId === accountId) { setActive(null); setParty(null); }
+        toast.s("Account removed");
+      };
+
+      const getFnToken = async (acct) => {
+        const refreshed = await refreshTokenIfNeeded(acct);
+        if (refreshed !== acct) {
+          setActive(refreshed);
+          const upd = accounts.map(a => a.accountId === refreshed.accountId ? refreshed : a);
+          setAccts(upd);
+          DB.save("accounts", upd);
+          acct = refreshed;
+        }
+
+        const cached = tokenCache.get(acct.accountId);
+        if(cached && cached.exp > Date.now()) return cached.tok;
+
+        const ex = await safeJson(await proxyFetch(`${ACCOUNT_URL}/account/api/oauth/exchange`,{headers:{Authorization:`Bearer ${acct.accessToken}`}}));
+        if(!ex.code) throw new Error("Exchange failed");
+        
+        const fn = await epicPost(`${ACCOUNT_URL}/account/api/oauth/token`, FN_CLIENT, { grant_type:"exchange_code", exchange_code:ex.code });
+        tokenCache.set(acct.accountId, {tok: fn.access_token, exp: Date.now()+(fn.expires_in-60)*1000});
+        return fn.access_token;
+      };
+
+      const loadParty = async (acct) => {
+        setLd(true);
+        try {
+          const t = await getFnToken(acct);
+          const r = await safeJson(await proxyFetch(`${PARTY_URL}/party/api/v1/Fortnite/user/${acct.accountId}`, { headers: { Authorization: `Bearer ${t}` } }));
+          setParty(r.current?.[0] || null);
+          setGhostMode(false); // Reset ghost mode on party load
+        } catch (e) { 
+          setParty(null); toast.e(e.message); 
+        } finally { 
+          setLd(false); 
+        }
+      };
+
+      const selectAccount = async (a) => { 
+        setActive(a); 
+        setParty(null); 
+        toast.s(`Logged in as ${a.displayName}`);
+        await loadParty(a); 
+      };
+      
+      const linkAccount = async () => {
+        if (!authCode.trim()) return;
+        setLd(true);
+        try {
+          const res = await epicPost(`${ACCOUNT_URL}/account/api/oauth/token`, PC_CLIENT, { grant_type: "authorization_code", code: authCode.trim() });
+          
+          const a = { 
+            accountId: res.account_id, 
+            displayName: res.displayName || res.account_id, 
+            accessToken: res.access_token, 
+            refreshToken: res.refresh_token, 
+            tokenExpiresAt: Date.now() + (res.expires_in * 1000) 
+          };
+          const ups = [...accounts.filter(x => x.accountId !== a.accountId), a];
+          setAccts(ups); await DB.save("accounts", ups); setAuthCode("");
+          selectAccount(a); 
+        } catch (e) { 
+          toast.e(e.message); 
+        } finally { 
+          setLd(false); 
+        }
+      };
+
+      const doAction = async (actionType, payload, successMsg) => {
+        setBusy(p=>({...p,[actionType]:true}));
+        
+        try {
+          if (!party || !party.id) throw new Error("No Party found!");
+          
+          const refreshed = await refreshTokenIfNeeded(active);
+          if (refreshed !== active) {
+            setActive(refreshed);
+            const upd = accounts.map(a => a.accountId === refreshed.accountId ? refreshed : a);
+            setAccts(upd);
+            DB.save("accounts", upd);
+          }
+          
+          const fnToken = await getFnToken(refreshed);
+          
+          const revData = await safeJson(await proxyFetch(`${PARTY_URL}/party/api/v1/Fortnite/user/${active.accountId}`, { headers: { Authorization: `Bearer ${fnToken}` } }));
+          const pty = revData.current?.[0];
+          if (!pty) throw new Error("Party not found");
+
+          const pId = pty.id;
+          const myRev = pty.members?.find(m => m.account_id === active.accountId)?.revision || 0;
+          const pRev = pty.revision || 0;
+
+          let url = `${PARTY_URL}/party/api/v1/Fortnite/parties/${pId}/members/${active.accountId}/meta`;
+          let method = "PATCH";
+          let body = null;
+
+          if (actionType === "meta" || actionType === "party_meta") {
+            const isParty = actionType === "party_meta";
+            url = isParty ? `${PARTY_URL}/party/api/v1/Fortnite/parties/${pId}/meta` : url;
+            
+            const finalUpdate = {};
+            const sourceObj = isParty ? pty : pty.members.find(m => m.account_id === active.accountId);
+            
+            for (const [k, v] of Object.entries(payload)) {
+                if (typeof v === 'function') {
+                    let old = {};
+                    if (sourceObj?.meta?.[k]) {
+                        try { old = JSON.parse(sourceObj.meta[k]); } catch(e){}
+                    }
+                    finalUpdate[k] = JSON.stringify(v(old));
+                } else {
+                    finalUpdate[k] = v;
+                }
+            }
+            body = { update: finalUpdate, delete: [], revision: isParty ? pRev : myRev };
+          } 
+          else if (actionType === "promote") {
+            url = `${PARTY_URL}/party/api/v1/Fortnite/parties/${pId}/members/${payload.target}/promote`;
+            method = "POST"; body = {}; 
+          } 
+          else if (actionType === "kick") {
+            url = `${PARTY_URL}/party/api/v1/Fortnite/parties/${pId}/members/${payload.target}`;
+            method = "DELETE";
+          }
+
+          const reqOpts = { method, headers: { Authorization: `Bearer ${fnToken}` } };
+          if (body) {
+            reqOpts.headers["Content-Type"] = "application/json";
+            reqOpts.body = JSON.stringify(body);
+          }
+
+          const r = await proxyFetch(url, reqOpts);
+          if (!r.ok) {
+            const errData = await safeJson(r);
+            throw new Error(errData.errorMessage || "Failed");
+          }
+
+          if (successMsg) toast.s(successMsg);
+          setTimeout(() => loadParty(active), 600);
+        } catch (e) {
+          toast.e(e.message);
+        } finally { 
+          setBusy(p=>({...p,[actionType]:false})); 
+        }
+      };
+
+      // --- GHOST MODE FUNCTION (Requires Party Leader) ---
+      const toggleGhostMode = async () => {
+        if (!party || !isCap) {
+          toast.e("Only party leader can use Ghost Mode");
+          return;
+        }
+
+        const newGhostState = !ghostMode;
+        
+        if (newGhostState) {
+          // Hide all other members
+          await doAction("party_meta", {
+            "Default:SquadInformation_j": (old) => {
+              if (!old.SquadInformation) old.SquadInformation = {};
+              // Only YOU in squad assignments
+              old.SquadInformation.rawSquadAssignments = [{ 
+                memberId: active.accountId, 
+                absoluteMemberIdx: 0 
+              }];
+              if (!old.SquadInformation.squadData) {
+                old.SquadInformation.squadData = [{jamTempo:0, jamKey:0, jamMode:0}];
+              }
+              return old;
+            }
+          }, null);
+          
+          setGhostMode(true);
+          toast.s("👻 Ghost Mode ON - Others are invisible!");
+        } else {
+          // Show all members
+          const safeMembers = party.members || [];
+          await doAction("party_meta", {
+            "Default:SquadInformation_j": (old) => {
+              if (!old.SquadInformation) old.SquadInformation = {};
+              // Return everyone to squad assignments
+              old.SquadInformation.rawSquadAssignments = safeMembers.map((m, i) => ({ 
+                memberId: m.account_id, 
+                absoluteMemberIdx: i 
+              }));
+              if (!old.SquadInformation.squadData) {
+                old.SquadInformation.squadData = [{jamTempo:0, jamKey:0, jamMode:0}];
+              }
+              return old;
+            }
+          }, null);
+          
+          setGhostMode(false);
+          toast.s("👁 Ghost Mode OFF - Everyone visible");
+        }
+      };
+
+      // --- COPY LOCKER FUNCTION (with level) ---
+      const copyLocker = async (targetMemberId) => {
+        const targetMember = party?.members?.find(m => m.account_id === targetMemberId);
+        if (!targetMember) {
+          toast.e("Member not found");
+          return;
+        }
+
+        const targetCosmetics = memberDetails[targetMemberId] || getCosmetics(targetMember);
+        const targetName = getDisplayName(targetMember);
+        const targetLevel = getLevel(targetMember);
+
+        try {
+          // Stop current emote
+          await doAction("meta", {
+            "Default:FrontendEmote_j": () => ({
+              FrontendEmote: { pickable: "None", emoteEKey: "", emoteSection: -1, multipurposeEmoteData: -1 }
+            })
+          }, null);
+
+          await new Promise(r => setTimeout(r, 300));
+
+          // Apply all cosmetics
+          await doAction("meta", {
+            "Default:AthenaCosmeticLoadout_j": (old) => {
+              if (!old.AthenaCosmeticLoadout) old.AthenaCosmeticLoadout = {};
+              
+              old.AthenaCosmeticLoadout.characterPrimaryAssetId = targetCosmetics.skin;
+              old.AthenaCosmeticLoadout.backpackDef = targetCosmetics.backpack;
+              old.AthenaCosmeticLoadout.pickaxeDef = targetCosmetics.pickaxe;
+              
+              old.AthenaCosmeticLoadout.randomDefaultCosmeticHash = Math.floor(Math.random() * 2147483647);
+              return old;
+            }
+          }, null);
+
+          await new Promise(r => setTimeout(r, 500));
+
+          // Copy emote if they have one
+          if (targetCosmetics.emote !== "None") {
+            await doAction("meta", {
+              "Default:FrontendEmote_j": () => ({
+                FrontendEmote: { 
+                  pickable: targetCosmetics.emote, 
+                  emoteEKey: "", 
+                  emoteSection: -2, 
+                  multipurposeEmoteData: -1 
+                }
+              })
+            }, null);
+          }
+
+          // Copy their level
+          await doAction("meta", { 
+            "Default:BattlePassInfo_j": JSON.stringify({BattlePassInfo:{bHasPurchasedPass:true, passLevel:targetLevel}}),
+            "Default:AthenaBannerInfo_j": JSON.stringify({AthenaBannerInfo:{bannerIconId:"StandardBanner1", bannerColorId:"DefaultColor1", seasonLevel:targetLevel}})
+          }, null);
+
+          toast.s(`✨ Copied ${targetName}'s locker + level ${targetLevel}!`);
+        } catch (e) {
+          toast.e(e.message);
+        }
+      };
+
+      const handleSetLevel = async () => {
+        await doAction("meta", { 
+          "Default:BattlePassInfo_j": JSON.stringify({BattlePassInfo:{bHasPurchasedPass:true, passLevel:level}}),
+          "Default:AthenaBannerInfo_j": JSON.stringify({AthenaBannerInfo:{bannerIconId:"StandardBanner1", bannerColorId:"DefaultColor1", seasonLevel:level}})
+        }, `⭐ Level ${level}`);
+      };
+
+      const handlePickaxeWithEmote = async () => {
+        const pickaxeVal = document.getElementById("pickaxeInput")?.value.trim();
+        if (!pickaxeVal) {
+          toast.e("Enter pickaxe");
+          return;
+        }
+        
+        try {
+          await doAction("meta", {
+            "Default:FrontendEmote_j": () => ({
+              FrontendEmote: { pickable: "None", emoteEKey: "", emoteSection: -1, multipurposeEmoteData: -1 }
+            })
+          }, null);
+          
+          let formattedVal = pickaxeVal;
+          if (!pickaxeVal.includes("/BRCosmetics/") && !pickaxeVal.includes(":")) {
+            if (pickaxeVal.startsWith("Pickaxe_")) {
+              formattedVal = `/BRCosmetics/Athena/Items/Cosmetics/Pickaxes/${pickaxeVal}.${pickaxeVal}`;
+            } else {
+              formattedVal = `AthenaPickaxe:${pickaxeVal}`;
+            }
+          }
+          
+          await doAction("meta", {
+            "Default:AthenaCosmeticLoadout_j": (old) => {
+              if (!old.AthenaCosmeticLoadout) old.AthenaCosmeticLoadout = {};
+              old.AthenaCosmeticLoadout.pickaxeDef = formattedVal;
+              old.AthenaCosmeticLoadout.randomDefaultCosmeticHash = Math.floor(Math.random() * 2147483647);
+              return old;
+            }
+          }, null);
+          
+          const emoteId = autoEmote;
+          let fullEmoteId = emoteId;
+          if (!emoteId.startsWith("/BRCosmetics/")) {
+            if (emoteId.startsWith("EID_") || emoteId.startsWith("Emoji_") || emoteId.startsWith("Spray_")) {
+              fullEmoteId = `/BRCosmetics/Athena/Items/Cosmetics/Dances/${emoteId}.${emoteId}`;
+            } else {
+              fullEmoteId = `/BRCosmetics/Athena/Items/Cosmetics/Dances/EID_${emoteId}.EID_${emoteId}`;
+            }
+          }
+          
+          await doAction("meta", {
+            "Default:FrontendEmote_j": () => ({
+              FrontendEmote: { pickable: fullEmoteId, emoteEKey: "", emoteSection: -2, multipurposeEmoteData: -1 }
+            })
+          }, "✨ Pickaxe + Emote done!");
+          
+        } catch (e) {
+          toast.e(e.message);
+        }
+      };
+
+      const handleCosmeticUpdate = async (type) => {
+        const val = document.getElementById(type + "Input")?.value.trim();
+        if (!val) return;
+        
+        let formattedVal = val;
+        
+        if (!val.includes("/BRCosmetics/") && !val.includes(":")) {
+          if (type === "skin") {
+            formattedVal = val.startsWith("CID_") ? `AthenaCharacter:${val}` : `AthenaCharacter:CID_${val}`;
+          } else if (type === "backpack") {
+            formattedVal = val.startsWith("BID_") ? `/BRCosmetics/Athena/Items/Cosmetics/Backpacks/${val}.${val}` : `AthenaBackpack:${val}`;
+          } else if (type === "pickaxe") {
+            formattedVal = val.startsWith("Pickaxe_") ? `/BRCosmetics/Athena/Items/Cosmetics/Pickaxes/${val}.${val}` : `AthenaPickaxe:${val}`;
+          }
+        }
+        
+        await doAction("meta", {
+          "Default:AthenaCosmeticLoadout_j": (old) => {
+            if (!old.AthenaCosmeticLoadout) old.AthenaCosmeticLoadout = {};
+            if (type === "skin") old.AthenaCosmeticLoadout.characterPrimaryAssetId = formattedVal;
+            if (type === "backpack") old.AthenaCosmeticLoadout.backpackDef = formattedVal;
+            if (type === "pickaxe") old.AthenaCosmeticLoadout.pickaxeDef = formattedVal;
+            old.AthenaCosmeticLoadout.randomDefaultCosmeticHash = Math.floor(Math.random() * 2147483647);
+            return old;
+          }
+        }, `${type} equipped!`);
+      };
+
+      const handleEmote = async (stop = false) => {
+        const val = document.getElementById("emoteInput")?.value.trim() || "";
+        
+        if (stop) {
+          await doAction("meta", {
+            "Default:FrontendEmote_j": () => ({
+              FrontendEmote: { pickable: "None", emoteEKey: "", emoteSection: -1, multipurposeEmoteData: -1 }
+            })
+          }, "Emote stopped");
+        } else if (val) {
+          let fullId = val;
+          if (!val.startsWith("/BRCosmetics/")) {
+            if (val.startsWith("EID_") || val.startsWith("Emoji_") || val.startsWith("Spray_")) {
+              fullId = `/BRCosmetics/Athena/Items/Cosmetics/Dances/${val}.${val}`;
+            } else {
+              fullId = `/BRCosmetics/Athena/Items/Cosmetics/Dances/EID_${val}.EID_${val}`;
+            }
+          }
+          
+          await doAction("meta", {
+            "Default:FrontendEmote_j": () => ({
+              FrontendEmote: { pickable: fullId, emoteEKey: "", emoteSection: -2, multipurposeEmoteData: -1 }
+            })
+          }, "Playing emote!");
+        }
+      };
+
+      // --- RENDER LOGIN ---
+      if (!active) return (
+        <div className="min-h-screen flex items-center justify-center p-3">
+          <div className="glass max-w-sm w-full p-6 rounded-2xl border border-indigo-500/20 animate-fadeIn">
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-xl mx-auto mb-3 flex items-center justify-center shadow-xl animate-bounce">
+                <i className="fas fa-robot text-2xl text-white"></i>
+              </div>
+              <h1 className="text-2xl font-black gradient-text">YM SelfBot</h1>
+              <span className="bg-indigo-600/30 text-indigo-300 text-[10px] px-2 py-0.5 rounded-full mt-2 inline-block border border-indigo-500/30 animate-pulse">
+                v5.0 • Professional
+              </span>
+            </div>
+
+            {accounts.length > 0 && (
+              <div className="mb-4 space-y-1.5">
+                <p className="text-xs text-indigo-300 mb-2 flex items-center gap-1">
+                  <i className="fas fa-users text-xs"></i> Saved Accounts
+                </p>
+                {accounts.map((a, idx) => (
+                  <div 
+                    key={a.accountId} 
+                    onClick={() => selectAccount(a)} 
+                    className="flex items-center justify-between p-2.5 rounded-lg bg-slate-800/50 hover:bg-indigo-600/30 cursor-pointer border border-indigo-500/20 transition-all duration-300 hover:scale-[1.02]"
+                    style={{ animationDelay: `${idx * 100}ms` }}
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center">
+                        <i className="fas fa-user text-white text-xs"></i>
+                      </div>
+                      <span className="text-sm font-medium">{a.displayName}</span>
+                    </div>
+                    <button onClick={(e) => { e.stopPropagation(); removeAccount(a.accountId); }} className="text-slate-500 hover:text-red-400 p-1.5 hover:bg-red-500/20 rounded transition-all duration-200 hover:scale-110">
+                      <i className="fas fa-trash text-xs"></i>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="space-y-3">
+              <a 
+                href="https://www.epicgames.com/id/api/redirect?clientId=34a02cf8f4414e29b15921876da36f9a&responseType=code" 
+                target="_blank" 
+                className="block w-full text-center p-3 rounded-lg border border-indigo-500/50 bg-indigo-600/20 hover:bg-indigo-600/30 text-sm font-medium text-indigo-300 transition-all duration-300 hover:scale-[1.02] btn-glow"
+              >
+                <i className="fas fa-key mr-1.5 text-xs"></i>
+                Get Epic Auth Code
+              </a>
+              <div className="flex gap-2">
+                <input 
+                  type="text" 
+                  placeholder="Auth code" 
+                  value={authCode} 
+                  onChange={e => setAuthCode(e.target.value)} 
+                  onKeyDown={e=>e.key==="Enter"&&linkAccount()} 
+                  className="flex-1 bg-slate-800/50 border border-indigo-500/30 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-indigo-500 transition-all duration-300 focus:scale-[1.02]" 
+                />
+                <button 
+                  onClick={linkAccount} 
+                  disabled={loading} 
+                  className="bg-indigo-600 hover:bg-indigo-500 px-5 rounded-lg font-medium text-sm transition-all duration-300 disabled:opacity-50 btn-glow relative overflow-hidden"
+                >
+                  {loading ? <i className="fas fa-spinner fa-spin"></i> : "Link"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+
+      const safeParty = party || {};
+      const safeMembers = safeParty.members || [];
+      const isCap = safeMembers.find(m => m.account_id === active.accountId)?.role === "CAPTAIN";
+
+      return (
+        <div className="min-h-screen p-3 max-w-6xl mx-auto pb-10">
+          {/* Credits */}
+          <div className="credits">
+            <i className="fas fa-code text-[8px] mr-1"></i>
+            GreekNinja30 & ThanasisYAMA
+          </div>
+
+          {/* Header */}
+          <div className="glass rounded-xl p-3 mb-4 flex items-center justify-between border border-indigo-500/20 animate-fadeIn">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shadow-lg relative group">
+                <i className="fas fa-robot text-white text-sm group-hover:animate-spin"></i>
+                <div className="absolute -bottom-1 -right-1 w-2.5 h-2.5 bg-green-500 rounded-full border border-slate-900 animate-pulse"></div>
+              </div>
+              <div>
+                <h1 className="text-base font-bold">
+                  <span className="gradient-text">YM SelfBot</span>
+                  <span className="ml-1.5 text-[10px] bg-indigo-600/30 text-indigo-300 px-1.5 py-0.5 rounded-full">PRO</span>
+                </h1>
+                <p className="text-slate-400 text-xs flex items-center gap-1">
+                  <i className="fas fa-circle text-green-500 text-[6px] animate-pulse"></i>
+                  {active.displayName}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={() => loadParty(active)} 
+                disabled={loading} 
+                className="px-3 py-1.5 rounded-lg bg-slate-800/50 hover:bg-slate-700/50 border border-indigo-500/30 text-xs font-medium flex items-center gap-1.5 transition-all duration-300 hover:scale-[1.02]"
+              >
+                <i className={`fas fa-sync-alt text-xs ${loading ? 'fa-spin' : ''}`}></i>
+                {loading ? "..." : "Refresh"}
+              </button>
+              <button 
+                onClick={() => { setActive(null); setParty(null); }} 
+                className="px-3 py-1.5 rounded-lg bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 text-xs font-medium transition-all duration-300 hover:scale-[1.02]"
+              >
+                <i className="fas fa-sign-out-alt text-xs mr-1"></i>
+                Exit
+              </button>
+            </div>
+          </div>
+
+          {!party ? (
+            <div className="glass rounded-xl p-8 text-center border border-dashed border-indigo-500/30 animate-fadeIn">
+              <div className="text-4xl mb-3 opacity-50 animate-bounce">🎮</div>
+              <h2 className="text-lg font-bold mb-1">No Active Party</h2>
+              <p className="text-xs text-slate-400">Open Fortnite Lobby then Refresh</p>
+              <button 
+                onClick={() => loadParty(active)} 
+                className="mt-4 px-5 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-sm font-medium btn-glow transition-all duration-300 hover:scale-[1.02]"
+              >
+                <i className="fas fa-sync-alt mr-1.5 text-xs"></i>
+                Refresh Now
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+              {/* Sidebar */}
+              <div className="glass rounded-xl p-2 border border-indigo-500/20 h-fit animate-fadeIn">
+                <div className="space-y-1">
+                  {[
+                    { id: "match", icon: "fa-gamepad", label: "Match", color: "from-blue-600 to-cyan-600" },
+                    { id: "locker", icon: "fa-tshirt", label: "Locker", color: "from-purple-600 to-pink-600" },
+                    { id: "extra", icon: "fa-star", label: "Level", color: "from-yellow-600 to-orange-600" },
+                    { id: "members", icon: "fa-users", label: `Party (${safeMembers.length})`, color: "from-green-600 to-emerald-600" }
+                  ].map((t, idx) => (
+                    <button 
+                      key={t.id} 
+                      onClick={() => setTab(t.id)} 
+                      className={`w-full p-2.5 rounded-lg transition-all duration-300 text-left flex items-center gap-2 text-sm ${
+                        tab === t.id 
+                          ? `bg-gradient-to-r ${t.color} text-white shadow-md scale-[1.02]` 
+                          : 'hover:bg-slate-800/50 text-slate-400 hover:scale-[1.01]'
+                      }`}
+                      style={{ animationDelay: `${idx * 50}ms` }}
+                    >
+                      <i className={`fas ${t.icon} text-xs ${tab === t.id ? 'text-white' : 'text-indigo-400'}`}></i>
+                      <span className="font-medium">{t.label}</span>
+                      {tab === t.id && <i className="fas fa-chevron-right ml-auto text-xs animate-pulse"></i>}
+                    </button>
+                  ))}
+                </div>
+                
+                {isCap && (
+                  <div className="mt-3 pt-3 border-t border-indigo-500/20 animate-fadeIn">
+                    <p className="text-[10px] text-indigo-300 flex items-center gap-1">
+                      <i className="fas fa-crown text-yellow-500 text-[8px] animate-pulse"></i> Party Leader
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Main Content */}
+              <div className="lg:col-span-3 space-y-4">
+                {tab === "match" && (
+                  <>
+                    <div className="glass rounded-xl p-4 border-l-4 border-indigo-500 animate-fadeIn">
+                      <h3 className="text-sm font-bold mb-3 flex items-center gap-1.5">
+                        <i className="fas fa-check-circle text-indigo-400 text-xs animate-pulse"></i>
+                        Readiness
+                      </h3>
+                      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
+                        <CooldownButton
+                          buttonId="ready"
+                          onClick={() => doAction("meta", {
+                            "Default:GameReadiness_s": "Ready", 
+                            "Default:Location_s": "PreLobby",
+                            "Default:PackedState_j": (old) => { if(old.PackedState) old.PackedState.location = "PreLobby"; return old; },
+                            "Default:MatchmakingInfo_j": (old) => { if(old.MatchmakingInfo) old.MatchmakingInfo.readyStatus = "Ready"; return old; }
+                          }, "Ready!")}
+                          className="p-2.5 bg-green-600/20 hover:bg-green-600/30 border border-green-500/30 rounded-lg text-green-400 text-xs font-medium flex items-center justify-center gap-1 transition-all duration-300 btn-glow w-full"
+                        >
+                          <i className="fas fa-check text-xs"></i> Ready
+                        </CooldownButton>
+
+                        <CooldownButton
+                          buttonId="notready"
+                          onClick={() => doAction("meta", {
+                            "Default:GameReadiness_s": "NotReady", 
+                            "Default:Location_s": "PreLobby",
+                            "Default:PackedState_j": (old) => { if(old.PackedState) old.PackedState.location = "PreLobby"; return old; },
+                            "Default:MatchmakingInfo_j": (old) => { if(old.MatchmakingInfo) old.MatchmakingInfo.readyStatus = "NotReady"; return old; }
+                          }, "Not Ready")}
+                          className="p-2.5 bg-slate-700/50 hover:bg-slate-600/50 border border-slate-600 rounded-lg text-xs font-medium flex items-center justify-center gap-1 transition-all duration-300 btn-glow w-full"
+                        >
+                          <i className="fas fa-times text-xs"></i> Not Ready
+                        </CooldownButton>
+
+                        <CooldownButton
+                          buttonId="sitout"
+                          onClick={() => doAction("meta", {
+                            "Default:GameReadiness_s": "SittingOut", 
+                            "Default:Location_s": "PreLobby",
+                            "Default:PackedState_j": (old) => { if(old.PackedState) old.PackedState.location = "PreLobby"; return old; },
+                            "Default:MatchmakingInfo_j": (old) => { if(old.MatchmakingInfo) old.MatchmakingInfo.readyStatus = "SittingOut"; return old; }
+                          }, "Sit Out")}
+                          className="p-2.5 bg-yellow-600/20 hover:bg-yellow-600/30 border border-yellow-500/30 rounded-lg text-yellow-400 text-xs font-medium flex items-center justify-center gap-1 transition-all duration-300 btn-glow w-full"
+                        >
+                          <i className="fas fa-bed text-xs"></i> Sit Out
+                        </CooldownButton>
+
+                        <CooldownButton
+                          buttonId="standin"
+                          onClick={() => doAction("meta", {
+                            "Default:GameReadiness_s": "NotReady", 
+                            "Default:Location_s": "PreLobby",
+                            "Default:PackedState_j": (old) => { if(old.PackedState) old.PackedState.location = "PreLobby"; return old; },
+                            "Default:MatchmakingInfo_j": (old) => { if(old.MatchmakingInfo) old.MatchmakingInfo.readyStatus = "NotReady"; return old; }
+                          }, "Stand In")}
+                          className="p-2.5 bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/30 rounded-lg text-blue-400 text-xs font-medium flex items-center justify-center gap-1 transition-all duration-300 btn-glow w-full"
+                        >
+                          <i className="fas fa-person-walking text-xs"></i> Stand In
+                        </CooldownButton>
+                      </div>
+                    </div>
+
+                    <div className="glass rounded-xl p-4 border-l-4 border-purple-500 animate-fadeIn">
+                      <h3 className="text-sm font-bold mb-3 flex items-center gap-1.5">
+                        <i className="fas fa-mask text-purple-400 text-xs animate-pulse"></i>
+                        Fake Match
+                      </h3>
+                      <div className="flex gap-2">
+                        <CooldownButton
+                          buttonId="fakematch"
+                          onClick={() => {
+                            const s = genUUID();
+                            doAction("meta", { 
+                              "Default:GameReadiness_s": "Playing", 
+                              "Default:Location_s": "InGame", 
+                              "Default:PackedState_j": (old) => { if(old.PackedState) old.PackedState.location = "InGame"; return old; },
+                              "Default:MatchmakingInfo_j": (old) => {
+                                if(!old.MatchmakingInfo) old.MatchmakingInfo = {};
+                                old.MatchmakingInfo.readyStatus = "NotReady";
+                                old.MatchmakingInfo.bIsEligible = true;
+                                old.MatchmakingInfo.currentIsland = {island:`{"LinkId":"","Session":{"iD":"${s}","joinInfo":{"joinability":"CanNotBeJoinedOrWatched","sessionKey":"${s}"}},"MatchmakingSettingsV2":{"/Fortnite.com/Matchmaking:Region":"EU"}}`, timestamp:Date.now(), bUsingGracefulUpgrade:true, matchmakingId:s};
+                                old.MatchmakingInfo.worldSessionId = s;
+                                old.MatchmakingInfo.travelId = s;
+                                return old;
+                              }
+                            }, "In Match!")
+                          }}
+                          className="flex-1 p-2.5 bg-purple-600 hover:bg-purple-500 rounded-lg text-xs font-medium btn-glow transition-all duration-300 flex items-center justify-center gap-1"
+                        >
+                          <i className="fas fa-play text-xs"></i> Enter
+                        </CooldownButton>
+
+                        <CooldownButton
+                          buttonId="leavematch"
+                          onClick={() => doAction("meta", {
+                            "Default:GameReadiness_s": "NotReady", 
+                            "Default:Location_s": "PreLobby", 
+                            "Default:PackedState_j": (old) => { if(old.PackedState) old.PackedState.location = "PreLobby"; return old; },
+                            "Default:MatchmakingInfo_j": (old) => { if(old.MatchmakingInfo) old.MatchmakingInfo.readyStatus = "NotReady"; return old; }
+                          }, "Left Match")}
+                          className="flex-1 p-2.5 bg-slate-700 hover:bg-slate-600 rounded-lg text-xs font-medium transition-all duration-300 flex items-center justify-center gap-1"
+                        >
+                          <i className="fas fa-door-open text-xs"></i> Leave
+                        </CooldownButton>
+                      </div>
+                    </div>
+
+                    {isCap && (
+                      <div className={`glass rounded-xl p-4 border-l-4 border-indigo-500 animate-fadeIn ${ghostMode ? 'ghost-active' : ''}`}>
+                        <h3 className="text-sm font-bold mb-3 flex items-center gap-1.5">
+                          <i className="fas fa-ghost text-indigo-400 text-xs animate-pulse"></i>
+                          Ghost Mode {ghostMode && <span className="text-[8px] bg-indigo-600/30 px-2 py-0.5 rounded-full">ACTIVE</span>}
+                        </h3>
+                        <p className="text-[10px] text-slate-400 mb-3">
+                          {ghostMode 
+                            ? "👻 Others are invisible! Only you appears in lobby" 
+                            : "Hide all other players - only you will be visible"}
+                        </p>
+                        <div className="flex gap-2">
+                          <CooldownButton
+                            buttonId="ghoston"
+                            onClick={toggleGhostMode}
+                            disabled={!isCap || ghostMode}
+                            className={`flex-1 p-2.5 ${ghostMode ? 'bg-indigo-600' : 'bg-indigo-600/30 hover:bg-indigo-600/50'} border border-indigo-500/30 rounded-lg text-xs font-medium transition-all duration-300 flex items-center justify-center gap-1`}
+                          >
+                            <i className="fas fa-ghost text-xs"></i> {ghostMode ? 'Active' : 'Hide Others'}
+                          </CooldownButton>
+                          
+                          <CooldownButton
+                            buttonId="ghostoff"
+                            onClick={toggleGhostMode}
+                            disabled={!isCap || !ghostMode}
+                            className={`flex-1 p-2.5 ${!ghostMode ? 'bg-slate-700' : 'bg-slate-700/50 hover:bg-slate-600/50'} border border-slate-600 rounded-lg text-xs font-medium transition-all duration-300 flex items-center justify-center gap-1`}
+                          >
+                            <i className="fas fa-eye text-xs"></i> Show All
+                          </CooldownButton>
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
+
+                {tab === "locker" && (
+                  <div className="glass rounded-xl p-4 border-l-4 border-purple-500 animate-fadeIn">
+                    <h3 className="text-sm font-bold mb-4 flex items-center gap-1.5">
+                      <i className="fas fa-tshirt text-purple-400 text-xs animate-pulse"></i>
+                      Locker Spoofer
+                    </h3>
+                    
+                    <div className="bg-indigo-950/30 border border-indigo-500/20 p-2.5 rounded-lg mb-4 animate-pulse">
+                      <p className="text-[10px] text-indigo-300 flex items-center gap-1">
+                        <i className="fas fa-info-circle text-[8px]"></i>
+                        Must be in <span className="text-yellow-400">Stand In</span> or <span className="text-green-400">Not Ready</span>
+                      </p>
+                    </div>
+
+                    <div className="space-y-3">
+                      {/* Auto Emote */}
+                      <div className="bg-slate-800/30 p-3 rounded-lg transition-all duration-300 hover:border-indigo-500/30 border border-transparent">
+                        <label className="block text-[10px] font-medium text-indigo-300 mb-1.5 flex items-center gap-1">
+                          <i className="fas fa-music text-[8px]"></i>
+                          Auto Emote
+                        </label>
+                        <input 
+                          type="text" 
+                          value={autoEmote} 
+                          onChange={e => setAutoEmote(e.target.value)} 
+                          placeholder="EID_IceKing" 
+                          className="w-full bg-slate-900/50 border border-indigo-500/30 rounded-lg px-3 py-2 text-xs outline-none focus:border-indigo-500 transition-all duration-300 focus:scale-[1.02]" 
+                        />
+                      </div>
+
+                      {/* Emote */}
+                      <div className="bg-slate-800/30 p-3 rounded-lg transition-all duration-300 hover:border-indigo-500/30 border border-transparent">
+                        <label className="block text-[10px] font-medium text-indigo-300 mb-1.5">Emote</label>
+                        <div className="flex flex-col gap-2">
+                          <SearchInput type="emote" placeholder="Search emote..." onSelect={(id) => document.getElementById('emoteInput').value = id} />
+                          <div className="flex gap-1.5">
+                            <input type="text" placeholder="EID_IceKing" id="emoteInput" className="flex-1 bg-slate-900/50 border border-indigo-500/30 rounded-lg px-3 py-2 text-xs outline-none focus:border-indigo-500 transition-all duration-300 focus:scale-[1.02]" />
+                            <CooldownButton
+                              buttonId="playemote"
+                              onClick={() => handleEmote(false)}
+                              className="bg-purple-600 hover:bg-purple-500 px-3 rounded-lg text-xs font-medium btn-glow transition-all duration-300"
+                            >
+                              <i className="fas fa-play text-xs"></i>
+                            </CooldownButton>
+                            <CooldownButton
+                              buttonId="stopemote"
+                              onClick={() => handleEmote(true)}
+                              className="bg-slate-700 hover:bg-red-600/30 px-3 rounded-lg text-xs font-medium text-red-400 transition-all duration-300"
+                            >
+                              <i className="fas fa-stop text-xs"></i>
+                            </CooldownButton>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Skin */}
+                      <div className="bg-slate-800/30 p-3 rounded-lg transition-all duration-300 hover:border-indigo-500/30 border border-transparent">
+                        <label className="block text-[10px] font-medium text-indigo-300 mb-1.5">Skin</label>
+                        <div className="flex flex-col gap-2">
+                          <SearchInput type="outfit" placeholder="Search skin..." onSelect={(id) => document.getElementById('skinInput').value = id} />
+                          <div className="flex gap-1.5">
+                            <input type="text" placeholder="CID_028_Athena_Commando_F" id="skinInput" className="flex-1 bg-slate-900/50 border border-indigo-500/30 rounded-lg px-3 py-2 text-xs outline-none focus:border-indigo-500 transition-all duration-300 focus:scale-[1.02]" />
+                            <CooldownButton
+                              buttonId="setskin"
+                              onClick={() => handleCosmeticUpdate('skin')}
+                              className="bg-indigo-600 hover:bg-indigo-500 px-3 rounded-lg text-xs font-medium btn-glow transition-all duration-300"
+                            >
+                              Set
+                            </CooldownButton>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Backpack & Pickaxe */}
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="bg-slate-800/30 p-3 rounded-lg transition-all duration-300 hover:border-indigo-500/30 border border-transparent">
+                          <label className="flex items-center gap-1 text-[10px] font-medium text-indigo-300 mb-1.5">
+                            <i className="fas fa-shopping-bag text-[8px]"></i> Backbling
+                          </label>
+                          <SearchInput type="backpack" placeholder="BID_138..." onSelect={(id) => document.getElementById('backpackInput').value = id} />
+                          <div className="flex gap-1.5 mt-2">
+                            <input type="text" placeholder="BID_138_Cuatro" id="backpackInput" className="flex-1 bg-slate-900/50 border border-indigo-500/30 rounded-lg px-3 py-2 text-xs outline-none focus:border-indigo-500 transition-all duration-300 focus:scale-[1.02]" />
+                            <CooldownButton
+                              buttonId="setbackpack"
+                              onClick={() => handleCosmeticUpdate('backpack')}
+                              className="bg-slate-700 hover:bg-slate-600 px-3 rounded-lg text-xs font-medium transition-all duration-300"
+                            >
+                              Set
+                            </CooldownButton>
+                          </div>
+                        </div>
+
+                        <div className="bg-slate-800/30 p-3 rounded-lg transition-all duration-300 hover:border-indigo-500/30 border border-transparent">
+                          <label className="flex items-center gap-1 text-[10px] font-medium text-indigo-300 mb-1.5">
+                            <i className="fas fa-pickaxe text-[8px]"></i> Pickaxe
+                          </label>
+                          <SearchInput type="pickaxe" placeholder="Pickaxe_ID..." onSelect={(id) => document.getElementById('pickaxeInput').value = id} />
+                          <div className="flex gap-1.5 mt-2">
+                            <input type="text" placeholder="Pickaxe_ID_015" id="pickaxeInput" className="flex-1 bg-slate-900/50 border border-indigo-500/30 rounded-lg px-3 py-2 text-xs outline-none focus:border-indigo-500 transition-all duration-300 focus:scale-[1.02]" />
+                            <CooldownButton
+                              buttonId="pickaxeemote"
+                              onClick={handlePickaxeWithEmote}
+                              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 px-3 rounded-lg text-xs font-medium btn-glow transition-all duration-300"
+                            >
+                              <><i className="fas fa-magic text-xs mr-1"></i>+Emote</>
+                            </CooldownButton>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {tab === "extra" && (
+                  <div className="glass rounded-xl p-4 border-l-4 border-yellow-500 animate-fadeIn">
+                    <h3 className="text-sm font-bold mb-4 flex items-center gap-1.5">
+                      <i className="fas fa-star text-yellow-400 text-xs animate-pulse"></i>
+                      Season Level
+                    </h3>
+                    <div className="flex gap-2 max-w-xs">
+                      <input 
+                        type="number" 
+                        min="1" 
+                        max="1000" 
+                        value={level} 
+                        onChange={e=>setLv(Number(e.target.value))} 
+                        className="flex-1 bg-slate-900/50 border border-indigo-500/30 rounded-lg px-3 py-2 text-sm outline-none focus:border-indigo-500 text-center transition-all duration-300 focus:scale-[1.02]" 
+                      />
+                      <CooldownButton
+                        buttonId="setlevel"
+                        onClick={handleSetLevel}
+                        className="bg-indigo-600 hover:bg-indigo-500 px-5 rounded-lg text-sm font-medium btn-glow transition-all duration-300"
+                      >
+                        Set
+                      </CooldownButton>
+                    </div>
+                  </div>
+                )}
+
+                {tab === "members" && (
+                  <div className="glass rounded-xl p-4 border-l-4 border-green-500 animate-fadeIn">
+                    <h3 className="text-sm font-bold mb-3 flex items-center gap-1.5">
+                      <i className="fas fa-users text-green-400 text-xs animate-pulse"></i>
+                      Party Members ({safeMembers.length})
+                    </h3>
+                    
+                    <div className="space-y-3 max-h-[600px] overflow-y-auto custom-scrollbar pr-1">
+                      {safeMembers.length === 0 && (
+                        <div className="text-center text-slate-500 py-8">
+                          <i className="fas fa-users-slash text-2xl mb-2 opacity-30"></i>
+                          <p className="text-xs">No members</p>
+                        </div>
+                      )}
+                      
+                      {safeMembers.map((m, idx) => {
+                        const nm = getDisplayName(m);
+                        const cr = getCrowns(m);
+                        const pl = getPlatform(m);
+                        const lv = getLevel(m);
+                        const cosmetics = memberDetails[m.account_id] || getCosmetics(m);
+                        
+                        const rd = m.meta?.["Default:GameReadiness_s"] || "";
+                        const ls = m.meta?.["Default:Location_s"] || "";
+                        
+                        const inM = rd === "Playing" || ls === "InGame";
+                        const sit = rd === "SittingOut";
+                        const rdy = rd === "Ready";
+                        
+                        const isMe = m.account_id === active.accountId;
+                        
+                        return (
+                          <div 
+                            key={m.account_id} 
+                            className={`p-3 rounded-lg border transition-all duration-300 hover:scale-[1.01] ${
+                              isMe 
+                                ? 'bg-indigo-600/20 border-indigo-500' 
+                                : 'bg-slate-800/30 border-indigo-500/10 hover:border-indigo-500/30'
+                            }`}
+                            style={{ animationDelay: `${idx * 50}ms` }}
+                          >
+                            {/* Main info */}
+                            <div className="flex items-center justify-between mb-2">
+                              <div className="flex items-center gap-2">
+                                <div className="relative">
+                                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-base ${isMe ? 'bg-indigo-600' : 'bg-slate-700'}`}>
+                                    {PLAT_EMOJI[pl] || "💻"}
+                                  </div>
+                                  {m.role === "CAPTAIN" && (
+                                    <div className="absolute -top-1.5 -right-1.5 bg-yellow-500 rounded-full p-0.5 animate-pulse">
+                                      <i className="fas fa-crown text-[6px] text-yellow-900"></i>
+                                    </div>
+                                  )}
+                                </div>
+                                <div>
+                                  <div className="flex items-center gap-1.5">
+                                    <span className="text-sm font-medium">{nm}</span>
+                                    {cr > 0 && (
+                                      <span className="text-[8px] bg-yellow-600/30 text-yellow-500 px-1 py-0.5 rounded-full border border-yellow-500/30 flex items-center gap-0.5">
+                                        <i className="fas fa-crown text-[6px]"></i> {cr}
+                                      </span>
+                                    )}
+                                  </div>
+                                  <p className="text-[10px] text-slate-400">
+                                    {PLATFORMS[pl] || pl} • Lvl {lv}
+                                    {isMe && <span className="ml-1 text-indigo-400">(You)</span>}
+                                  </p>
+                                </div>
+                              </div>
+
+                              <div className="flex items-center gap-2">
+                                <span className={`px-2 py-0.5 rounded-full text-[8px] font-medium border ${
+                                  inM ? 'bg-blue-600/30 text-blue-400 border-blue-500/30' :
+                                  sit ? 'bg-yellow-600/30 text-yellow-400 border-yellow-500/30' :
+                                  rdy ? 'bg-green-600/30 text-green-400 border-green-500/30' :
+                                  'bg-slate-600/30 text-slate-400 border-slate-500/30'
+                                }`}>
+                                  {inM ? 'IN MATCH' : sit ? 'SIT OUT' : rdy ? 'READY' : 'NOT READY'}
+                                </span>
+                                
+                                {/* Copy Locker Button */}
+                                {!isMe && (
+                                  <CooldownButton
+                                    buttonId={`copy_${m.account_id}`}
+                                    onClick={() => copyLocker(m.account_id)}
+                                    className="p-1.5 hover:bg-indigo-600/30 text-slate-400 hover:text-indigo-400 rounded transition-all duration-300 copy-btn"
+                                    title="Copy full locker + level"
+                                  >
+                                    <i className="fas fa-copy text-xs"></i>
+                                  </CooldownButton>
+                                )}
+                                
+                                {isCap && !isMe && (
+                                  <>
+                                    <CooldownButton
+                                      buttonId={`promote_${m.account_id}`}
+                                      onClick={() => doAction("promote", {target: m.account_id}, `${nm} is now leader!`)}
+                                      className="p-1.5 hover:bg-yellow-600/30 text-slate-400 hover:text-yellow-400 rounded transition-all duration-300"
+                                      title="Make Leader"
+                                    >
+                                      <i className="fas fa-crown text-xs"></i>
+                                    </CooldownButton>
+                                    <CooldownButton
+                                      buttonId={`kick_${m.account_id}`}
+                                      onClick={() => doAction("kick", {target: m.account_id}, `${nm} kicked!`)}
+                                      className="p-1.5 hover:bg-red-600/30 text-slate-400 hover:text-red-400 rounded transition-all duration-300"
+                                      title="Kick"
+                                    >
+                                      <i className="fas fa-times text-xs"></i>
+                                    </CooldownButton>
+                                  </>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Cosmetic details with images */}
+                            <div className="mt-2 pt-2 border-t border-indigo-500/20">
+                              <div className="grid grid-cols-4 gap-2">
+                                <div className="flex flex-col items-center group">
+                                  <CosmeticImage id={cosmetics.skin} type="skin" className="w-10 h-10" />
+                                  <span className="text-[8px] text-indigo-300 mt-1 truncate w-full text-center opacity-70 group-hover:opacity-100 transition-opacity">
+                                    {cosmetics.skinId || 'None'}
+                                  </span>
+                                </div>
+                                
+                                <div className="flex flex-col items-center group">
+                                  <CosmeticImage id={cosmetics.backpack} type="backpack" className="w-10 h-10" />
+                                  <span className="text-[8px] text-indigo-300 mt-1 truncate w-full text-center opacity-70 group-hover:opacity-100">
+                                    {cosmetics.backpack?.split(':')[1]?.split('/').pop()?.split('.')[0] || 'None'}
+                                  </span>
+                                </div>
+                                
+                                <div className="flex flex-col items-center group">
+                                  <CosmeticImage id={cosmetics.pickaxe} type="pickaxe" className="w-10 h-10" />
+                                  <span className="text-[8px] text-indigo-300 mt-1 truncate w-full text-center opacity-70 group-hover:opacity-100">
+                                    {cosmetics.pickaxe?.split(':')[1]?.split('/').pop()?.split('.')[0] || 'None'}
+                                  </span>
+                                </div>
+                                
+                                <div className="flex flex-col items-center group">
+                                  <CosmeticImage id={cosmetics.emote} type="emote" className="w-10 h-10" />
+                                  <span className="text-[8px] text-indigo-300 mt-1 truncate w-full text-center opacity-70 group-hover:opacity-100">
+                                    {cosmetics.emoteId || 'None'}
+                                  </span>
+                                </div>
+                              </div>
+                              
+                              <div className="mt-1 text-[6px] text-slate-500 text-center opacity-30 hover:opacity-100 transition-opacity">
+                                {cosmetics.skin !== 'None' && <span className="mr-1">👕 {cosmetics.skin.split(':')[1]?.split('/').pop()}</span>}
+                                {cosmetics.emote !== 'None' && <span>💃 {cosmetics.emote.split('/').pop()?.split('.')[0]}</span>}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+          <Toasts />
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
