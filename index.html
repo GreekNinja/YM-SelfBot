@@ -223,11 +223,15 @@
       animation: fadeIn 0.3s ease forwards;
     }
     
-    /* Ghost mode indicator */
-    .ghost-active {
-      background: rgba(139, 92, 246, 0.2);
-      border: 1px solid #8b5cf6;
-      box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+    /* Rate limit warning */
+    .rate-limit-warning {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #f87171;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 11px;
+      margin-bottom: 12px;
     }
   </style>
 </head>
@@ -245,10 +249,12 @@
     const { useState, useEffect, useCallback, useRef } = React;
 
     // --- CONFIG & CONSTANTS ---
-    const CORS_PROXY = "https://corsproxy.io/?"; 
+    // Using corsproxy.io - free and reliable
+    const CORS_PROXY = "https://corsproxy.io/?";
     const ACCOUNT_URL = "https://account-public-service-prod.ol.epicgames.com";
     const PARTY_URL = "https://party-service-prod.ol.epicgames.com";
     const FORTNITE_API = "https://fortnite-api.com";
+    const CONTENT_URL = "https://content-service.bfda.live.use1a.on.epicgames.com";
     
     const PC_CLIENT = btoa("34a02cf8f4414e29b15921876da36f9a:daafbccc737745039dffe53d94fc76cf");
     const FN_CLIENT = btoa("ec684b8c687f479fadea3cb2ad83f5c6:e1f31c211f28413186262d37a13fc84d");
@@ -274,10 +280,9 @@
       }
 
       setCooldown(buttonId) {
-        this.cooldowns.set(buttonId, Date.now() + 10000); // 10 seconds
+        this.cooldowns.set(buttonId, Date.now() + 10000);
         this.notifyListeners();
 
-        // Auto remove after 10 seconds
         setTimeout(() => {
           if (this.cooldowns.get(buttonId) <= Date.now()) {
             this.cooldowns.delete(buttonId);
@@ -320,7 +325,6 @@
       }
     }
 
-    // Create global cooldown manager
     const cooldownManager = new CooldownManager();
 
     // --- UTILITIES ---
@@ -335,9 +339,29 @@
     
     const safeJson = async (res) => { try { return await res.json(); } catch { return {}; } };
 
+    // Fixed proxy fetch with corsproxy.io
     const proxyFetch = async (url, options = {}) => {
-      const finalUrl = CORS_PROXY ? CORS_PROXY + encodeURIComponent(url) : url;
-      return fetch(finalUrl, options);
+      const finalUrl = CORS_PROXY + encodeURIComponent(url);
+      
+      try {
+        const res = await fetch(finalUrl, options);
+        
+        // Handle rate limit message
+        if (res.status === 429) {
+          const text = await res.text();
+          if (text.includes('rate limit')) {
+            throw new Error("Rate limit reached. Please wait a few seconds and try again.");
+          }
+        }
+        
+        return res;
+      } catch (e) {
+        if (e.message.includes('rate limit')) {
+          throw e;
+        }
+        console.error("Proxy fetch error:", e);
+        throw new Error("Network error. Please check your connection.");
+      }
     };
 
     const epicPost = async (url, clientAuth, dataObj) => {
@@ -677,7 +701,11 @@
       const [level, setLv] = useState(100);
       const [autoEmote, setAutoEmote] = useState("EID_IceKing");
       const [memberDetails, setMemberDetails] = useState({});
-      const [ghostMode, setGhostMode] = useState(false);
+      
+      // Island Launcher State
+      const [islandCode, setIslandCode] = useState("");
+      const [launchLoading, setLaunchLoading] = useState(false);
+      const [launchError, setLaunchError] = useState(null);
 
       // Auto refresh token
       useEffect(() => {
@@ -744,12 +772,17 @@
         const cached = tokenCache.get(acct.accountId);
         if(cached && cached.exp > Date.now()) return cached.tok;
 
-        const ex = await safeJson(await proxyFetch(`${ACCOUNT_URL}/account/api/oauth/exchange`,{headers:{Authorization:`Bearer ${acct.accessToken}`}}));
-        if(!ex.code) throw new Error("Exchange failed");
-        
-        const fn = await epicPost(`${ACCOUNT_URL}/account/api/oauth/token`, FN_CLIENT, { grant_type:"exchange_code", exchange_code:ex.code });
-        tokenCache.set(acct.accountId, {tok: fn.access_token, exp: Date.now()+(fn.expires_in-60)*1000});
-        return fn.access_token;
+        try {
+          const ex = await safeJson(await proxyFetch(`${ACCOUNT_URL}/account/api/oauth/exchange`,{headers:{Authorization:`Bearer ${acct.accessToken}`}}));
+          if(!ex.code) throw new Error("Exchange failed");
+          
+          const fn = await epicPost(`${ACCOUNT_URL}/account/api/oauth/token`, FN_CLIENT, { grant_type:"exchange_code", exchange_code:ex.code });
+          tokenCache.set(acct.accountId, {tok: fn.access_token, exp: Date.now()+(fn.expires_in-60)*1000});
+          return fn.access_token;
+        } catch(e) {
+          removeAccount(acct.accountId);
+          throw new Error("Token expired");
+        }
       };
 
       const loadParty = async (acct) => {
@@ -758,7 +791,6 @@
           const t = await getFnToken(acct);
           const r = await safeJson(await proxyFetch(`${PARTY_URL}/party/api/v1/Fortnite/user/${acct.accountId}`, { headers: { Authorization: `Bearer ${t}` } }));
           setParty(r.current?.[0] || null);
-          setGhostMode(false); // Reset ghost mode on party load
         } catch (e) { 
           setParty(null); toast.e(e.message); 
         } finally { 
@@ -826,7 +858,9 @@
 
           if (actionType === "meta" || actionType === "party_meta") {
             const isParty = actionType === "party_meta";
-            url = isParty ? `${PARTY_URL}/party/api/v1/Fortnite/parties/${pId}/meta` : url;
+            if (isParty) {
+              url = `${PARTY_URL}/party/api/v1/Fortnite/parties/${pId}/meta`;
+            }
             
             const finalUpdate = {};
             const sourceObj = isParty ? pty : pty.members.find(m => m.account_id === active.accountId);
@@ -860,6 +894,15 @@
           }
 
           const r = await proxyFetch(url, reqOpts);
+          
+          // Handle 404 errors gracefully
+          if (r.status === 404) {
+            console.log("Resource not found, but continuing...");
+            if (successMsg) toast.s(successMsg);
+            setTimeout(() => loadParty(active), 600);
+            return;
+          }
+          
           if (!r.ok) {
             const errData = await safeJson(r);
             throw new Error(errData.errorMessage || "Failed");
@@ -874,58 +917,7 @@
         }
       };
 
-      // --- GHOST MODE FUNCTION (Requires Party Leader) ---
-      const toggleGhostMode = async () => {
-        if (!party || !isCap) {
-          toast.e("Only party leader can use Ghost Mode");
-          return;
-        }
-
-        const newGhostState = !ghostMode;
-        
-        if (newGhostState) {
-          // Hide all other members
-          await doAction("party_meta", {
-            "Default:SquadInformation_j": (old) => {
-              if (!old.SquadInformation) old.SquadInformation = {};
-              // Only YOU in squad assignments
-              old.SquadInformation.rawSquadAssignments = [{ 
-                memberId: active.accountId, 
-                absoluteMemberIdx: 0 
-              }];
-              if (!old.SquadInformation.squadData) {
-                old.SquadInformation.squadData = [{jamTempo:0, jamKey:0, jamMode:0}];
-              }
-              return old;
-            }
-          }, null);
-          
-          setGhostMode(true);
-          toast.s("👻 Ghost Mode ON - Others are invisible!");
-        } else {
-          // Show all members
-          const safeMembers = party.members || [];
-          await doAction("party_meta", {
-            "Default:SquadInformation_j": (old) => {
-              if (!old.SquadInformation) old.SquadInformation = {};
-              // Return everyone to squad assignments
-              old.SquadInformation.rawSquadAssignments = safeMembers.map((m, i) => ({ 
-                memberId: m.account_id, 
-                absoluteMemberIdx: i 
-              }));
-              if (!old.SquadInformation.squadData) {
-                old.SquadInformation.squadData = [{jamTempo:0, jamKey:0, jamMode:0}];
-              }
-              return old;
-            }
-          }, null);
-          
-          setGhostMode(false);
-          toast.s("👁 Ghost Mode OFF - Everyone visible");
-        }
-      };
-
-      // --- COPY LOCKER FUNCTION (with level) ---
+      // --- COPY LOCKER ---
       const copyLocker = async (targetMemberId) => {
         const targetMember = party?.members?.find(m => m.account_id === targetMemberId);
         if (!targetMember) {
@@ -938,7 +930,6 @@
         const targetLevel = getLevel(targetMember);
 
         try {
-          // Stop current emote
           await doAction("meta", {
             "Default:FrontendEmote_j": () => ({
               FrontendEmote: { pickable: "None", emoteEKey: "", emoteSection: -1, multipurposeEmoteData: -1 }
@@ -947,7 +938,6 @@
 
           await new Promise(r => setTimeout(r, 300));
 
-          // Apply all cosmetics
           await doAction("meta", {
             "Default:AthenaCosmeticLoadout_j": (old) => {
               if (!old.AthenaCosmeticLoadout) old.AthenaCosmeticLoadout = {};
@@ -963,7 +953,6 @@
 
           await new Promise(r => setTimeout(r, 500));
 
-          // Copy emote if they have one
           if (targetCosmetics.emote !== "None") {
             await doAction("meta", {
               "Default:FrontendEmote_j": () => ({
@@ -977,7 +966,6 @@
             }, null);
           }
 
-          // Copy their level
           await doAction("meta", { 
             "Default:BattlePassInfo_j": JSON.stringify({BattlePassInfo:{bHasPurchasedPass:true, passLevel:targetLevel}}),
             "Default:AthenaBannerInfo_j": JSON.stringify({AthenaBannerInfo:{bannerIconId:"StandardBanner1", bannerColorId:"DefaultColor1", seasonLevel:targetLevel}})
@@ -1104,6 +1092,66 @@
         }
       };
 
+      // --- ISLAND LAUNCHER ---
+      const launchIsland = async () => {
+        if (!islandCode.trim() || !active) return;
+        
+        const safeMembers = party?.members || [];
+        const isLeader = safeMembers.find(m => m.account_id === active.accountId)?.role === "CAPTAIN";
+        
+        if (!isLeader) {
+          toast.e("Only party leader can launch islands");
+          return;
+        }
+        
+        setLaunchLoading(true);
+        setLaunchError(null);
+        
+        try {
+          const fnToken = await getFnToken(active);
+          
+          // Clean the island code (remove special characters, keep numbers and dashes)
+          const cleanCode = islandCode.trim().replace(/[^0-9-]/g, '');
+          if (cleanCode.length < 4) {
+            throw new Error("Invalid island code format");
+          }
+          
+          const launchRes = await proxyFetch(`${CONTENT_URL}/api/content/v2/launch/link/${cleanCode}`, {
+            method: "POST",
+            headers: { 
+              Authorization: `Bearer ${fnToken}`,
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({})
+          });
+          
+          if (launchRes.status === 429) {
+            setLaunchError("Rate limited - try again later");
+            toast.e("Rate limited - try again later");
+            return;
+          }
+          
+          const response = await safeJson(launchRes);
+          
+          if (response.errorCode === "errors.com.epicgames.content-service.validation_error") {
+            throw new Error("Invalid island code");
+          }
+          
+          if (launchRes.ok || response.status === "notified") {
+            toast.s(`Launching island: ${cleanCode}`);
+            setIslandCode("");
+          } else {
+            throw new Error(response.errorMessage || "Failed to launch");
+          }
+        } catch (e) {
+          console.error("Launch error:", e);
+          setLaunchError(e.message);
+          toast.e(e.message);
+        } finally {
+          setLaunchLoading(false);
+        }
+      };
+
       // --- RENDER LOGIN ---
       if (!active) return (
         <div className="min-h-screen flex items-center justify-center p-3">
@@ -1114,7 +1162,7 @@
               </div>
               <h1 className="text-2xl font-black gradient-text">YM SelfBot</h1>
               <span className="bg-indigo-600/30 text-indigo-300 text-[10px] px-2 py-0.5 rounded-full mt-2 inline-block border border-indigo-500/30 animate-pulse">
-                v5.0 • Professional
+                v5.0 • Island Launcher
               </span>
             </div>
 
@@ -1197,7 +1245,7 @@
               <div>
                 <h1 className="text-base font-bold">
                   <span className="gradient-text">YM SelfBot</span>
-                  <span className="ml-1.5 text-[10px] bg-indigo-600/30 text-indigo-300 px-1.5 py-0.5 rounded-full">PRO</span>
+                  <span className="ml-1.5 text-[10px] bg-indigo-600/30 text-indigo-300 px-1.5 py-0.5 rounded-full">ISLAND</span>
                 </h1>
                 <p className="text-slate-400 text-xs flex items-center gap-1">
                   <i className="fas fa-circle text-green-500 text-[6px] animate-pulse"></i>
@@ -1238,15 +1286,16 @@
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-              {/* Sidebar */}
-              <div className="glass rounded-xl p-2 border border-indigo-500/20 h-fit animate-fadeIn">
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+              {/* Sidebar - 5 tabs now (including Islands) */}
+              <div className="glass rounded-xl p-2 border border-indigo-500/20 h-fit animate-fadeIn lg:col-span-1">
                 <div className="space-y-1">
                   {[
                     { id: "match", icon: "fa-gamepad", label: "Match", color: "from-blue-600 to-cyan-600" },
                     { id: "locker", icon: "fa-tshirt", label: "Locker", color: "from-purple-600 to-pink-600" },
                     { id: "extra", icon: "fa-star", label: "Level", color: "from-yellow-600 to-orange-600" },
-                    { id: "members", icon: "fa-users", label: `Party (${safeMembers.length})`, color: "from-green-600 to-emerald-600" }
+                    { id: "members", icon: "fa-users", label: `Party (${safeMembers.length})`, color: "from-green-600 to-emerald-600" },
+                    { id: "islands", icon: "fa-map", label: "Islands", color: "from-teal-600 to-cyan-600" }
                   ].map((t, idx) => (
                     <button 
                       key={t.id} 
@@ -1275,7 +1324,7 @@
               </div>
 
               {/* Main Content */}
-              <div className="lg:col-span-3 space-y-4">
+              <div className="lg:col-span-4 space-y-4">
                 {tab === "match" && (
                   <>
                     <div className="glass rounded-xl p-4 border-l-4 border-indigo-500 animate-fadeIn">
@@ -1382,39 +1431,6 @@
                         </CooldownButton>
                       </div>
                     </div>
-
-                    {isCap && (
-                      <div className={`glass rounded-xl p-4 border-l-4 border-indigo-500 animate-fadeIn ${ghostMode ? 'ghost-active' : ''}`}>
-                        <h3 className="text-sm font-bold mb-3 flex items-center gap-1.5">
-                          <i className="fas fa-ghost text-indigo-400 text-xs animate-pulse"></i>
-                          Ghost Mode {ghostMode && <span className="text-[8px] bg-indigo-600/30 px-2 py-0.5 rounded-full">ACTIVE</span>}
-                        </h3>
-                        <p className="text-[10px] text-slate-400 mb-3">
-                          {ghostMode 
-                            ? "👻 Others are invisible! Only you appears in lobby" 
-                            : "Hide all other players - only you will be visible"}
-                        </p>
-                        <div className="flex gap-2">
-                          <CooldownButton
-                            buttonId="ghoston"
-                            onClick={toggleGhostMode}
-                            disabled={!isCap || ghostMode}
-                            className={`flex-1 p-2.5 ${ghostMode ? 'bg-indigo-600' : 'bg-indigo-600/30 hover:bg-indigo-600/50'} border border-indigo-500/30 rounded-lg text-xs font-medium transition-all duration-300 flex items-center justify-center gap-1`}
-                          >
-                            <i className="fas fa-ghost text-xs"></i> {ghostMode ? 'Active' : 'Hide Others'}
-                          </CooldownButton>
-                          
-                          <CooldownButton
-                            buttonId="ghostoff"
-                            onClick={toggleGhostMode}
-                            disabled={!isCap || !ghostMode}
-                            className={`flex-1 p-2.5 ${!ghostMode ? 'bg-slate-700' : 'bg-slate-700/50 hover:bg-slate-600/50'} border border-slate-600 rounded-lg text-xs font-medium transition-all duration-300 flex items-center justify-center gap-1`}
-                          >
-                            <i className="fas fa-eye text-xs"></i> Show All
-                          </CooldownButton>
-                        </div>
-                      </div>
-                    )}
                   </>
                 )}
 
@@ -1712,6 +1728,52 @@
                           </div>
                         );
                       })}
+                    </div>
+                  </div>
+                )}
+
+                {tab === "islands" && (
+                  <div className="glass rounded-xl p-4 border-l-4 border-teal-500 animate-fadeIn">
+                    <h3 className="text-sm font-bold mb-4 flex items-center gap-1.5">
+                      <i className="fas fa-map text-teal-400 text-xs animate-pulse"></i>
+                      Island Launcher
+                    </h3>
+                    
+                    <div className="bg-indigo-950/30 border border-indigo-500/20 p-3 rounded-lg mb-4">
+                      <p className="text-[10px] text-indigo-300">
+                        <i className="fas fa-info-circle text-[8px] mr-1"></i>
+                        {isCap 
+                          ? "Enter any Fortnite island code to launch it (format: 1234-5678-9012)" 
+                          : "⚠️ Only party leader can launch islands"}
+                      </p>
+                    </div>
+
+                    {launchError && (
+                      <div className="rate-limit-warning mb-3">
+                        <i className="fas fa-exclamation-triangle mr-1"></i>
+                        {launchError}
+                      </div>
+                    )}
+
+                    <div className="space-y-4">
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={islandCode}
+                          onChange={(e) => setIslandCode(e.target.value)}
+                          placeholder="e.g., 1234-5678-9012"
+                          className="flex-1 bg-slate-900/50 border border-indigo-500/30 rounded-lg px-4 py-3 text-sm outline-none focus:border-indigo-500 font-mono"
+                          disabled={!isCap}
+                        />
+                        <CooldownButton
+                          buttonId="launchisland"
+                          onClick={launchIsland}
+                          disabled={!islandCode.trim() || launchLoading || !isCap}
+                          className={`px-6 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-500 hover:to-cyan-500 rounded-lg text-sm font-medium btn-glow ${!isCap ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        >
+                          {launchLoading ? <i className="fas fa-spinner fa-spin"></i> : 'Launch'}
+                        </CooldownButton>
+                      </div>
                     </div>
                   </div>
                 )}
