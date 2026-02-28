@@ -19,177 +19,357 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
   
   <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  
+  <!-- Framer Motion (CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/framer-motion@10.16.4/dist/framer-motion.js"></script>
 
   <style>
-    * { font-family: 'Inter', sans-serif; }
-    body { 
-      background: linear-gradient(145deg, #0a0f1e 0%, #0b1525 100%);
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      background: #0a0a0f;
       min-height: 100vh;
-      color: #f8fafc;
+      color: #fff;
       position: relative;
       overflow-x: hidden;
     }
-    
-    /* Animated background */
-    body::before {
-      content: '';
+
+    /* Animated background with floating orbs */
+    .animated-bg {
       position: fixed;
       top: 0;
       left: 0;
-      right: 0;
-      bottom: 0;
-      background: 
-        radial-gradient(circle at 20% 30%, rgba(79, 70, 229, 0.08) 0%, transparent 30%),
-        radial-gradient(circle at 80% 70%, rgba(139, 92, 246, 0.08) 0%, transparent 30%),
-        repeating-linear-gradient(45deg, rgba(255,255,255,0.01) 0px, rgba(255,255,255,0.01) 1px, transparent 1px, transparent 10px);
-      pointer-events: none;
+      width: 100%;
+      height: 100%;
       z-index: 0;
-      animation: pulse 8s ease-in-out infinite;
+      overflow: hidden;
     }
-    
-    @keyframes pulse {
-      0%, 100% { opacity: 0.5; }
-      50% { opacity: 0.8; }
+
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, rgba(99, 102, 241, 0.15), rgba(168, 85, 247, 0.05));
+      filter: blur(60px);
+      animation: float 20s infinite ease-in-out;
     }
-    
-    #root { position: relative; z-index: 1; }
-    
-    /* Glass morphism */
-    .glass {
-      background: rgba(15, 23, 42, 0.65);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border: 1px solid rgba(79, 70, 229, 0.15);
+
+    .orb-1 {
+      width: 500px;
+      height: 500px;
+      top: -200px;
+      right: -100px;
+      background: radial-gradient(circle at 30% 30%, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.1));
+      animation-delay: 0s;
+    }
+
+    .orb-2 {
+      width: 600px;
+      height: 600px;
+      bottom: -300px;
+      left: -200px;
+      background: radial-gradient(circle at 30% 30%, rgba(168, 85, 247, 0.2), rgba(99, 102, 241, 0.1));
+      animation-delay: -5s;
+    }
+
+    .orb-3 {
+      width: 400px;
+      height: 400px;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: radial-gradient(circle at 30% 30%, rgba(59, 130, 246, 0.15), rgba(99, 102, 241, 0.05));
+      animation-delay: -10s;
+    }
+
+    @keyframes float {
+      0%, 100% {
+        transform: translate(0, 0) scale(1);
+      }
+      25% {
+        transform: translate(50px, -50px) scale(1.1);
+      }
+      50% {
+        transform: translate(100px, 0) scale(1);
+      }
+      75% {
+        transform: translate(50px, 50px) scale(0.9);
+      }
+    }
+
+    /* Grid overlay */
+    .grid-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        linear-gradient(rgba(99, 102, 241, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(99, 102, 241, 0.03) 1px, transparent 1px);
+      background-size: 50px 50px;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    #root {
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Modern glass effect */
+    .glass-modern {
+      background: rgba(10, 10, 15, 0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(99, 102, 241, 0.1);
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+
+    .glass-card {
+      background: rgba(18, 18, 25, 0.6);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(99, 102, 241, 0.2);
       transition: all 0.3s ease;
     }
-    
-    .glass:hover {
-      border-color: rgba(79, 70, 229, 0.3);
-      box-shadow: 0 8px 32px rgba(79, 70, 229, 0.2);
+
+    .glass-card:hover {
+      border-color: rgba(99, 102, 241, 0.4);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 40px rgba(99, 102, 241, 0.15);
     }
-    
-    /* Toast animations */
-    @keyframes slideIn { 
-      from { opacity: 0; transform: translateX(20px); } 
-      to { opacity: 1; transform: translateX(0); } 
-    }
-    @keyframes slideOut {
-      from { opacity: 1; transform: translateX(0); }
-      to { opacity: 0; transform: translateX(20px); }
-    }
-    .toast-anim { 
-      animation: slideIn 0.2s ease forwards; 
-    }
-    .toast-exit {
-      animation: slideOut 0.2s ease forwards;
-    }
-    
-    /* Custom scrollbar */
-    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background: #4f46e5; border-radius: 4px; }
-    
-    /* Button glow effects */
-    .btn-glow {
-      box-shadow: 0 0 10px rgba(79, 70, 229, 0.2);
-      transition: all 0.2s;
+
+    /* Button styles */
+    .btn-primary {
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      border: none;
+      color: white;
+      font-weight: 600;
+      transition: all 0.3s ease;
       position: relative;
       overflow: hidden;
     }
-    .btn-glow:hover:not(:disabled) {
-      box-shadow: 0 0 20px rgba(79, 70, 229, 0.5);
-      transform: translateY(-1px);
-    }
-    .btn-glow:active:not(:disabled) {
-      transform: translateY(1px);
-    }
-    
-    /* Ripple effect */
-    .btn-glow::after {
+
+    .btn-primary::before {
       content: '';
       position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 5px;
-      height: 5px;
-      background: rgba(255, 255, 255, 0.5);
-      opacity: 0;
-      border-radius: 100%;
-      transform: scale(1, 1) translate(-50%);
-      transform-origin: 50% 50%;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.5s ease;
     }
-    
-    .btn-glow:focus:not(:active)::after {
-      animation: ripple 1s ease-out;
+
+    .btn-primary:hover::before {
+      left: 100%;
     }
-    
-    @keyframes ripple {
-      0% {
-        transform: scale(0, 0);
-        opacity: 0.5;
-      }
-      20% {
-        transform: scale(25, 25);
-        opacity: 0.3;
-      }
-      100% {
-        opacity: 0;
-        transform: scale(40, 40);
-      }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(79, 70, 229, 0.4);
     }
-    
-    .gradient-text {
-      background: linear-gradient(135deg, #818cf8, #c084fc);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-size: 200% 200%;
-      animation: gradient 3s ease infinite;
+
+    .btn-primary:active {
+      transform: translateY(0);
     }
-    
-    @keyframes gradient {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
+
+    .btn-secondary {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      color: white;
+      font-weight: 500;
+      transition: all 0.3s ease;
     }
-    
-    .cosmetic-image {
-      transition: transform 0.2s, box-shadow 0.2s;
+
+    .btn-secondary:hover {
+      background: rgba(99, 102, 241, 0.1);
+      border-color: rgba(99, 102, 241, 0.6);
+      transform: translateY(-2px);
     }
-    .cosmetic-image:hover {
-      transform: scale(1.1);
-      box-shadow: 0 0 15px rgba(79, 70, 229, 0.5);
+
+    /* Input styles */
+    .input-modern {
+      background: rgba(18, 18, 25, 0.8);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      color: white;
+      transition: all 0.3s ease;
     }
-    
-    .copy-btn {
-      transition: all 0.2s;
+
+    .input-modern:focus {
+      border-color: #4f46e5;
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+      outline: none;
     }
-    .copy-btn:hover:not(:disabled) {
-      transform: scale(1.1) rotate(5deg);
+
+    .input-modern::placeholder {
+      color: rgba(255,255,255,0.3);
     }
-    
-    .credits {
-      position: fixed;
-      bottom: 8px;
-      right: 12px;
-      font-size: 10px;
-      color: #4f46e5;
-      opacity: 0.6;
-      z-index: 100;
-      background: rgba(15, 23, 42, 0.5);
-      padding: 4px 10px;
+
+    /* Status badges */
+    .status-badge {
+      padding: 4px 12px;
       border-radius: 20px;
-      backdrop-filter: blur(4px);
-      border: 1px solid rgba(79, 70, 229, 0.3);
-      letter-spacing: 0.5px;
-      transition: opacity 0.3s, transform 0.3s;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
     }
-    .credits:hover {
-      opacity: 1;
-      transform: scale(1.05);
+
+    .status-online {
+      background: rgba(16, 185, 129, 0.15);
+      color: #10b981;
+      border: 1px solid rgba(16, 185, 129, 0.3);
     }
-    
+
+    .status-offline {
+      background: rgba(107, 114, 128, 0.15);
+      color: #9ca3af;
+      border: 1px solid rgba(107, 114, 128, 0.3);
+    }
+
+    .status-ingame {
+      background: rgba(59, 130, 246, 0.15);
+      color: #3b82f6;
+      border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeInLeft {
+      from {
+        opacity: 0;
+        transform: translateX(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes fadeInRight {
+      from {
+        opacity: 0;
+        transform: translateX(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes scaleIn {
+      from {
+        opacity: 0;
+        transform: scale(0.9);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    @keyframes glowPulse {
+      0%, 100% {
+        box-shadow: 0 0 20px rgba(79, 70, 229, 0.2);
+      }
+      50% {
+        box-shadow: 0 0 40px rgba(79, 70, 229, 0.4);
+      }
+    }
+
+    .animate-fade-up {
+      animation: fadeInUp 0.6s ease forwards;
+    }
+
+    .animate-fade-left {
+      animation: fadeInLeft 0.6s ease forwards;
+    }
+
+    .animate-fade-right {
+      animation: fadeInRight 0.6s ease forwards;
+    }
+
+    .animate-scale {
+      animation: scaleIn 0.5s ease forwards;
+    }
+
+    .animate-glow {
+      animation: glowPulse 3s infinite;
+    }
+
+    /* Loading spinner */
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(79, 70, 229, 0.1);
+      border-top-color: #4f46e5;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Progress bar */
+    .progress-bar {
+      height: 4px;
+      background: rgba(79, 70, 229, 0.1);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #4f46e5, #7c3aed);
+      animation: progress 2s ease infinite;
+      width: 0%;
+    }
+
+    @keyframes progress {
+      0% { width: 0%; }
+      50% { width: 100%; }
+      100% { width: 0%; }
+    }
+
+    /* Particle effect */
+    .particle {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: rgba(99, 102, 241, 0.3);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    /* Custom scrollbar */
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #4f46e5;
+      border-radius: 4px;
+    }
+
     /* Cooldown animation */
     @keyframes cooldown {
       from { width: 100%; }
@@ -203,43 +383,20 @@
       background: linear-gradient(90deg, #4f46e5, #818cf8);
       animation: cooldown 10s linear forwards;
     }
-    
-    /* Button disabled state */
-    button:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-      transform: none !important;
-      filter: grayscale(0.5);
-      position: relative;
-      overflow: hidden;
-    }
-    
-    /* Fade animations */
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .animate-fadeIn {
-      animation: fadeIn 0.3s ease forwards;
-    }
-    
-    /* Rate limit warning */
-    .rate-limit-warning {
-      background: rgba(239, 68, 68, 0.1);
-      border: 1px solid rgba(239, 68, 68, 0.3);
-      color: #f87171;
-      padding: 8px 12px;
-      border-radius: 8px;
-      font-size: 11px;
-      margin-bottom: 12px;
-    }
   </style>
 </head>
 <body>
+  <div class="animated-bg">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+  <div class="grid-overlay"></div>
+  
   <div id="root">
     <div class="min-h-screen flex items-center justify-center">
       <div class="text-center">
-        <div class="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full spinner mx-auto mb-3"></div>
+        <div class="loading-spinner mx-auto mb-4"></div>
         <p class="text-indigo-400 text-sm font-mono animate-pulse">Loading YM SelfBot...</p>
       </div>
     </div>
@@ -249,7 +406,6 @@
     const { useState, useEffect, useCallback, useRef } = React;
 
     // --- CONFIG & CONSTANTS ---
-    // Using corsproxy.io - free and reliable
     const CORS_PROXY = "https://corsproxy.io/?";
     const ACCOUNT_URL = "https://account-public-service-prod.ol.epicgames.com";
     const PARTY_URL = "https://party-service-prod.ol.epicgames.com";
@@ -262,7 +418,7 @@
     const PLATFORMS = { WIN:"PC", MAC:"Mac", PSN:"PlayStation", XBL:"Xbox", SWT:"Switch", IOS:"Mobile", AND:"Android", GFN:"GFN" };
     const PLAT_EMOJI = { WIN:"💻", MAC:"🍎", PSN:"🎮", XBL:"🎯", SWT:"🕹", IOS:"📱", AND:"📱", GFN:"☁️" };
 
-    // --- COOLDOWN MANAGER (10 seconds per button) ---
+    // --- COOLDOWN MANAGER ---
     class CooldownManager {
       constructor() {
         this.cooldowns = new Map();
@@ -302,18 +458,6 @@
         return true;
       }
 
-      getRemainingTime(buttonId) {
-        const expiry = this.cooldowns.get(buttonId);
-        if (!expiry) return 0;
-        const remaining = Math.max(0, Math.ceil((expiry - Date.now()) / 1000));
-        if (remaining <= 0) {
-          this.cooldowns.delete(buttonId);
-          this.notifyListeners();
-          return 0;
-        }
-        return remaining;
-      }
-
       getCooldowns() {
         const result = {};
         this.cooldowns.forEach((expiry, id) => {
@@ -339,26 +483,16 @@
     
     const safeJson = async (res) => { try { return await res.json(); } catch { return {}; } };
 
-    // Fixed proxy fetch with corsproxy.io
     const proxyFetch = async (url, options = {}) => {
       const finalUrl = CORS_PROXY + encodeURIComponent(url);
       
       try {
         const res = await fetch(finalUrl, options);
-        
-        // Handle rate limit message
         if (res.status === 429) {
-          const text = await res.text();
-          if (text.includes('rate limit')) {
-            throw new Error("Rate limit reached. Please wait a few seconds and try again.");
-          }
+          throw new Error("Rate limit reached. Please wait a few seconds.");
         }
-        
         return res;
       } catch (e) {
-        if (e.message.includes('rate limit')) {
-          throw e;
-        }
         console.error("Proxy fetch error:", e);
         throw new Error("Network error. Please check your connection.");
       }
@@ -517,12 +651,12 @@
           {list.map(t => (
             <div 
               key={t.id} 
-              className={`${exiting.has(t.id) ? 'toast-exit' : 'toast-anim'} flex items-center gap-2 px-4 py-2.5 rounded-lg shadow-2xl border text-sm ${
-                t.type === 'er' ? 'bg-red-950/90 border-red-500/50 text-red-200' : 'bg-green-950/90 border-green-500/50 text-green-200'
-              }`}
+              className={`${exiting.has(t.id) ? 'toast-exit' : 'toast-anim'} glass-modern px-4 py-3 rounded-xl border ${
+                t.type === 'er' ? 'border-red-500/50' : 'border-green-500/50'
+              } flex items-center gap-3`}
             >
-              <i className={`fas ${t.type === 'er' ? 'fa-exclamation-circle' : 'fa-check-circle'} text-xs animate-pulse`}></i>
-              <span>{t.msg}</span>
+              <i className={`fas ${t.type === 'er' ? 'fa-exclamation-circle text-red-400' : 'fa-check-circle text-green-400'}`}></i>
+              <span className="text-sm">{t.msg}</span>
             </div>
           ))}
         </div>
@@ -534,8 +668,8 @@
       e: (m) => window._toast?.({id: ++_tid, msg: m, type: "er"}) 
     };
 
-    // --- COOLDOWN BUTTON COMPONENT ---
-    function CooldownButton({ buttonId, onClick, children, className, disabled, title }) {
+    // --- COOLDOWN BUTTON ---
+    function CooldownButton({ buttonId, onClick, children, className, disabled, title, variant = "primary" }) {
       const [cooldowns, setCooldowns] = useState({});
       const [remaining, setRemaining] = useState(0);
 
@@ -558,23 +692,22 @@
         if (onClick) await onClick(e);
       };
 
+      const baseClass = variant === "primary" ? "btn-primary" : "btn-secondary";
+
       return (
         <button
           onClick={handleClick}
           disabled={isOnCooldown || disabled}
-          className={`${className} relative overflow-hidden`}
+          className={`${baseClass} ${className} relative overflow-hidden`}
           title={isOnCooldown ? `Wait ${cooldowns[buttonId]}s` : title}
         >
           {children}
           {isOnCooldown && (
             <>
-              <span className="absolute inset-0 bg-indigo-900/30 flex items-center justify-center text-[10px] font-bold">
+              <span className="absolute inset-0 bg-black/50 flex items-center justify-center text-xs font-bold backdrop-blur-sm">
                 {cooldowns[buttonId]}s
               </span>
-              <div 
-                className="cooldown-bar" 
-                style={{ animation: 'cooldown 10s linear forwards' }}
-              />
+              <div className="cooldown-bar" />
             </>
           )}
         </button>
@@ -619,30 +752,30 @@
               value={q} 
               onChange={e=>setQ(e.target.value)} 
               onBlur={()=>setTimeout(()=>setOp(false),200)} 
-              className="w-full bg-slate-900/50 border border-indigo-500/30 rounded-lg px-3 py-2 outline-none focus:border-indigo-500 transition-all duration-300 text-sm pr-8"
+              className="w-full input-modern rounded-xl px-4 py-3 text-sm pr-10"
             />
             {loading && (
-              <div className="absolute right-2 top-1/2 -translate-y-1/2">
-                <i className="fas fa-spinner fa-spin text-indigo-400 text-xs"></i>
+              <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                <i className="fas fa-spinner fa-spin text-indigo-400"></i>
               </div>
             )}
           </div>
           
           {op && res.length > 0 && (
-            <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-slate-800/95 backdrop-blur border border-indigo-500/30 rounded-lg shadow-xl overflow-hidden animate-fadeIn">
+            <div className="absolute z-50 top-full left-0 right-0 mt-2 glass-modern rounded-xl border border-indigo-500/30 overflow-hidden animate-scale">
               {res.map((s, idx) => (
                 <div 
                   key={s.id} 
                   onMouseDown={()=>{onSelect(s.id); setQ(""); setOp(false);}} 
-                  className="flex items-center gap-2 p-2 hover:bg-indigo-600/30 cursor-pointer border-b border-indigo-500/20 last:border-0 transition-all duration-200"
+                  className="flex items-center gap-3 p-3 hover:bg-indigo-600/20 cursor-pointer border-b border-indigo-500/20 last:border-0 transition-all"
                   style={{ animationDelay: `${idx * 50}ms` }}
                 >
                   {(s.images?.smallIcon || s.images?.icon) && (
-                    <img src={s.images.smallIcon || s.images.icon} className="w-8 h-8 rounded animate-pulse" alt="icon"/>
+                    <img src={s.images.smallIcon || s.images.icon} className="w-8 h-8 rounded-lg" alt="icon"/>
                   )}
                   <div>
-                    <span className="text-xs font-bold text-white">{s.name}</span>
-                    <span className="text-[10px] text-indigo-300 block">{s.id}</span>
+                    <span className="text-sm font-bold text-white">{s.name}</span>
+                    <span className="text-xs text-indigo-300 block">{s.id}</span>
                   </div>
                 </div>
               ))}
@@ -652,8 +785,8 @@
       );
     }
 
-    // --- COSMETIC IMAGE COMPONENT ---
-    function CosmeticImage({ id, type, className = "w-8 h-8" }) {
+    // --- COSMETIC IMAGE ---
+    function CosmeticImage({ id, type, className = "w-10 h-10" }) {
       const [imgUrl, setImgUrl] = useState(null);
       const [loading, setLoading] = useState(true);
 
@@ -670,22 +803,22 @@
       }, [id, type]);
 
       if (loading) {
-        return <div className={`${className} bg-slate-800 rounded-lg flex items-center justify-center animate-pulse`}>
-          <i className="fas fa-spinner fa-spin text-indigo-400 text-xs"></i>
+        return <div className={`${className} glass-card rounded-xl flex items-center justify-center`}>
+          <i className="fas fa-spinner fa-spin text-indigo-400"></i>
         </div>;
       }
 
       if (imgUrl) {
         return (
           <div className="relative group">
-            <img src={imgUrl} className={`${className} rounded-lg cosmetic-image object-cover`} alt={type} />
-            <div className="absolute inset-0 bg-indigo-500/0 group-hover:bg-indigo-500/20 rounded-lg transition-all duration-300"></div>
+            <img src={imgUrl} className={`${className} rounded-xl cosmetic-image object-cover`} alt={type} />
+            <div className="absolute inset-0 bg-indigo-500/0 group-hover:bg-indigo-500/20 rounded-xl transition-all duration-300"></div>
           </div>
         );
       }
 
-      return <div className={`${className} bg-slate-800 rounded-lg flex items-center justify-center text-indigo-400`}>
-        <i className={`fas ${type === 'skin' ? 'fa-user' : type === 'backpack' ? 'fa-shopping-bag' : type === 'pickaxe' ? 'fa-pickaxe' : 'fa-music'} text-xs`}></i>
+      return <div className={`${className} glass-card rounded-xl flex items-center justify-center text-indigo-400`}>
+        <i className={`fas ${type === 'skin' ? 'fa-user' : type === 'backpack' ? 'fa-shopping-bag' : type === 'pickaxe' ? 'fa-pickaxe' : 'fa-music'}`}></i>
       </div>;
     }
 
@@ -701,11 +834,10 @@
       const [level, setLv] = useState(100);
       const [autoEmote, setAutoEmote] = useState("EID_IceKing");
       const [memberDetails, setMemberDetails] = useState({});
-      
-      // Island Launcher State
       const [islandCode, setIslandCode] = useState("");
       const [launchLoading, setLaunchLoading] = useState(false);
       const [launchError, setLaunchError] = useState(null);
+      const [hoveredTab, setHoveredTab] = useState(null);
 
       // Auto refresh token
       useEffect(() => {
@@ -736,7 +868,6 @@
         if(saved && saved.length) { setAccts(saved); selectAccount(saved[0]); }
       }, []);
 
-      // Load member details
       useEffect(() => {
         if (!party || !party.members) return;
         
@@ -801,7 +932,7 @@
       const selectAccount = async (a) => { 
         setActive(a); 
         setParty(null); 
-        toast.s(`Logged in as ${a.displayName}`);
+        toast.s(`Welcome back, ${a.displayName}!`);
         await loadParty(a); 
       };
       
@@ -895,7 +1026,6 @@
 
           const r = await proxyFetch(url, reqOpts);
           
-          // Handle 404 errors gracefully
           if (r.status === 404) {
             console.log("Resource not found, but continuing...");
             if (successMsg) toast.s(successMsg);
@@ -1109,9 +1239,8 @@
         
         try {
           const fnToken = await getFnToken(active);
-          
-          // Clean the island code (remove special characters, keep numbers and dashes)
           const cleanCode = islandCode.trim().replace(/[^0-9-]/g, '');
+          
           if (cleanCode.length < 4) {
             throw new Error("Invalid island code format");
           }
@@ -1138,7 +1267,7 @@
           }
           
           if (launchRes.ok || response.status === "notified") {
-            toast.s(`Launching island: ${cleanCode}`);
+            toast.s(`🚀 Launching island: ${cleanCode}`);
             setIslandCode("");
           } else {
             throw new Error(response.errorMessage || "Failed to launch");
@@ -1154,70 +1283,81 @@
 
       // --- RENDER LOGIN ---
       if (!active) return (
-        <div className="min-h-screen flex items-center justify-center p-3">
-          <div className="glass max-w-sm w-full p-6 rounded-2xl border border-indigo-500/20 animate-fadeIn">
-            <div className="text-center mb-6">
-              <div className="w-16 h-16 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-xl mx-auto mb-3 flex items-center justify-center shadow-xl animate-bounce">
-                <i className="fas fa-robot text-2xl text-white"></i>
+        <div className="min-h-screen flex items-center justify-center p-4">
+          <div className="glass-modern max-w-md w-full p-8 rounded-3xl border border-indigo-500/20 animate-scale">
+            <div className="text-center mb-8">
+              <div className="w-20 h-20 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center animate-glow">
+                <i className="fas fa-robot text-3xl text-white"></i>
               </div>
-              <h1 className="text-2xl font-black gradient-text">YM SelfBot</h1>
-              <span className="bg-indigo-600/30 text-indigo-300 text-[10px] px-2 py-0.5 rounded-full mt-2 inline-block border border-indigo-500/30 animate-pulse">
-                v5.0 • Island Launcher
-              </span>
+              <h1 className="text-3xl font-black bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
+                YM SelfBot
+              </h1>
+              <p className="text-sm text-indigo-300/70 mt-2">Professional Fortnite Party Manager</p>
             </div>
 
             {accounts.length > 0 && (
-              <div className="mb-4 space-y-1.5">
-                <p className="text-xs text-indigo-300 mb-2 flex items-center gap-1">
-                  <i className="fas fa-users text-xs"></i> Saved Accounts
+              <div className="mb-6 animate-fade-up">
+                <p className="text-xs text-indigo-300 mb-3 flex items-center gap-2">
+                  <i className="fas fa-history"></i> Saved Accounts
                 </p>
-                {accounts.map((a, idx) => (
-                  <div 
-                    key={a.accountId} 
-                    onClick={() => selectAccount(a)} 
-                    className="flex items-center justify-between p-2.5 rounded-lg bg-slate-800/50 hover:bg-indigo-600/30 cursor-pointer border border-indigo-500/20 transition-all duration-300 hover:scale-[1.02]"
-                    style={{ animationDelay: `${idx * 100}ms` }}
-                  >
-                    <div className="flex items-center gap-2">
-                      <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center">
-                        <i className="fas fa-user text-white text-xs"></i>
+                <div className="space-y-2">
+                  {accounts.map((a, idx) => (
+                    <div 
+                      key={a.accountId} 
+                      onClick={() => selectAccount(a)} 
+                      className="glass-card p-3 rounded-xl flex items-center justify-between cursor-pointer group hover:border-indigo-500/40 transition-all"
+                      style={{ animationDelay: `${idx * 100}ms` }}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center">
+                          <i className="fas fa-user text-white text-xs"></i>
+                        </div>
+                        <span className="font-medium text-sm">{a.displayName}</span>
                       </div>
-                      <span className="text-sm font-medium">{a.displayName}</span>
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); removeAccount(a.accountId); }} 
+                        className="w-8 h-8 rounded-lg hover:bg-red-500/20 text-slate-400 hover:text-red-400 transition-all flex items-center justify-center"
+                      >
+                        <i className="fas fa-trash text-xs"></i>
+                      </button>
                     </div>
-                    <button onClick={(e) => { e.stopPropagation(); removeAccount(a.accountId); }} className="text-slate-500 hover:text-red-400 p-1.5 hover:bg-red-500/20 rounded transition-all duration-200 hover:scale-110">
-                      <i className="fas fa-trash text-xs"></i>
-                    </button>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             )}
 
-            <div className="space-y-3">
+            <div className="space-y-4 animate-fade-up" style={{ animationDelay: '200ms' }}>
               <a 
                 href="https://www.epicgames.com/id/api/redirect?clientId=34a02cf8f4414e29b15921876da36f9a&responseType=code" 
                 target="_blank" 
-                className="block w-full text-center p-3 rounded-lg border border-indigo-500/50 bg-indigo-600/20 hover:bg-indigo-600/30 text-sm font-medium text-indigo-300 transition-all duration-300 hover:scale-[1.02] btn-glow"
+                className="block w-full btn-secondary text-center py-3 rounded-xl text-sm font-medium transition-all hover:scale-[1.02]"
               >
-                <i className="fas fa-key mr-1.5 text-xs"></i>
+                <i className="fas fa-key mr-2"></i>
                 Get Epic Auth Code
               </a>
+              
               <div className="flex gap-2">
                 <input 
                   type="text" 
-                  placeholder="Auth code" 
+                  placeholder="Paste your auth code" 
                   value={authCode} 
                   onChange={e => setAuthCode(e.target.value)} 
                   onKeyDown={e=>e.key==="Enter"&&linkAccount()} 
-                  className="flex-1 bg-slate-800/50 border border-indigo-500/30 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-indigo-500 transition-all duration-300 focus:scale-[1.02]" 
+                  className="flex-1 input-modern rounded-xl px-4 py-3 text-sm"
                 />
                 <button 
                   onClick={linkAccount} 
-                  disabled={loading} 
-                  className="bg-indigo-600 hover:bg-indigo-500 px-5 rounded-lg font-medium text-sm transition-all duration-300 disabled:opacity-50 btn-glow relative overflow-hidden"
+                  disabled={loading||!authCode.trim()} 
+                  className="btn-primary px-6 rounded-xl text-sm font-medium disabled:opacity-50 min-w-[80px]"
                 >
                   {loading ? <i className="fas fa-spinner fa-spin"></i> : "Link"}
                 </button>
               </div>
+
+              <p className="text-xs text-center text-slate-500 mt-4">
+                <i className="fas fa-shield-alt mr-1 text-indigo-400"></i>
+                Your tokens are stored locally
+              </p>
             </div>
           </div>
         </div>
@@ -1228,27 +1368,22 @@
       const isCap = safeMembers.find(m => m.account_id === active.accountId)?.role === "CAPTAIN";
 
       return (
-        <div className="min-h-screen p-3 max-w-6xl mx-auto pb-10">
-          {/* Credits */}
-          <div className="credits">
-            <i className="fas fa-code text-[8px] mr-1"></i>
-            GreekNinja30 & ThanasisYAMA
-          </div>
-
+        <div className="min-h-screen p-4 max-w-7xl mx-auto">
           {/* Header */}
-          <div className="glass rounded-xl p-3 mb-4 flex items-center justify-between border border-indigo-500/20 animate-fadeIn">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shadow-lg relative group">
-                <i className="fas fa-robot text-white text-sm group-hover:animate-spin"></i>
-                <div className="absolute -bottom-1 -right-1 w-2.5 h-2.5 bg-green-500 rounded-full border border-slate-900 animate-pulse"></div>
+          <div className="glass-modern rounded-2xl p-4 mb-6 flex items-center justify-between animate-fade-up">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center relative">
+                <i className="fas fa-robot text-white text-lg"></i>
+                <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-slate-900 animate-pulse"></div>
               </div>
               <div>
-                <h1 className="text-base font-bold">
-                  <span className="gradient-text">YM SelfBot</span>
-                  <span className="ml-1.5 text-[10px] bg-indigo-600/30 text-indigo-300 px-1.5 py-0.5 rounded-full">ISLAND</span>
+                <h1 className="text-lg font-bold">
+                  <span className="bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
+                    YM SelfBot
+                  </span>
                 </h1>
-                <p className="text-slate-400 text-xs flex items-center gap-1">
-                  <i className="fas fa-circle text-green-500 text-[6px] animate-pulse"></i>
+                <p className="text-xs text-slate-400 flex items-center gap-2">
+                  <i className="fas fa-circle text-green-500 text-[6px]"></i>
                   {active.displayName}
                 </p>
               </div>
@@ -1257,82 +1392,96 @@
               <button 
                 onClick={() => loadParty(active)} 
                 disabled={loading} 
-                className="px-3 py-1.5 rounded-lg bg-slate-800/50 hover:bg-slate-700/50 border border-indigo-500/30 text-xs font-medium flex items-center gap-1.5 transition-all duration-300 hover:scale-[1.02]"
+                className="btn-secondary px-4 py-2 rounded-xl text-xs font-medium flex items-center gap-2"
               >
                 <i className={`fas fa-sync-alt text-xs ${loading ? 'fa-spin' : ''}`}></i>
-                {loading ? "..." : "Refresh"}
+                {loading ? "Loading..." : "Refresh"}
               </button>
               <button 
                 onClick={() => { setActive(null); setParty(null); }} 
-                className="px-3 py-1.5 rounded-lg bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 text-xs font-medium transition-all duration-300 hover:scale-[1.02]"
+                className="btn-secondary px-4 py-2 rounded-xl text-xs font-medium text-red-400 hover:bg-red-500/20"
               >
-                <i className="fas fa-sign-out-alt text-xs mr-1"></i>
+                <i className="fas fa-sign-out-alt mr-1"></i>
                 Exit
               </button>
             </div>
           </div>
 
           {!party ? (
-            <div className="glass rounded-xl p-8 text-center border border-dashed border-indigo-500/30 animate-fadeIn">
-              <div className="text-4xl mb-3 opacity-50 animate-bounce">🎮</div>
-              <h2 className="text-lg font-bold mb-1">No Active Party</h2>
-              <p className="text-xs text-slate-400">Open Fortnite Lobby then Refresh</p>
+            <div className="glass-modern rounded-3xl p-12 text-center border border-dashed border-indigo-500/30 animate-scale">
+              <div className="text-6xl mb-4 opacity-50 animate-bounce">🎮</div>
+              <h2 className="text-2xl font-bold mb-2 bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
+                No Active Party
+              </h2>
+              <p className="text-sm text-slate-400 max-w-md mx-auto mb-6">
+                Launch Fortnite and join a lobby to start managing your party
+              </p>
+              <div className="progress-bar max-w-xs mx-auto mb-6">
+                <div className="progress-fill"></div>
+              </div>
               <button 
                 onClick={() => loadParty(active)} 
-                className="mt-4 px-5 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-sm font-medium btn-glow transition-all duration-300 hover:scale-[1.02]"
+                className="btn-primary px-8 py-3 rounded-xl text-sm font-medium"
               >
-                <i className="fas fa-sync-alt mr-1.5 text-xs"></i>
-                Refresh Now
+                <i className="fas fa-sync-alt mr-2"></i>
+                Check Again
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
-              {/* Sidebar - 5 tabs now (including Islands) */}
-              <div className="glass rounded-xl p-2 border border-indigo-500/20 h-fit animate-fadeIn lg:col-span-1">
-                <div className="space-y-1">
-                  {[
-                    { id: "match", icon: "fa-gamepad", label: "Match", color: "from-blue-600 to-cyan-600" },
-                    { id: "locker", icon: "fa-tshirt", label: "Locker", color: "from-purple-600 to-pink-600" },
-                    { id: "extra", icon: "fa-star", label: "Level", color: "from-yellow-600 to-orange-600" },
-                    { id: "members", icon: "fa-users", label: `Party (${safeMembers.length})`, color: "from-green-600 to-emerald-600" },
-                    { id: "islands", icon: "fa-map", label: "Islands", color: "from-teal-600 to-cyan-600" }
-                  ].map((t, idx) => (
-                    <button 
-                      key={t.id} 
-                      onClick={() => setTab(t.id)} 
-                      className={`w-full p-2.5 rounded-lg transition-all duration-300 text-left flex items-center gap-2 text-sm ${
-                        tab === t.id 
-                          ? `bg-gradient-to-r ${t.color} text-white shadow-md scale-[1.02]` 
-                          : 'hover:bg-slate-800/50 text-slate-400 hover:scale-[1.01]'
-                      }`}
-                      style={{ animationDelay: `${idx * 50}ms` }}
-                    >
-                      <i className={`fas ${t.icon} text-xs ${tab === t.id ? 'text-white' : 'text-indigo-400'}`}></i>
-                      <span className="font-medium">{t.label}</span>
-                      {tab === t.id && <i className="fas fa-chevron-right ml-auto text-xs animate-pulse"></i>}
-                    </button>
-                  ))}
-                </div>
-                
-                {isCap && (
-                  <div className="mt-3 pt-3 border-t border-indigo-500/20 animate-fadeIn">
-                    <p className="text-[10px] text-indigo-300 flex items-center gap-1">
-                      <i className="fas fa-crown text-yellow-500 text-[8px] animate-pulse"></i> Party Leader
-                    </p>
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+              {/* Sidebar */}
+              <div className="lg:col-span-1">
+                <div className="glass-modern rounded-2xl p-3 border border-indigo-500/20 animate-fade-left">
+                  <div className="space-y-1">
+                    {[
+                      { id: "match", icon: "fa-gamepad", label: "Match Control", color: "from-blue-600 to-cyan-600" },
+                      { id: "locker", icon: "fa-tshirt", label: "Locker Spoofer", color: "from-purple-600 to-pink-600" },
+                      { id: "extra", icon: "fa-star", label: "Season Level", color: "from-yellow-600 to-orange-600" },
+                      { id: "members", icon: "fa-users", label: `Party Members (${safeMembers.length})`, color: "from-green-600 to-emerald-600" },
+                      { id: "islands", icon: "fa-map", label: "Island Launcher", color: "from-teal-600 to-cyan-600" }
+                    ].map((t, idx) => (
+                      <button 
+                        key={t.id} 
+                        onClick={() => setTab(t.id)}
+                        onMouseEnter={() => setHoveredTab(t.id)}
+                        onMouseLeave={() => setHoveredTab(null)}
+                        className={`w-full p-3 rounded-xl transition-all duration-300 text-left flex items-center gap-3 text-sm ${
+                          tab === t.id 
+                            ? `bg-gradient-to-r ${t.color} text-white shadow-lg scale-[1.02]` 
+                            : 'hover:bg-white/5 text-slate-400 hover:text-white'
+                        }`}
+                        style={{ animationDelay: `${idx * 50}ms` }}
+                      >
+                        <i className={`fas ${t.icon} text-sm ${tab === t.id ? 'text-white' : 'text-indigo-400'}`}></i>
+                        <span className="font-medium flex-1">{t.label}</span>
+                        {hoveredTab === t.id && (
+                          <i className="fas fa-chevron-right text-xs animate-pulse"></i>
+                        )}
+                      </button>
+                    ))}
                   </div>
-                )}
+                  
+                  {isCap && (
+                    <div className="mt-4 pt-4 border-t border-indigo-500/20 animate-fade-up">
+                      <p className="text-xs text-indigo-300 flex items-center gap-2">
+                        <i className="fas fa-crown text-yellow-500 text-xs animate-pulse"></i>
+                        Party Leader
+                      </p>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Main Content */}
-              <div className="lg:col-span-4 space-y-4">
+              <div className="lg:col-span-4 space-y-6">
                 {tab === "match" && (
-                  <>
-                    <div className="glass rounded-xl p-4 border-l-4 border-indigo-500 animate-fadeIn">
-                      <h3 className="text-sm font-bold mb-3 flex items-center gap-1.5">
-                        <i className="fas fa-check-circle text-indigo-400 text-xs animate-pulse"></i>
-                        Readiness
+                  <div className="space-y-6 animate-fade-right">
+                    <div className="glass-modern rounded-2xl p-6 border-l-4 border-indigo-500">
+                      <h3 className="text-base font-bold mb-4 flex items-center gap-2">
+                        <i className="fas fa-check-circle text-indigo-400"></i>
+                        Readiness Status
                       </h3>
-                      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
+                      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
                         <CooldownButton
                           buttonId="ready"
                           onClick={() => doAction("meta", {
@@ -1341,9 +1490,9 @@
                             "Default:PackedState_j": (old) => { if(old.PackedState) old.PackedState.location = "PreLobby"; return old; },
                             "Default:MatchmakingInfo_j": (old) => { if(old.MatchmakingInfo) old.MatchmakingInfo.readyStatus = "Ready"; return old; }
                           }, "Ready!")}
-                          className="p-2.5 bg-green-600/20 hover:bg-green-600/30 border border-green-500/30 rounded-lg text-green-400 text-xs font-medium flex items-center justify-center gap-1 transition-all duration-300 btn-glow w-full"
+                          className="p-3 bg-green-600/20 hover:bg-green-600/30 border border-green-500/30 rounded-xl text-green-400 text-sm font-medium flex items-center justify-center gap-2 w-full"
                         >
-                          <i className="fas fa-check text-xs"></i> Ready
+                          <i className="fas fa-check"></i> Ready
                         </CooldownButton>
 
                         <CooldownButton
@@ -1354,9 +1503,9 @@
                             "Default:PackedState_j": (old) => { if(old.PackedState) old.PackedState.location = "PreLobby"; return old; },
                             "Default:MatchmakingInfo_j": (old) => { if(old.MatchmakingInfo) old.MatchmakingInfo.readyStatus = "NotReady"; return old; }
                           }, "Not Ready")}
-                          className="p-2.5 bg-slate-700/50 hover:bg-slate-600/50 border border-slate-600 rounded-lg text-xs font-medium flex items-center justify-center gap-1 transition-all duration-300 btn-glow w-full"
+                          className="p-3 bg-slate-700/50 hover:bg-slate-600/50 border border-slate-600 rounded-xl text-sm font-medium flex items-center justify-center gap-2 w-full"
                         >
-                          <i className="fas fa-times text-xs"></i> Not Ready
+                          <i className="fas fa-times"></i> Not Ready
                         </CooldownButton>
 
                         <CooldownButton
@@ -1367,9 +1516,9 @@
                             "Default:PackedState_j": (old) => { if(old.PackedState) old.PackedState.location = "PreLobby"; return old; },
                             "Default:MatchmakingInfo_j": (old) => { if(old.MatchmakingInfo) old.MatchmakingInfo.readyStatus = "SittingOut"; return old; }
                           }, "Sit Out")}
-                          className="p-2.5 bg-yellow-600/20 hover:bg-yellow-600/30 border border-yellow-500/30 rounded-lg text-yellow-400 text-xs font-medium flex items-center justify-center gap-1 transition-all duration-300 btn-glow w-full"
+                          className="p-3 bg-yellow-600/20 hover:bg-yellow-600/30 border border-yellow-500/30 rounded-xl text-yellow-400 text-sm font-medium flex items-center justify-center gap-2 w-full"
                         >
-                          <i className="fas fa-bed text-xs"></i> Sit Out
+                          <i className="fas fa-bed"></i> Sit Out
                         </CooldownButton>
 
                         <CooldownButton
@@ -1380,19 +1529,19 @@
                             "Default:PackedState_j": (old) => { if(old.PackedState) old.PackedState.location = "PreLobby"; return old; },
                             "Default:MatchmakingInfo_j": (old) => { if(old.MatchmakingInfo) old.MatchmakingInfo.readyStatus = "NotReady"; return old; }
                           }, "Stand In")}
-                          className="p-2.5 bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/30 rounded-lg text-blue-400 text-xs font-medium flex items-center justify-center gap-1 transition-all duration-300 btn-glow w-full"
+                          className="p-3 bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/30 rounded-xl text-blue-400 text-sm font-medium flex items-center justify-center gap-2 w-full"
                         >
-                          <i className="fas fa-person-walking text-xs"></i> Stand In
+                          <i className="fas fa-person-walking"></i> Stand In
                         </CooldownButton>
                       </div>
                     </div>
 
-                    <div className="glass rounded-xl p-4 border-l-4 border-purple-500 animate-fadeIn">
-                      <h3 className="text-sm font-bold mb-3 flex items-center gap-1.5">
-                        <i className="fas fa-mask text-purple-400 text-xs animate-pulse"></i>
+                    <div className="glass-modern rounded-2xl p-6 border-l-4 border-purple-500">
+                      <h3 className="text-base font-bold mb-4 flex items-center gap-2">
+                        <i className="fas fa-mask text-purple-400"></i>
                         Fake Match
                       </h3>
-                      <div className="flex gap-2">
+                      <div className="flex gap-3">
                         <CooldownButton
                           buttonId="fakematch"
                           onClick={() => {
@@ -1412,9 +1561,9 @@
                               }
                             }, "In Match!")
                           }}
-                          className="flex-1 p-2.5 bg-purple-600 hover:bg-purple-500 rounded-lg text-xs font-medium btn-glow transition-all duration-300 flex items-center justify-center gap-1"
+                          className="flex-1 btn-primary py-3 rounded-xl text-sm font-medium flex items-center justify-center gap-2"
                         >
-                          <i className="fas fa-play text-xs"></i> Enter
+                          <i className="fas fa-play"></i> Enter Match
                         </CooldownButton>
 
                         <CooldownButton
@@ -1425,34 +1574,33 @@
                             "Default:PackedState_j": (old) => { if(old.PackedState) old.PackedState.location = "PreLobby"; return old; },
                             "Default:MatchmakingInfo_j": (old) => { if(old.MatchmakingInfo) old.MatchmakingInfo.readyStatus = "NotReady"; return old; }
                           }, "Left Match")}
-                          className="flex-1 p-2.5 bg-slate-700 hover:bg-slate-600 rounded-lg text-xs font-medium transition-all duration-300 flex items-center justify-center gap-1"
+                          className="flex-1 btn-secondary py-3 rounded-xl text-sm font-medium flex items-center justify-center gap-2"
                         >
-                          <i className="fas fa-door-open text-xs"></i> Leave
+                          <i className="fas fa-door-open"></i> Leave Match
                         </CooldownButton>
                       </div>
                     </div>
-                  </>
+                  </div>
                 )}
 
                 {tab === "locker" && (
-                  <div className="glass rounded-xl p-4 border-l-4 border-purple-500 animate-fadeIn">
-                    <h3 className="text-sm font-bold mb-4 flex items-center gap-1.5">
-                      <i className="fas fa-tshirt text-purple-400 text-xs animate-pulse"></i>
+                  <div className="glass-modern rounded-2xl p-6 border-l-4 border-purple-500 animate-fade-right">
+                    <h3 className="text-base font-bold mb-6 flex items-center gap-2">
+                      <i className="fas fa-tshirt text-purple-400"></i>
                       Locker Spoofer
                     </h3>
                     
-                    <div className="bg-indigo-950/30 border border-indigo-500/20 p-2.5 rounded-lg mb-4 animate-pulse">
-                      <p className="text-[10px] text-indigo-300 flex items-center gap-1">
-                        <i className="fas fa-info-circle text-[8px]"></i>
-                        Must be in <span className="text-yellow-400">Stand In</span> or <span className="text-green-400">Not Ready</span>
+                    <div className="bg-indigo-950/30 border border-indigo-500/20 p-4 rounded-xl mb-6">
+                      <p className="text-xs text-indigo-300 flex items-center gap-2">
+                        <i className="fas fa-info-circle"></i>
+                        Must be in <span className="text-yellow-400 font-medium">Stand In</span> or <span className="text-green-400 font-medium">Not Ready</span>
                       </p>
                     </div>
 
-                    <div className="space-y-3">
-                      {/* Auto Emote */}
-                      <div className="bg-slate-800/30 p-3 rounded-lg transition-all duration-300 hover:border-indigo-500/30 border border-transparent">
-                        <label className="block text-[10px] font-medium text-indigo-300 mb-1.5 flex items-center gap-1">
-                          <i className="fas fa-music text-[8px]"></i>
+                    <div className="space-y-4">
+                      <div className="glass-card p-4 rounded-xl">
+                        <label className="block text-xs font-medium text-indigo-300 mb-2 flex items-center gap-1">
+                          <i className="fas fa-music"></i>
                           Auto Emote
                         </label>
                         <input 
@@ -1460,46 +1608,44 @@
                           value={autoEmote} 
                           onChange={e => setAutoEmote(e.target.value)} 
                           placeholder="EID_IceKing" 
-                          className="w-full bg-slate-900/50 border border-indigo-500/30 rounded-lg px-3 py-2 text-xs outline-none focus:border-indigo-500 transition-all duration-300 focus:scale-[1.02]" 
+                          className="w-full input-modern rounded-xl px-4 py-3 text-sm" 
                         />
                       </div>
 
-                      {/* Emote */}
-                      <div className="bg-slate-800/30 p-3 rounded-lg transition-all duration-300 hover:border-indigo-500/30 border border-transparent">
-                        <label className="block text-[10px] font-medium text-indigo-300 mb-1.5">Emote</label>
-                        <div className="flex flex-col gap-2">
+                      <div className="glass-card p-4 rounded-xl">
+                        <label className="block text-xs font-medium text-indigo-300 mb-2">Emote</label>
+                        <div className="flex flex-col gap-3">
                           <SearchInput type="emote" placeholder="Search emote..." onSelect={(id) => document.getElementById('emoteInput').value = id} />
-                          <div className="flex gap-1.5">
-                            <input type="text" placeholder="EID_IceKing" id="emoteInput" className="flex-1 bg-slate-900/50 border border-indigo-500/30 rounded-lg px-3 py-2 text-xs outline-none focus:border-indigo-500 transition-all duration-300 focus:scale-[1.02]" />
+                          <div className="flex gap-2">
+                            <input type="text" placeholder="EID_IceKing" id="emoteInput" className="flex-1 input-modern rounded-xl px-4 py-3 text-sm" />
                             <CooldownButton
                               buttonId="playemote"
                               onClick={() => handleEmote(false)}
-                              className="bg-purple-600 hover:bg-purple-500 px-3 rounded-lg text-xs font-medium btn-glow transition-all duration-300"
+                              className="btn-primary px-4 rounded-xl text-sm"
                             >
-                              <i className="fas fa-play text-xs"></i>
+                              <i className="fas fa-play"></i>
                             </CooldownButton>
                             <CooldownButton
                               buttonId="stopemote"
                               onClick={() => handleEmote(true)}
-                              className="bg-slate-700 hover:bg-red-600/30 px-3 rounded-lg text-xs font-medium text-red-400 transition-all duration-300"
+                              className="btn-secondary px-4 rounded-xl text-sm text-red-400"
                             >
-                              <i className="fas fa-stop text-xs"></i>
+                              <i className="fas fa-stop"></i>
                             </CooldownButton>
                           </div>
                         </div>
                       </div>
 
-                      {/* Skin */}
-                      <div className="bg-slate-800/30 p-3 rounded-lg transition-all duration-300 hover:border-indigo-500/30 border border-transparent">
-                        <label className="block text-[10px] font-medium text-indigo-300 mb-1.5">Skin</label>
-                        <div className="flex flex-col gap-2">
+                      <div className="glass-card p-4 rounded-xl">
+                        <label className="block text-xs font-medium text-indigo-300 mb-2">Skin</label>
+                        <div className="flex flex-col gap-3">
                           <SearchInput type="outfit" placeholder="Search skin..." onSelect={(id) => document.getElementById('skinInput').value = id} />
-                          <div className="flex gap-1.5">
-                            <input type="text" placeholder="CID_028_Athena_Commando_F" id="skinInput" className="flex-1 bg-slate-900/50 border border-indigo-500/30 rounded-lg px-3 py-2 text-xs outline-none focus:border-indigo-500 transition-all duration-300 focus:scale-[1.02]" />
+                          <div className="flex gap-2">
+                            <input type="text" placeholder="CID_028_Athena_Commando_F" id="skinInput" className="flex-1 input-modern rounded-xl px-4 py-3 text-sm" />
                             <CooldownButton
                               buttonId="setskin"
                               onClick={() => handleCosmeticUpdate('skin')}
-                              className="bg-indigo-600 hover:bg-indigo-500 px-3 rounded-lg text-xs font-medium btn-glow transition-all duration-300"
+                              className="btn-primary px-6 rounded-xl text-sm"
                             >
                               Set
                             </CooldownButton>
@@ -1507,38 +1653,37 @@
                         </div>
                       </div>
 
-                      {/* Backpack & Pickaxe */}
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className="bg-slate-800/30 p-3 rounded-lg transition-all duration-300 hover:border-indigo-500/30 border border-transparent">
-                          <label className="flex items-center gap-1 text-[10px] font-medium text-indigo-300 mb-1.5">
-                            <i className="fas fa-shopping-bag text-[8px]"></i> Backbling
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="glass-card p-4 rounded-xl">
+                          <label className="flex items-center gap-1 text-xs font-medium text-indigo-300 mb-2">
+                            <i className="fas fa-shopping-bag"></i> Backbling
                           </label>
                           <SearchInput type="backpack" placeholder="BID_138..." onSelect={(id) => document.getElementById('backpackInput').value = id} />
-                          <div className="flex gap-1.5 mt-2">
-                            <input type="text" placeholder="BID_138_Cuatro" id="backpackInput" className="flex-1 bg-slate-900/50 border border-indigo-500/30 rounded-lg px-3 py-2 text-xs outline-none focus:border-indigo-500 transition-all duration-300 focus:scale-[1.02]" />
+                          <div className="flex gap-2 mt-3">
+                            <input type="text" placeholder="BID_138_Cuatro" id="backpackInput" className="flex-1 input-modern rounded-xl px-3 py-2 text-sm" />
                             <CooldownButton
                               buttonId="setbackpack"
                               onClick={() => handleCosmeticUpdate('backpack')}
-                              className="bg-slate-700 hover:bg-slate-600 px-3 rounded-lg text-xs font-medium transition-all duration-300"
+                              className="btn-secondary px-3 rounded-xl text-sm"
                             >
                               Set
                             </CooldownButton>
                           </div>
                         </div>
 
-                        <div className="bg-slate-800/30 p-3 rounded-lg transition-all duration-300 hover:border-indigo-500/30 border border-transparent">
-                          <label className="flex items-center gap-1 text-[10px] font-medium text-indigo-300 mb-1.5">
-                            <i className="fas fa-pickaxe text-[8px]"></i> Pickaxe
+                        <div className="glass-card p-4 rounded-xl">
+                          <label className="flex items-center gap-1 text-xs font-medium text-indigo-300 mb-2">
+                            <i className="fas fa-pickaxe"></i> Pickaxe
                           </label>
                           <SearchInput type="pickaxe" placeholder="Pickaxe_ID..." onSelect={(id) => document.getElementById('pickaxeInput').value = id} />
-                          <div className="flex gap-1.5 mt-2">
-                            <input type="text" placeholder="Pickaxe_ID_015" id="pickaxeInput" className="flex-1 bg-slate-900/50 border border-indigo-500/30 rounded-lg px-3 py-2 text-xs outline-none focus:border-indigo-500 transition-all duration-300 focus:scale-[1.02]" />
+                          <div className="flex gap-2 mt-3">
+                            <input type="text" placeholder="Pickaxe_ID_015" id="pickaxeInput" className="flex-1 input-modern rounded-xl px-3 py-2 text-sm" />
                             <CooldownButton
                               buttonId="pickaxeemote"
                               onClick={handlePickaxeWithEmote}
-                              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 px-3 rounded-lg text-xs font-medium btn-glow transition-all duration-300"
+                              className="btn-primary px-3 rounded-xl text-sm"
                             >
-                              <><i className="fas fa-magic text-xs mr-1"></i>+Emote</>
+                              <i className="fas fa-magic mr-1"></i>+Emote
                             </CooldownButton>
                           </div>
                         </div>
@@ -1548,24 +1693,24 @@
                 )}
 
                 {tab === "extra" && (
-                  <div className="glass rounded-xl p-4 border-l-4 border-yellow-500 animate-fadeIn">
-                    <h3 className="text-sm font-bold mb-4 flex items-center gap-1.5">
-                      <i className="fas fa-star text-yellow-400 text-xs animate-pulse"></i>
+                  <div className="glass-modern rounded-2xl p-6 border-l-4 border-yellow-500 animate-fade-right">
+                    <h3 className="text-base font-bold mb-4 flex items-center gap-2">
+                      <i className="fas fa-star text-yellow-400"></i>
                       Season Level
                     </h3>
-                    <div className="flex gap-2 max-w-xs">
+                    <div className="flex gap-3 max-w-md">
                       <input 
                         type="number" 
                         min="1" 
                         max="1000" 
                         value={level} 
                         onChange={e=>setLv(Number(e.target.value))} 
-                        className="flex-1 bg-slate-900/50 border border-indigo-500/30 rounded-lg px-3 py-2 text-sm outline-none focus:border-indigo-500 text-center transition-all duration-300 focus:scale-[1.02]" 
+                        className="flex-1 input-modern rounded-xl px-4 py-3 text-sm text-center" 
                       />
                       <CooldownButton
                         buttonId="setlevel"
                         onClick={handleSetLevel}
-                        className="bg-indigo-600 hover:bg-indigo-500 px-5 rounded-lg text-sm font-medium btn-glow transition-all duration-300"
+                        className="btn-primary px-8 rounded-xl text-sm"
                       >
                         Set
                       </CooldownButton>
@@ -1574,17 +1719,17 @@
                 )}
 
                 {tab === "members" && (
-                  <div className="glass rounded-xl p-4 border-l-4 border-green-500 animate-fadeIn">
-                    <h3 className="text-sm font-bold mb-3 flex items-center gap-1.5">
-                      <i className="fas fa-users text-green-400 text-xs animate-pulse"></i>
+                  <div className="glass-modern rounded-2xl p-6 border-l-4 border-green-500 animate-fade-right">
+                    <h3 className="text-base font-bold mb-4 flex items-center gap-2">
+                      <i className="fas fa-users text-green-400"></i>
                       Party Members ({safeMembers.length})
                     </h3>
                     
-                    <div className="space-y-3 max-h-[600px] overflow-y-auto custom-scrollbar pr-1">
+                    <div className="space-y-3 max-h-[600px] overflow-y-auto custom-scrollbar pr-2">
                       {safeMembers.length === 0 && (
-                        <div className="text-center text-slate-500 py-8">
-                          <i className="fas fa-users-slash text-2xl mb-2 opacity-30"></i>
-                          <p className="text-xs">No members</p>
+                        <div className="text-center text-slate-500 py-12">
+                          <i className="fas fa-users-slash text-4xl mb-3 opacity-30"></i>
+                          <p className="text-sm">No members in party</p>
                         </div>
                       )}
                       
@@ -1607,59 +1752,52 @@
                         return (
                           <div 
                             key={m.account_id} 
-                            className={`p-3 rounded-lg border transition-all duration-300 hover:scale-[1.01] ${
-                              isMe 
-                                ? 'bg-indigo-600/20 border-indigo-500' 
-                                : 'bg-slate-800/30 border-indigo-500/10 hover:border-indigo-500/30'
+                            className={`glass-card p-4 rounded-xl border transition-all duration-300 hover:scale-[1.01] ${
+                              isMe ? 'border-indigo-500' : 'border-indigo-500/10'
                             }`}
                             style={{ animationDelay: `${idx * 50}ms` }}
                           >
-                            {/* Main info */}
-                            <div className="flex items-center justify-between mb-2">
-                              <div className="flex items-center gap-2">
+                            <div className="flex items-center justify-between mb-3">
+                              <div className="flex items-center gap-3">
                                 <div className="relative">
-                                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-base ${isMe ? 'bg-indigo-600' : 'bg-slate-700'}`}>
+                                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg ${isMe ? 'bg-indigo-600' : 'glass-card'}`}>
                                     {PLAT_EMOJI[pl] || "💻"}
                                   </div>
                                   {m.role === "CAPTAIN" && (
-                                    <div className="absolute -top-1.5 -right-1.5 bg-yellow-500 rounded-full p-0.5 animate-pulse">
-                                      <i className="fas fa-crown text-[6px] text-yellow-900"></i>
+                                    <div className="absolute -top-2 -right-2 bg-yellow-500 rounded-full p-1">
+                                      <i className="fas fa-crown text-[8px] text-yellow-900"></i>
                                     </div>
                                   )}
                                 </div>
                                 <div>
-                                  <div className="flex items-center gap-1.5">
+                                  <div className="flex items-center gap-2">
                                     <span className="text-sm font-medium">{nm}</span>
                                     {cr > 0 && (
-                                      <span className="text-[8px] bg-yellow-600/30 text-yellow-500 px-1 py-0.5 rounded-full border border-yellow-500/30 flex items-center gap-0.5">
-                                        <i className="fas fa-crown text-[6px]"></i> {cr}
+                                      <span className="text-[10px] bg-yellow-600/30 text-yellow-500 px-2 py-0.5 rounded-full border border-yellow-500/30 flex items-center gap-1">
+                                        <i className="fas fa-crown text-[8px]"></i> {cr}
                                       </span>
                                     )}
                                   </div>
-                                  <p className="text-[10px] text-slate-400">
-                                    {PLATFORMS[pl] || pl} • Lvl {lv}
-                                    {isMe && <span className="ml-1 text-indigo-400">(You)</span>}
+                                  <p className="text-xs text-slate-400">
+                                    {PLATFORMS[pl] || pl} • Level {lv}
+                                    {isMe && <span className="ml-2 text-indigo-400">(You)</span>}
                                   </p>
                                 </div>
                               </div>
 
                               <div className="flex items-center gap-2">
-                                <span className={`px-2 py-0.5 rounded-full text-[8px] font-medium border ${
-                                  inM ? 'bg-blue-600/30 text-blue-400 border-blue-500/30' :
-                                  sit ? 'bg-yellow-600/30 text-yellow-400 border-yellow-500/30' :
-                                  rdy ? 'bg-green-600/30 text-green-400 border-green-500/30' :
-                                  'bg-slate-600/30 text-slate-400 border-slate-500/30'
+                                <span className={`status-badge ${
+                                  inM ? 'status-ingame' : sit ? 'status-offline' : rdy ? 'status-online' : 'status-offline'
                                 }`}>
                                   {inM ? 'IN MATCH' : sit ? 'SIT OUT' : rdy ? 'READY' : 'NOT READY'}
                                 </span>
                                 
-                                {/* Copy Locker Button */}
                                 {!isMe && (
                                   <CooldownButton
                                     buttonId={`copy_${m.account_id}`}
                                     onClick={() => copyLocker(m.account_id)}
-                                    className="p-1.5 hover:bg-indigo-600/30 text-slate-400 hover:text-indigo-400 rounded transition-all duration-300 copy-btn"
-                                    title="Copy full locker + level"
+                                    className="w-8 h-8 rounded-lg hover:bg-indigo-600/30 text-slate-400 hover:text-indigo-400 transition-all"
+                                    variant="secondary"
                                   >
                                     <i className="fas fa-copy text-xs"></i>
                                   </CooldownButton>
@@ -1670,16 +1808,16 @@
                                     <CooldownButton
                                       buttonId={`promote_${m.account_id}`}
                                       onClick={() => doAction("promote", {target: m.account_id}, `${nm} is now leader!`)}
-                                      className="p-1.5 hover:bg-yellow-600/30 text-slate-400 hover:text-yellow-400 rounded transition-all duration-300"
-                                      title="Make Leader"
+                                      className="w-8 h-8 rounded-lg hover:bg-yellow-600/30 text-slate-400 hover:text-yellow-400 transition-all"
+                                      variant="secondary"
                                     >
                                       <i className="fas fa-crown text-xs"></i>
                                     </CooldownButton>
                                     <CooldownButton
                                       buttonId={`kick_${m.account_id}`}
                                       onClick={() => doAction("kick", {target: m.account_id}, `${nm} kicked!`)}
-                                      className="p-1.5 hover:bg-red-600/30 text-slate-400 hover:text-red-400 rounded transition-all duration-300"
-                                      title="Kick"
+                                      className="w-8 h-8 rounded-lg hover:bg-red-600/30 text-slate-400 hover:text-red-400 transition-all"
+                                      variant="secondary"
                                     >
                                       <i className="fas fa-times text-xs"></i>
                                     </CooldownButton>
@@ -1688,41 +1826,35 @@
                               </div>
                             </div>
 
-                            {/* Cosmetic details with images */}
-                            <div className="mt-2 pt-2 border-t border-indigo-500/20">
-                              <div className="grid grid-cols-4 gap-2">
-                                <div className="flex flex-col items-center group">
-                                  <CosmeticImage id={cosmetics.skin} type="skin" className="w-10 h-10" />
-                                  <span className="text-[8px] text-indigo-300 mt-1 truncate w-full text-center opacity-70 group-hover:opacity-100 transition-opacity">
+                            <div className="pt-3 border-t border-indigo-500/20">
+                              <div className="grid grid-cols-4 gap-3">
+                                <div className="flex flex-col items-center">
+                                  <CosmeticImage id={cosmetics.skin} type="skin" />
+                                  <span className="text-[10px] text-indigo-300 mt-1 truncate w-full text-center">
                                     {cosmetics.skinId || 'None'}
                                   </span>
                                 </div>
                                 
-                                <div className="flex flex-col items-center group">
-                                  <CosmeticImage id={cosmetics.backpack} type="backpack" className="w-10 h-10" />
-                                  <span className="text-[8px] text-indigo-300 mt-1 truncate w-full text-center opacity-70 group-hover:opacity-100">
+                                <div className="flex flex-col items-center">
+                                  <CosmeticImage id={cosmetics.backpack} type="backpack" />
+                                  <span className="text-[10px] text-indigo-300 mt-1 truncate w-full text-center">
                                     {cosmetics.backpack?.split(':')[1]?.split('/').pop()?.split('.')[0] || 'None'}
                                   </span>
                                 </div>
                                 
-                                <div className="flex flex-col items-center group">
-                                  <CosmeticImage id={cosmetics.pickaxe} type="pickaxe" className="w-10 h-10" />
-                                  <span className="text-[8px] text-indigo-300 mt-1 truncate w-full text-center opacity-70 group-hover:opacity-100">
+                                <div className="flex flex-col items-center">
+                                  <CosmeticImage id={cosmetics.pickaxe} type="pickaxe" />
+                                  <span className="text-[10px] text-indigo-300 mt-1 truncate w-full text-center">
                                     {cosmetics.pickaxe?.split(':')[1]?.split('/').pop()?.split('.')[0] || 'None'}
                                   </span>
                                 </div>
                                 
-                                <div className="flex flex-col items-center group">
-                                  <CosmeticImage id={cosmetics.emote} type="emote" className="w-10 h-10" />
-                                  <span className="text-[8px] text-indigo-300 mt-1 truncate w-full text-center opacity-70 group-hover:opacity-100">
+                                <div className="flex flex-col items-center">
+                                  <CosmeticImage id={cosmetics.emote} type="emote" />
+                                  <span className="text-[10px] text-indigo-300 mt-1 truncate w-full text-center">
                                     {cosmetics.emoteId || 'None'}
                                   </span>
                                 </div>
-                              </div>
-                              
-                              <div className="mt-1 text-[6px] text-slate-500 text-center opacity-30 hover:opacity-100 transition-opacity">
-                                {cosmetics.skin !== 'None' && <span className="mr-1">👕 {cosmetics.skin.split(':')[1]?.split('/').pop()}</span>}
-                                {cosmetics.emote !== 'None' && <span>💃 {cosmetics.emote.split('/').pop()?.split('.')[0]}</span>}
                               </div>
                             </div>
                           </div>
@@ -1733,47 +1865,47 @@
                 )}
 
                 {tab === "islands" && (
-                  <div className="glass rounded-xl p-4 border-l-4 border-teal-500 animate-fadeIn">
-                    <h3 className="text-sm font-bold mb-4 flex items-center gap-1.5">
-                      <i className="fas fa-map text-teal-400 text-xs animate-pulse"></i>
+                  <div className="glass-modern rounded-2xl p-6 border-l-4 border-teal-500 animate-fade-right">
+                    <h3 className="text-base font-bold mb-4 flex items-center gap-2">
+                      <i className="fas fa-map text-teal-400"></i>
                       Island Launcher
                     </h3>
                     
-                    <div className="bg-indigo-950/30 border border-indigo-500/20 p-3 rounded-lg mb-4">
-                      <p className="text-[10px] text-indigo-300">
-                        <i className="fas fa-info-circle text-[8px] mr-1"></i>
+                    <div className="bg-indigo-950/30 border border-indigo-500/20 p-4 rounded-xl mb-4">
+                      <p className="text-xs text-indigo-300">
+                        <i className="fas fa-info-circle mr-1"></i>
                         {isCap 
-                          ? "Enter any Fortnite island code to launch it (format: 1234-5678-9012)" 
+                          ? "Enter any Fortnite island code (format: 1234-5678-9012)" 
                           : "⚠️ Only party leader can launch islands"}
                       </p>
                     </div>
 
                     {launchError && (
-                      <div className="rate-limit-warning mb-3">
-                        <i className="fas fa-exclamation-triangle mr-1"></i>
-                        {launchError}
+                      <div className="bg-red-950/30 border border-red-500/30 p-3 rounded-xl mb-4">
+                        <p className="text-xs text-red-400 flex items-center gap-2">
+                          <i className="fas fa-exclamation-triangle"></i>
+                          {launchError}
+                        </p>
                       </div>
                     )}
 
-                    <div className="space-y-4">
-                      <div className="flex gap-2">
-                        <input
-                          type="text"
-                          value={islandCode}
-                          onChange={(e) => setIslandCode(e.target.value)}
-                          placeholder="e.g., 1234-5678-9012"
-                          className="flex-1 bg-slate-900/50 border border-indigo-500/30 rounded-lg px-4 py-3 text-sm outline-none focus:border-indigo-500 font-mono"
-                          disabled={!isCap}
-                        />
-                        <CooldownButton
-                          buttonId="launchisland"
-                          onClick={launchIsland}
-                          disabled={!islandCode.trim() || launchLoading || !isCap}
-                          className={`px-6 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-500 hover:to-cyan-500 rounded-lg text-sm font-medium btn-glow ${!isCap ? 'opacity-50 cursor-not-allowed' : ''}`}
-                        >
-                          {launchLoading ? <i className="fas fa-spinner fa-spin"></i> : 'Launch'}
-                        </CooldownButton>
-                      </div>
+                    <div className="flex gap-3">
+                      <input
+                        type="text"
+                        value={islandCode}
+                        onChange={(e) => setIslandCode(e.target.value)}
+                        placeholder="e.g., 1234-5678-9012"
+                        className="flex-1 input-modern rounded-xl px-4 py-3 text-sm font-mono"
+                        disabled={!isCap}
+                      />
+                      <CooldownButton
+                        buttonId="launchisland"
+                        onClick={launchIsland}
+                        disabled={!islandCode.trim() || launchLoading || !isCap}
+                        className="btn-primary px-8 rounded-xl text-sm font-medium"
+                      >
+                        {launchLoading ? <i className="fas fa-spinner fa-spin"></i> : 'Launch'}
+                      </CooldownButton>
                     </div>
                   </div>
                 )}
