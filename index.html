@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="el">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -20,370 +20,417 @@
   
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-  
-  <!-- Framer Motion (CDN) -->
-  <script src="https://cdn.jsdelivr.net/npm/framer-motion@10.16.4/dist/framer-motion.js"></script>
 
   <style>
+    /* ========================================================================= */
+    /* FONTS & TYPOGRAPHY                                                        */
+    /* ========================================================================= */
+    @import url('https://fonts.googleapis.com/css2?family=Teko:wght@400;500;600;700&display=swap');
+
+    @font-face {
+      font-family: 'Burbank Big Condensed';
+      src: url('/fonts/BurbankBigCondensed-Black.woff2') format('woff2'),
+           url('/fonts/BurbankBigCondensed-Black.ttf') format('truetype');
+      font-weight: bold;
+      font-style: normal;
+      font-display: swap;
+    }
+
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
-      font-family: 'Inter', sans-serif;
+      font-family: 'Burbank Big Condensed', 'Teko', Impact, sans-serif;
+      letter-spacing: 1px;
     }
 
     body {
       background: #0a0a0f;
       min-height: 100vh;
-      color: #fff;
+      color: #f8fafc;
       position: relative;
       overflow-x: hidden;
+      font-size: 24px;
+      line-height: 1.4;
     }
 
-    /* Animated background with floating orbs */
-    .animated-bg {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 0;
-      overflow: hidden;
+    h1, h2, h3, .result-name {
+      letter-spacing: 1.8px;
+      line-height: 1.2;
+      text-transform: uppercase; 
     }
 
-    .orb {
-      position: absolute;
-      border-radius: 50%;
-      background: radial-gradient(circle at 30% 30%, rgba(99, 102, 241, 0.15), rgba(168, 85, 247, 0.05));
-      filter: blur(60px);
-      animation: float 20s infinite ease-in-out;
-    }
+    .text-sm { font-size: 20px !important; }
+    .text-xs { font-size: 18px !important; color: #9ca3af; }
 
-    .orb-1 {
-      width: 500px;
-      height: 500px;
-      top: -200px;
-      right: -100px;
-      background: radial-gradient(circle at 30% 30%, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.1));
-      animation-delay: 0s;
-    }
-
-    .orb-2 {
-      width: 600px;
-      height: 600px;
-      bottom: -300px;
-      left: -200px;
-      background: radial-gradient(circle at 30% 30%, rgba(168, 85, 247, 0.2), rgba(99, 102, 241, 0.1));
-      animation-delay: -5s;
-    }
-
-    .orb-3 {
-      width: 400px;
-      height: 400px;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: radial-gradient(circle at 30% 30%, rgba(59, 130, 246, 0.15), rgba(99, 102, 241, 0.05));
-      animation-delay: -10s;
-    }
+    /* ========================================================================= */
+    /* BACKGROUND ANIMATIONS                                                     */
+    /* ========================================================================= */
+    .animated-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; overflow: hidden; pointer-events: none; }
+    .orb { position: absolute; border-radius: 50%; filter: blur(60px); animation: float 20s infinite ease-in-out; }
+    .orb-1 { width: 500px; height: 500px; top: -200px; right: -100px; background: radial-gradient(circle, rgba(99, 102, 241, 0.2), transparent); animation-delay: 0s; }
+    .orb-2 { width: 600px; height: 600px; bottom: -300px; left: -200px; background: radial-gradient(circle, rgba(168, 85, 247, 0.2), transparent); animation-delay: -5s; }
+    .orb-3 { width: 400px; height: 400px; top: 50%; left: 50%; transform: translate(-50%, -50%); background: radial-gradient(circle, rgba(59, 130, 246, 0.15), transparent); animation-delay: -10s; }
 
     @keyframes float {
-      0%, 100% {
-        transform: translate(0, 0) scale(1);
-      }
-      25% {
-        transform: translate(50px, -50px) scale(1.1);
-      }
-      50% {
-        transform: translate(100px, 0) scale(1);
-      }
-      75% {
-        transform: translate(50px, 50px) scale(0.9);
-      }
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      25% { transform: translate(30px, -30px) scale(1.05); }
+      50% { transform: translate(60px, 0) scale(1); }
+      75% { transform: translate(30px, 30px) scale(0.95); }
     }
 
-    /* Grid overlay */
     .grid-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-image: 
-        linear-gradient(rgba(99, 102, 241, 0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(99, 102, 241, 0.03) 1px, transparent 1px);
-      background-size: 50px 50px;
-      z-index: 1;
-      pointer-events: none;
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background-image: linear-gradient(rgba(99, 102, 241, 0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(99, 102, 241, 0.04) 1px, transparent 1px);
+      background-size: 40px 40px; z-index: 1; pointer-events: none;
     }
 
-    #root {
-      position: relative;
-      z-index: 2;
-    }
+    #root { position: relative; z-index: 2; }
 
-    /* Modern glass effect */
+    /* ========================================================================= */
+    /* GLASS UI CONTAINERS                                                       */
+    /* ========================================================================= */
     .glass-modern {
-      background: rgba(10, 10, 15, 0.7);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(99, 102, 241, 0.1);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      background: rgba(10, 10, 15, 0.75); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(139, 92, 246, 0.15); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+      position: relative; border-radius: 16px;
+      z-index: 10;
+    }
+
+    .glass-modern:focus-within {
+      z-index: 99999;
     }
 
     .glass-card {
-      background: rgba(18, 18, 25, 0.6);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      border: 1px solid rgba(99, 102, 241, 0.2);
-      transition: all 0.3s ease;
+      background: rgba(18, 18, 25, 0.65); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(139, 92, 246, 0.2); transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative; z-index: 10; border-radius: 12px;
+    }
+
+    .glass-card:focus-within {
+      z-index: 99999;
     }
 
     .glass-card:hover {
-      border-color: rgba(99, 102, 241, 0.4);
-      transform: translateY(-2px);
-      box-shadow: 0 12px 40px rgba(99, 102, 241, 0.15);
+      border-color: rgba(139, 92, 246, 0.6); transform: translateY(-4px); box-shadow: 0 15px 45px rgba(139, 92, 246, 0.2);
     }
 
-    /* Button styles */
-    .btn-primary {
-      background: linear-gradient(135deg, #4f46e5, #7c3aed);
-      border: none;
-      color: white;
-      font-weight: 600;
-      transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .btn-primary::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-      transition: left 0.5s ease;
-    }
-
-    .btn-primary:hover::before {
-      left: 100%;
-    }
-
-    .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 30px rgba(79, 70, 229, 0.4);
-    }
-
-    .btn-primary:active {
-      transform: translateY(0);
-    }
-
-    .btn-secondary {
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(99, 102, 241, 0.3);
-      color: white;
-      font-weight: 500;
-      transition: all 0.3s ease;
-    }
-
-    .btn-secondary:hover {
-      background: rgba(99, 102, 241, 0.1);
-      border-color: rgba(99, 102, 241, 0.6);
-      transform: translateY(-2px);
-    }
-
-    /* Input styles */
+    /* ========================================================================= */
+    /* INPUTS & NORMAL BUTTONS                                                   */
+    /* ========================================================================= */
     .input-modern {
-      background: rgba(18, 18, 25, 0.8);
-      border: 1px solid rgba(99, 102, 241, 0.2);
-      color: white;
-      transition: all 0.3s ease;
+      background: rgba(15, 15, 22, 0.8); border: 2px solid rgba(139, 92, 246, 0.2);
+      color: white; transition: all 0.3s ease; position: relative;
+      font-size: 24px; padding: 14px 20px; width: 100%; border-radius: 12px;
     }
 
     .input-modern:focus {
-      border-color: #4f46e5;
-      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
-      outline: none;
+      border-color: #a855f7; box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.15), 0 0 20px rgba(168, 85, 247, 0.3);
+      outline: none; background: rgba(25, 25, 35, 0.95); transform: translateY(-1px);
     }
 
-    .input-modern::placeholder {
-      color: rgba(255,255,255,0.3);
+    .input-modern::placeholder { color: rgba(255,255,255,0.4); }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #6366f1, #a855f7); border: none; color: white;
+      font-weight: 600; font-size: 26px; letter-spacing: 2px; padding: 14px 24px;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); border-radius: 12px;
+      position: relative; overflow: hidden; text-transform: uppercase; cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
     }
 
-    /* Status badges */
-    .status-badge {
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.3px;
+    .btn-primary::before {
+      content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent); transition: left 0.5s ease;
+    }
+    .btn-primary:hover:not(:disabled)::before { left: 100%; }
+    .btn-primary:hover:not(:disabled) { transform: translateY(-3px) scale(1.02); box-shadow: 0 12px 30px rgba(168, 85, 247, 0.5); }
+    .btn-primary:active:not(:disabled) { transform: translateY(1px) scale(0.98); }
+
+    .btn-secondary {
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(139, 92, 246, 0.3); color: white;
+      font-weight: 500; font-size: 24px; padding: 14px 24px; border-radius: 12px;
+      transition: all 0.3s ease; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
     }
 
-    .status-online {
-      background: rgba(16, 185, 129, 0.15);
-      color: #10b981;
-      border: 1px solid rgba(16, 185, 129, 0.3);
+    .btn-secondary:hover:not(:disabled) {
+      background: rgba(139, 92, 246, 0.1); border-color: rgba(139, 92, 246, 0.6); transform: translateY(-2px);
     }
 
-    .status-offline {
-      background: rgba(107, 114, 128, 0.15);
-      color: #9ca3af;
-      border: 1px solid rgba(107, 114, 128, 0.3);
+    .btn-primary:disabled, .btn-secondary:disabled {
+      opacity: 0.5; cursor: not-allowed; transform: none;
     }
 
-    .status-ingame {
-      background: rgba(59, 130, 246, 0.15);
-      color: #3b82f6;
-      border: 1px solid rgba(59, 130, 246, 0.3);
-    }
-
-    /* Animations */
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @keyframes fadeInLeft {
-      from {
-        opacity: 0;
-        transform: translateX(-20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateX(0);
-      }
-    }
-
-    @keyframes fadeInRight {
-      from {
-        opacity: 0;
-        transform: translateX(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateX(0);
-      }
-    }
-
-    @keyframes scaleIn {
-      from {
-        opacity: 0;
-        transform: scale(0.9);
-      }
-      to {
-        opacity: 1;
-        transform: scale(1);
-      }
-    }
-
-    @keyframes glowPulse {
-      0%, 100% {
-        box-shadow: 0 0 20px rgba(79, 70, 229, 0.2);
-      }
-      50% {
-        box-shadow: 0 0 40px rgba(79, 70, 229, 0.4);
-      }
-    }
-
-    .animate-fade-up {
-      animation: fadeInUp 0.6s ease forwards;
-    }
-
-    .animate-fade-left {
-      animation: fadeInLeft 0.6s ease forwards;
-    }
-
-    .animate-fade-right {
-      animation: fadeInRight 0.6s ease forwards;
-    }
-
-    .animate-scale {
-      animation: scaleIn 0.5s ease forwards;
-    }
-
-    .animate-glow {
-      animation: glowPulse 3s infinite;
-    }
-
-    /* Loading spinner */
-    .loading-spinner {
-      width: 40px;
-      height: 40px;
-      border: 3px solid rgba(79, 70, 229, 0.1);
-      border-top-color: #4f46e5;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    /* Progress bar */
-    .progress-bar {
-      height: 4px;
-      background: rgba(79, 70, 229, 0.1);
-      border-radius: 2px;
-      overflow: hidden;
-    }
-
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, #4f46e5, #7c3aed);
-      animation: progress 2s ease infinite;
-      width: 0%;
-    }
-
-    @keyframes progress {
-      0% { width: 0%; }
-      50% { width: 100%; }
-      100% { width: 0%; }
-    }
-
-    /* Particle effect */
-    .particle {
-      position: absolute;
-      width: 2px;
-      height: 2px;
-      background: rgba(99, 102, 241, 0.3);
-      border-radius: 50%;
-      pointer-events: none;
-    }
-
-    /* Custom scrollbar */
-    .custom-scrollbar::-webkit-scrollbar {
-      width: 4px;
-    }
-    .custom-scrollbar::-webkit-scrollbar-track {
-      background: transparent;
-    }
-    .custom-scrollbar::-webkit-scrollbar-thumb {
-      background: #4f46e5;
-      border-radius: 4px;
-    }
-
-    /* Cooldown animation */
+    /* ===== COOLDOWN ANIMATION ===== */
     @keyframes cooldown {
       from { width: 100%; }
       to { width: 0%; }
     }
     .cooldown-bar {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      height: 2px;
-      background: linear-gradient(90deg, #4f46e5, #818cf8);
+      position: absolute; bottom: 0; left: 0; height: 3px;
+      background: linear-gradient(90deg, #ef4444, #f97316); z-index: 10;
       animation: cooldown 10s linear forwards;
     }
-  </style>
+
+    /* ========================================================================= */
+    /* DROPDOWN MENU (SEARCH RESULTS) - ΠΛΗΡΩΣ ΔΙΟΡΘΩΜΕΝΟ                        */
+    /* ========================================================================= */
+    .search-results-container {
+      position: relative;
+      width: 100%;
+      z-index: 1;
+    }
+
+    .search-results-container.active {
+      z-index: 999999;
+    }
+
+    @keyframes dropDownEnter {
+      from { opacity: 0; transform: translateY(-10px) scale(0.95); filter: blur(4px); }
+      to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+    }
+
+    .search-results-dropdown {
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 0;
+      width: 100%;
+      background: rgba(15, 15, 22, 0.98);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 2px solid rgba(168, 85, 247, 0.4);
+      border-radius: 12px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255,255,255,0.05) inset;
+      margin-top: 12px;
+      max-height: 350px;
+      overflow-y: auto;
+      z-index: 999999;
+      animation: dropDownEnter 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      transform-origin: top center;
+    }
+
+    .search-results-dropdown::-webkit-scrollbar { width: 8px; }
+    .search-results-dropdown::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); border-radius: 10px; }
+    .search-results-dropdown::-webkit-scrollbar-thumb { background: rgba(168, 85, 247, 0.6); border-radius: 10px; border: 2px solid rgba(15, 15, 22, 0.98); }
+    .search-results-dropdown::-webkit-scrollbar-thumb:hover { background: #a855f7; }
+
+    .search-result-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 12px 20px;
+      cursor: pointer;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      border-left: 4px solid transparent;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      background: transparent;
+    }
+    .search-result-item:last-child { border-bottom: none; }
+
+    .search-result-item:hover {
+      background: linear-gradient(90deg, rgba(168, 85, 247, 0.2) 0%, transparent 100%);
+      border-left: 4px solid #a855f7;
+      transform: translateX(6px);
+    }
+
+    .search-result-item img {
+      width: 48px; height: 48px; border-radius: 8px; object-fit: cover;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      transition: transform 0.2s ease;
+    }
+    .search-result-item:hover img { transform: scale(1.1) rotate(2deg); }
+
+    .result-name { font-size: 26px; font-weight: bold; color: white; }
+    .result-id { font-size: 18px; color: #a5b4fc; }
+
+    .search-loading {
+      position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
+      color: #a855f7; font-size: 24px; z-index: 10;
+    }
+
+    /* ========================================================================= */
+    /* STATUS BADGES - ΒΕΛΤΙΩΜΕΝΑ ΓΙΑ READINESS                                  */
+    /* ========================================================================= */
+    .status-badge {
+      padding: 8px 16px;
+      border-radius: 30px;
+      font-size: 18px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 100px;
+      letter-spacing: 0.5px;
+    }
+
+    .status-ready {
+      background: rgba(34, 197, 94, 0.15);
+      color: #22c55e;
+      border: 2px solid rgba(34, 197, 94, 0.3);
+      box-shadow: 0 0 15px rgba(34, 197, 94, 0.2);
+    }
+
+    .status-sitout {
+      background: rgba(234, 179, 8, 0.15);
+      color: #eab308;
+      border: 2px solid rgba(234, 179, 8, 0.3);
+      box-shadow: 0 0 15px rgba(234, 179, 8, 0.2);
+    }
+
+    .status-notready {
+      background: rgba(107, 114, 128, 0.15);
+      color: #9ca3af;
+      border: 2px solid rgba(107, 114, 128, 0.3);
+    }
+
+    .status-ingame {
+      background: rgba(59, 130, 246, 0.15);
+      color: #3b82f6;
+      border: 2px solid rgba(59, 130, 246, 0.3);
+      box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
+    }
+
+    /* ========================================================================= */
+    /* SELECTED SKIN PREVIEW                                                     */
+    /* ========================================================================= */
+    .selected-skin-preview {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+      padding: 12px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 12px;
+      border: 1px solid rgba(139, 92, 246, 0.2);
+    }
+
+    .selected-skin-preview img {
+      width: 64px;
+      height: 64px;
+      border-radius: 12px;
+      object-fit: cover;
+    }
+
+    .selected-skin-preview .skin-name {
+      font-size: 24px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .selected-skin-preview .skin-id {
+      font-size: 18px;
+      color: #a5b4fc;
+    }
+
+    /* ========================================================================= */
+    /* COSMETIC GRID                                                             */
+    /* ========================================================================= */
+    .cosmetic-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .cosmetic-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 8px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 12px;
+    }
+
+    .cosmetic-item img {
+      width: 64px;
+      height: 64px;
+      border-radius: 12px;
+      object-fit: cover;
+      margin-bottom: 8px;
+    }
+
+    .cosmetic-item span {
+      font-size: 16px;
+      color: #a5b4fc;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* ========================================================================= */
+    /* ANIMATIONS                                                                */
+    /* ========================================================================= */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeInLeft {
+      from { opacity: 0; transform: translateX(-20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes fadeInRight {
+      from { opacity: 0; transform: translateX(20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes scaleIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    @keyframes glowPulse {
+      0%, 100% { box-shadow: 0 0 20px rgba(79, 70, 229, 0.2); }
+      50% { box-shadow: 0 0 40px rgba(79, 70, 229, 0.4); }
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes slideOut {
+      from { opacity: 1; transform: translateX(0); }
+      to { opacity: 0; transform: translateX(20px); }
+    }
+
+    .animate-fade-up { animation: fadeInUp 0.6s ease forwards; }
+    .animate-fade-left { animation: fadeInLeft 0.6s ease forwards; }
+    .animate-fade-right { animation: fadeInRight 0.6s ease forwards; }
+    .animate-scale { animation: scaleIn 0.5s ease forwards; }
+    .animate-glow { animation: glowPulse 3s infinite; }
+    .toast-anim { animation: slideIn 0.2s ease forwards; }
+    .toast-exit { animation: slideOut 0.2s ease forwards; }
+
+    .loading-spinner {
+      width: 40px; height: 40px; border: 4px solid rgba(168, 85, 247, 0.1);
+      border-top-color: #a855f7; border-radius: 50%; animation: spin 0.8s cubic-bezier(0.6, 0.2, 0.4, 0.8) infinite;
+    }
+
+    .progress-bar {
+      height: 4px; background: rgba(79, 70, 229, 0.1); border-radius: 2px; overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%; background: linear-gradient(90deg, #4f46e5, #7c3aed);
+      animation: progress 2s ease infinite; width: 0%;
+    }
+    @keyframes progress {
+      0% { width: 0%; } 50% { width: 100%; } 100% { width: 0%; }
+    }
+
+    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #4f46e5; border-radius: 4px; }
+
+    /* ========================================================================= */
+    /* RESPONSIVE                                                                */
+    /* ========================================================================= */
+    @media (max-width: 768px) {
+      .cosmetic-grid { grid-template-columns: repeat(2, 1fr); }
+      .glass-modern { padding: 16px; }
+      .text-sm { font-size: 18px !important; }
+      .btn-primary, .btn-secondary { font-size: 22px; padding: 12px 20px; }
+      .status-badge { min-width: 80px; font-size: 16px; padding: 6px 12px; }
+    }
+</style>
 </head>
 <body>
   <div class="animated-bg">
@@ -423,6 +470,7 @@
       constructor() {
         this.cooldowns = new Map();
         this.listeners = new Set();
+        this.intervalId = null;
       }
 
       addListener(callback) {
@@ -435,21 +483,40 @@
         this.listeners.forEach(cb => cb(cooldowns));
       }
 
+      startTick() {
+        if (this.intervalId) return;
+
+        this.intervalId = setInterval(() => {
+          let activeCount = 0;
+          const now = Date.now();
+
+          this.cooldowns.forEach((expiry, id) => {
+            if (expiry <= now) {
+              this.cooldowns.delete(id);
+            } else {
+              activeCount++;
+            }
+          });
+
+          this.notifyListeners();
+
+          if (activeCount === 0) {
+            clearInterval(this.intervalId);
+            this.intervalId = null;
+          }
+        }, 1000);
+      }
+
       setCooldown(buttonId) {
         this.cooldowns.set(buttonId, Date.now() + 10000);
         this.notifyListeners();
-
-        setTimeout(() => {
-          if (this.cooldowns.get(buttonId) <= Date.now()) {
-            this.cooldowns.delete(buttonId);
-            this.notifyListeners();
-          }
-        }, 10000);
+        this.startTick();
       }
 
       isOnCooldown(buttonId) {
         const expiry = this.cooldowns.get(buttonId);
         if (!expiry) return false;
+        
         if (expiry <= Date.now()) {
           this.cooldowns.delete(buttonId);
           this.notifyListeners();
@@ -460,9 +527,11 @@
 
       getCooldowns() {
         const result = {};
+        const now = Date.now();
+        
         this.cooldowns.forEach((expiry, id) => {
-          if (expiry > Date.now()) {
-            result[id] = Math.ceil((expiry - Date.now()) / 1000);
+          if (expiry > now) {
+            result[id] = Math.ceil((expiry - now) / 1000);
           }
         });
         return result;
@@ -485,7 +554,6 @@
 
     const proxyFetch = async (url, options = {}) => {
       const finalUrl = CORS_PROXY + encodeURIComponent(url);
-      
       try {
         const res = await fetch(finalUrl, options);
         if (res.status === 429) {
@@ -515,14 +583,12 @@
 
     const refreshTokenIfNeeded = async (account) => {
       if (!account) return account;
-      
       if (Date.now() > account.tokenExpiresAt - 300000) {
         try {
           const res = await epicPost(`${ACCOUNT_URL}/account/api/oauth/token`, PC_CLIENT, { 
             grant_type: "refresh_token", 
             refresh_token: account.refreshToken 
           });
-          
           return {
             ...account,
             accessToken: res.access_token,
@@ -537,9 +603,14 @@
       return account;
     };
 
-    // Parse meta helpers
     const parseMeta = (m, key) => {
-      try { const v = m?.meta?.[key]; return v ? JSON.parse(v) : {}; } catch { return {}; }
+      try { 
+        const v = m?.meta?.[key]; 
+        if (!v) return {};
+        return JSON.parse(v); 
+      } catch { 
+        return {}; 
+      }
     };
     
     const getDisplayName = m => m?.meta?.["urn:epic:member:dn_s"] || m?.account_id?.slice(0,8) || "?";
@@ -565,7 +636,8 @@
         pickaxe: loadout.pickaxeDef || "None",
         emote: emote.pickable || "None",
         skinId: loadout.characterPrimaryAssetId?.replace("AthenaCharacter:", "").replace("/BRCosmetics/Athena/Items/Cosmetics/Characters/", "").replace(".", ""),
-        emoteId: emote.pickable?.replace("/BRCosmetics/Athena/Items/Cosmetics/Dances/", "").replace(".", "")
+        emoteId: emote.pickable?.replace("/BRCosmetics/Athena/Items/Cosmetics/Dances/", "").replace(".", ""),
+        fullLoadout: loadout
       };
     };
 
@@ -704,7 +776,7 @@
           {children}
           {isOnCooldown && (
             <>
-              <span className="absolute inset-0 bg-black/50 flex items-center justify-center text-xs font-bold backdrop-blur-sm">
+              <span className="absolute inset-0 bg-black/50 flex items-center justify-center text-2xl font-bold backdrop-blur-sm">
                 {cooldowns[buttonId]}s
               </span>
               <div className="cooldown-bar" />
@@ -720,6 +792,9 @@
       const [res, setRes] = useState([]);
       const [op, setOp] = useState(false);
       const [loading, setLoading] = useState(false);
+      const containerRef = useRef(null);
+      const inputRef = useRef(null);
+      const uniqueId = useRef(`search-${Date.now()}-${Math.random()}`).current;
       
       useEffect(() => {
         const t = setTimeout(async () => {
@@ -732,50 +807,114 @@
           try {
             const r = await fetch(`${FORTNITE_API}/v2/cosmetics/br/search/all?name=${encodeURIComponent(q)}&language=en&matchMethod=contains&type=${type}`);
             const d = await r.json(); 
-            if (d.data) { 
+            if (d.data && d.data.length > 0) { 
               setRes(d.data.slice(0, 5)); 
               setOp(true); 
             }
-            else { setRes([]); }
-          } catch {}
+            else { 
+              setRes([]); 
+              setOp(false);
+            }
+          } catch (error) {
+            console.error("Search error:", error);
+            setRes([]);
+            setOp(false);
+          }
           setLoading(false);
         }, 400); 
         return () => clearTimeout(t);
       }, [q, type]);
+
+      useEffect(() => {
+        const handleClickOutside = (e) => {
+          if (containerRef.current && !containerRef.current.contains(e.target)) {
+            setOp(false);
+          }
+        };
+        
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+      }, []);
+
+      useEffect(() => {
+        if (op) {
+          const event = new CustomEvent('close-other-searches', { detail: { id: uniqueId } });
+          window.dispatchEvent(event);
+          if (containerRef.current) {
+            containerRef.current.classList.add('active');
+          }
+        } else {
+          if (containerRef.current) {
+            containerRef.current.classList.remove('active');
+          }
+        }
+      }, [op, uniqueId]);
+
+      useEffect(() => {
+        const handleCloseOthers = (e) => {
+          if (e.detail?.id !== uniqueId) {
+            setOp(false);
+          }
+        };
+        
+        window.addEventListener('close-other-searches', handleCloseOthers);
+        return () => window.removeEventListener('close-other-searches', handleCloseOthers);
+      }, [uniqueId]);
+
+      const handleFocus = () => {
+        if (q.length >= 2 && res.length > 0) {
+          setOp(true);
+        }
+      };
       
       return (
-        <div className="relative w-full">
+        <div 
+          ref={containerRef} 
+          className="search-results-container"
+          data-search-id={uniqueId}
+        >
           <div className="relative">
             <input 
+              ref={inputRef}
               type="text" 
               placeholder={placeholder} 
               value={q} 
-              onChange={e=>setQ(e.target.value)} 
-              onBlur={()=>setTimeout(()=>setOp(false),200)} 
-              className="w-full input-modern rounded-xl px-4 py-3 text-sm pr-10"
+              onChange={e => setQ(e.target.value)}
+              onFocus={handleFocus}
+              className="w-full input-modern rounded-xl px-4 py-3 text-sm"
+              autoComplete="off"
+              spellCheck="false"
             />
             {loading && (
-              <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                <i className="fas fa-spinner fa-spin text-indigo-400"></i>
+              <div className="search-loading">
+                <i className="fas fa-spinner fa-spin"></i>
               </div>
             )}
           </div>
           
           {op && res.length > 0 && (
-            <div className="absolute z-50 top-full left-0 right-0 mt-2 glass-modern rounded-xl border border-indigo-500/30 overflow-hidden animate-scale">
+            <div className="search-results-dropdown">
               {res.map((s, idx) => (
                 <div 
                   key={s.id} 
-                  onMouseDown={()=>{onSelect(s.id); setQ(""); setOp(false);}} 
-                  className="flex items-center gap-3 p-3 hover:bg-indigo-600/20 cursor-pointer border-b border-indigo-500/20 last:border-0 transition-all"
-                  style={{ animationDelay: `${idx * 50}ms` }}
+                  className="search-result-item"
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onSelect(s);
+                    setQ("");
+                    setOp(false);
+                    if (inputRef.current) {
+                      inputRef.current.blur();
+                    }
+                  }}
                 >
                   {(s.images?.smallIcon || s.images?.icon) && (
-                    <img src={s.images.smallIcon || s.images.icon} className="w-8 h-8 rounded-lg" alt="icon"/>
+                    <img src={s.images.smallIcon || s.images.icon} alt={s.name} />
                   )}
                   <div>
-                    <span className="text-sm font-bold text-white">{s.name}</span>
-                    <span className="text-xs text-indigo-300 block">{s.id}</span>
+                    <div className="result-name">{s.name}</div>
+                    <div className="result-id">{s.id}</div>
                   </div>
                 </div>
               ))}
@@ -838,6 +977,9 @@
       const [launchLoading, setLaunchLoading] = useState(false);
       const [launchError, setLaunchError] = useState(null);
       const [hoveredTab, setHoveredTab] = useState(null);
+
+      // State για το επιλεγμένο skin
+      const [selectedSkin, setSelectedSkin] = useState(null);
 
       // Auto refresh token
       useEffect(() => {
@@ -1070,14 +1212,11 @@
 
           await doAction("meta", {
             "Default:AthenaCosmeticLoadout_j": (old) => {
-              if (!old.AthenaCosmeticLoadout) old.AthenaCosmeticLoadout = {};
-              
-              old.AthenaCosmeticLoadout.characterPrimaryAssetId = targetCosmetics.skin;
-              old.AthenaCosmeticLoadout.backpackDef = targetCosmetics.backpack;
-              old.AthenaCosmeticLoadout.pickaxeDef = targetCosmetics.pickaxe;
-              
-              old.AthenaCosmeticLoadout.randomDefaultCosmeticHash = Math.floor(Math.random() * 2147483647);
-              return old;
+              const newLoadout = {
+                ...targetCosmetics.fullLoadout,
+                randomDefaultCosmeticHash: Math.floor(Math.random() * 2147483647)
+              };
+              return { AthenaCosmeticLoadout: newLoadout };
             }
           }, null);
 
@@ -1105,6 +1244,273 @@
         } catch (e) {
           toast.e(e.message);
         }
+      };
+
+      const getLatestRevision = async () => {
+        try {
+          const fnToken = await getFnToken(active);
+          const response = await proxyFetch(`${PARTY_URL}/party/api/v1/Fortnite/user/${active.accountId}`, {
+            headers: { Authorization: `Bearer ${fnToken}` }
+          });
+          const data = await safeJson(response);
+          
+          const currentParty = data.current?.[0];
+          if (currentParty) {
+            const myMember = currentParty.members.find(m => m.account_id === active.accountId);
+            return {
+              partyRev: currentParty.revision,
+              memberRev: myMember?.revision || 0
+            };
+          }
+        } catch (e) {
+          console.error("Failed to get latest revision:", e);
+        }
+        return { partyRev: 0, memberRev: 0 };
+      };
+
+      // ================= ΑΠΛΟΠΟΙΗΜΕΝΟ handleSetSkin (ΧΩΡΙΣ VARIANTS) =================
+      const handleSetSkin = async () => {
+        if (!selectedSkin) {
+          toast.e("Select a skin first");
+          return;
+        }
+
+        const { memberRev } = await getLatestRevision();
+        
+        // Μορφοποίηση ID
+        let formattedId = selectedSkin.id;
+        if (!formattedId.startsWith("AthenaCharacter:") && !formattedId.includes("/BRCosmetics/")) {
+          formattedId = `AthenaCharacter:${selectedSkin.id}`;
+        }
+
+        // Πάντα default variant
+        const defaultVariantTag = "0";
+        const defaultVariantIndex = 0;
+
+        // Variants Data - ΜΟΝΟ athenaCharacter με default
+        const variantData = {
+          vL: {},
+          vD: {
+            athenaCharacter: {
+              i: [`${defaultVariantTag}|${defaultVariantIndex}`]
+            }
+          },
+          fT: false
+        };
+
+        // MpLoadout - ΠΛΗΡΕΣ
+        const mpLoadout = {
+          ac: { i: selectedSkin.id, v: [defaultVariantTag] },
+          ab: { i: "None", v: ["0"] },
+          ag: { i: "Glider_RumpleWisp", v: ["0"] },
+          sb: { i: "Sparks_SurfsUp_Bass", v: [] },
+          sg: { i: "Sparks_HydroBeam_Guitar", v: ["0"] },
+          sd: { i: "Sparks_PerryChai_DrumKit", v: ["0"] },
+          sk: { i: "Sparks_PerryChai_Keytar", v: ["0"] },
+          sm: { i: "Sparks_Mic_Generic", v: ["0"] }
+        };
+
+        // CampaignHero - Default
+        const campaignHero = {
+          heroItemInstanceId: "",
+          heroType: "/Game/Athena/Heroes/HID_001_Athena_Commando_F.HID_001_Athena_Commando_F"
+        };
+
+        // Τρέχον loadout
+        const currentMember = party.members.find(m => m.account_id === active.accountId);
+        const currentLoadout = parseMeta(currentMember, "Default:AthenaCosmeticLoadout_j")?.AthenaCosmeticLoadout || {};
+
+        // Update payload
+        const updatePayload = {
+          "Default:AthenaCosmeticLoadout_j": JSON.stringify({
+            AthenaCosmeticLoadout: {
+              characterPrimaryAssetId: formattedId,
+              characterEKey: currentLoadout.characterEKey || "",
+              backpackDef: currentLoadout.backpackDef || "None",
+              backpackEKey: currentLoadout.backpackEKey || "",
+              pickaxeDef: currentLoadout.pickaxeDef || "None",
+              pickaxeEKey: currentLoadout.pickaxeEKey || "",
+              contrailDef: currentLoadout.contrailDef || "None",
+              contrailEKey: currentLoadout.contrailEKey || "",
+              shoesDef: currentLoadout.shoesDef || "None",
+              shoesEKey: currentLoadout.shoesEKey || "",
+              mimosaDef: currentLoadout.mimosaDef || "None",
+              mimosaEKey: currentLoadout.mimosaEKey || "",
+              cosmeticVariantPrimaryAssets: [],
+              scratchpad: currentLoadout.scratchpad || [],
+              cosmeticStats: currentLoadout.cosmeticStats || [],
+              randomDefaultCosmeticHash: Math.floor(Math.random() * 2147483647)
+            }
+          }),
+          "Default:AthenaCosmeticLoadoutVariants_j": JSON.stringify({
+            AthenaCosmeticLoadoutVariants: variantData
+          }),
+          "Default:MpLoadout_j": JSON.stringify({
+            MpLoadout: { d: JSON.stringify(mpLoadout) }
+          }),
+          "Default:CampaignHero_j": JSON.stringify({
+            CampaignHero: campaignHero
+          })
+        };
+
+        try {
+          const fnToken = await getFnToken(active);
+          const pId = party.id;
+
+          const response = await proxyFetch(`${PARTY_URL}/party/api/v1/Fortnite/parties/${pId}/members/${active.accountId}/meta`, {
+            method: "PATCH",
+            headers: {
+              "Authorization": `Bearer ${fnToken}`,
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              update: updatePayload,
+              delete: [],
+              revision: memberRev
+            })
+          });
+
+          if (response.ok) {
+            toast.s(`Skin ${selectedSkin.name} equipped!`);
+            setTimeout(() => loadParty(active), 1000);
+          } else {
+            const error = await safeJson(response);
+            console.error("PATCH error:", error);
+            
+            if (error.errorCode === "errors.com.epicgames.social.party.stale_revision") {
+              toast.s("Revision mismatch, retrying...");
+              setTimeout(() => handleSetSkin(), 500);
+            } else {
+              toast.e("Failed to set skin");
+            }
+          }
+        } catch (e) {
+          console.error("Error:", e);
+          toast.e(e.message);
+        }
+      };
+
+      const handleSetBackpack = async () => {
+        const val = document.getElementById("backpackInput")?.value.trim();
+        if (!val) {
+          toast.e("Enter a backpack ID");
+          return;
+        }
+
+        let baseId = val;
+        let fullPath = val;
+        let mpId = val;
+
+        if (val.includes("/BRCosmetics/")) {
+          const parts = val.split('/');
+          const lastPart = parts[parts.length - 1];
+          baseId = lastPart.split('.')[0];
+          fullPath = val;
+          mpId = baseId;
+        }
+        else if (val.startsWith("AthenaBackpack:")) {
+          baseId = val.replace("AthenaBackpack:", "");
+          fullPath = `/BRCosmetics/Athena/Items/Cosmetics/Backpacks/${baseId}.${baseId}`;
+          mpId = baseId;
+        }
+        else if (val.startsWith("BID_")) {
+          baseId = val;
+          fullPath = `/BRCosmetics/Athena/Items/Cosmetics/Backpacks/${val}.${val}`;
+          mpId = val;
+        }
+        else {
+          baseId = val;
+          fullPath = `/BRCosmetics/Athena/Items/Cosmetics/Backpacks/${val}.${val}`;
+          mpId = val;
+        }
+
+        const { memberRev } = await getLatestRevision();
+
+        const currentMember = party.members.find(m => m.account_id === active.accountId);
+        const currentLoadout = parseMeta(currentMember, "Default:AthenaCosmeticLoadout_j")?.AthenaCosmeticLoadout || {};
+        
+        const currentMp = parseMeta(currentMember, "Default:MpLoadout_j")?.MpLoadout?.d;
+        let mpLoadout = {};
+        try {
+          mpLoadout = currentMp ? JSON.parse(currentMp) : {};
+        } catch {
+          mpLoadout = {};
+        }
+
+        const newMpLoadout = {
+          ...mpLoadout,
+          ab: {
+            i: mpId,
+            v: ["0"]
+          }
+        };
+
+        const updatePayload = {
+          "Default:AthenaCosmeticLoadout_j": JSON.stringify({
+            AthenaCosmeticLoadout: {
+              ...currentLoadout,
+              backpackDef: fullPath,
+              randomDefaultCosmeticHash: Math.floor(Math.random() * 2147483647)
+            }
+          }),
+          "Default:MpLoadout_j": JSON.stringify({
+            MpLoadout: {
+              d: JSON.stringify(newMpLoadout)
+            }
+          })
+        };
+
+        try {
+          const fnToken = await getFnToken(active);
+          const pId = party.id;
+
+          const response = await proxyFetch(`${PARTY_URL}/party/api/v1/Fortnite/parties/${pId}/members/${active.accountId}/meta`, {
+            method: "PATCH",
+            headers: {
+              "Authorization": `Bearer ${fnToken}`,
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              update: updatePayload,
+              delete: [],
+              revision: memberRev
+            })
+          });
+
+          if (response.ok) {
+            toast.s(`Backpack equipped!`);
+            setTimeout(() => loadParty(active), 1000);
+          } else {
+            const error = await safeJson(response);
+            console.error("Error:", error);
+            
+            if (error.errorCode === "errors.com.epicgames.social.party.stale_revision") {
+              toast.s("Revision mismatch, retrying...");
+              setTimeout(() => handleSetBackpack(), 500);
+            } else {
+              toast.e("Failed to set backpack");
+            }
+          }
+        } catch (e) {
+          console.error("Exception:", e);
+          toast.e(e.message);
+        }
+      };
+
+      const handleSetPickaxe = async () => {
+        const val = document.getElementById("pickaxeInput")?.value.trim();
+        if (!val) return;
+        let formattedVal = val;
+        if (!val.includes("/BRCosmetics/") && !val.includes(":")) {
+          formattedVal = val.startsWith("Pickaxe_") ? `/BRCosmetics/Athena/Items/Cosmetics/Pickaxes/${val}.${val}` : `AthenaPickaxe:${val}`;
+        }
+        await doAction("meta", {
+          "Default:AthenaCosmeticLoadout_j": (old) => {
+            const current = old.AthenaCosmeticLoadout || {};
+            const newLoadout = { ...current, pickaxeDef: formattedVal, randomDefaultCosmeticHash: Math.floor(Math.random() * 2147483647) };
+            return { AthenaCosmeticLoadout: newLoadout };
+          }
+        }, "Pickaxe equipped!");
       };
 
       const handleSetLevel = async () => {
@@ -1139,10 +1545,9 @@
           
           await doAction("meta", {
             "Default:AthenaCosmeticLoadout_j": (old) => {
-              if (!old.AthenaCosmeticLoadout) old.AthenaCosmeticLoadout = {};
-              old.AthenaCosmeticLoadout.pickaxeDef = formattedVal;
-              old.AthenaCosmeticLoadout.randomDefaultCosmeticHash = Math.floor(Math.random() * 2147483647);
-              return old;
+              const current = old.AthenaCosmeticLoadout || {};
+              const newLoadout = { ...current, pickaxeDef: formattedVal, randomDefaultCosmeticHash: Math.floor(Math.random() * 2147483647) };
+              return { AthenaCosmeticLoadout: newLoadout };
             }
           }, null);
           
@@ -1165,34 +1570,6 @@
         } catch (e) {
           toast.e(e.message);
         }
-      };
-
-      const handleCosmeticUpdate = async (type) => {
-        const val = document.getElementById(type + "Input")?.value.trim();
-        if (!val) return;
-        
-        let formattedVal = val;
-        
-        if (!val.includes("/BRCosmetics/") && !val.includes(":")) {
-          if (type === "skin") {
-            formattedVal = val.startsWith("CID_") ? `AthenaCharacter:${val}` : `AthenaCharacter:CID_${val}`;
-          } else if (type === "backpack") {
-            formattedVal = val.startsWith("BID_") ? `/BRCosmetics/Athena/Items/Cosmetics/Backpacks/${val}.${val}` : `AthenaBackpack:${val}`;
-          } else if (type === "pickaxe") {
-            formattedVal = val.startsWith("Pickaxe_") ? `/BRCosmetics/Athena/Items/Cosmetics/Pickaxes/${val}.${val}` : `AthenaPickaxe:${val}`;
-          }
-        }
-        
-        await doAction("meta", {
-          "Default:AthenaCosmeticLoadout_j": (old) => {
-            if (!old.AthenaCosmeticLoadout) old.AthenaCosmeticLoadout = {};
-            if (type === "skin") old.AthenaCosmeticLoadout.characterPrimaryAssetId = formattedVal;
-            if (type === "backpack") old.AthenaCosmeticLoadout.backpackDef = formattedVal;
-            if (type === "pickaxe") old.AthenaCosmeticLoadout.pickaxeDef = formattedVal;
-            old.AthenaCosmeticLoadout.randomDefaultCosmeticHash = Math.floor(Math.random() * 2147483647);
-            return old;
-          }
-        }, `${type} equipped!`);
       };
 
       const handleEmote = async (stop = false) => {
@@ -1222,7 +1599,6 @@
         }
       };
 
-      // --- ISLAND LAUNCHER ---
       const launchIsland = async () => {
         if (!islandCode.trim() || !active) return;
         
@@ -1473,7 +1849,7 @@
               </div>
 
               {/* Main Content */}
-              <div className="lg:col-span-4 space-y-6">
+              <div className="lg:col-span-4 space-y-6 main-content">
                 {tab === "match" && (
                   <div className="space-y-6 animate-fade-right">
                     <div className="glass-modern rounded-2xl p-6 border-l-4 border-indigo-500">
@@ -1615,7 +1991,7 @@
                       <div className="glass-card p-4 rounded-xl">
                         <label className="block text-xs font-medium text-indigo-300 mb-2">Emote</label>
                         <div className="flex flex-col gap-3">
-                          <SearchInput type="emote" placeholder="Search emote..." onSelect={(id) => document.getElementById('emoteInput').value = id} />
+                          <SearchInput type="emote" placeholder="Search emote..." onSelect={(item) => document.getElementById('emoteInput').value = item.id} />
                           <div className="flex gap-2">
                             <input type="text" placeholder="EID_IceKing" id="emoteInput" className="flex-1 input-modern rounded-xl px-4 py-3 text-sm" />
                             <CooldownButton
@@ -1636,16 +2012,31 @@
                         </div>
                       </div>
 
+                      {/* Skin */}
                       <div className="glass-card p-4 rounded-xl">
                         <label className="block text-xs font-medium text-indigo-300 mb-2">Skin</label>
                         <div className="flex flex-col gap-3">
-                          <SearchInput type="outfit" placeholder="Search skin..." onSelect={(id) => document.getElementById('skinInput').value = id} />
-                          <div className="flex gap-2">
-                            <input type="text" placeholder="CID_028_Athena_Commando_F" id="skinInput" className="flex-1 input-modern rounded-xl px-4 py-3 text-sm" />
+                          <SearchInput type="outfit" placeholder="Search skin..." onSelect={(item) => {
+                            setSelectedSkin(item);
+                          }} />
+                          {selectedSkin && (
+                            <div className="selected-skin-preview">
+                              {selectedSkin.images?.icon && (
+                                <img src={selectedSkin.images.icon} alt={selectedSkin.name} />
+                              )}
+                              <div>
+                                <div className="skin-name">{selectedSkin.name}</div>
+                                <div className="skin-id">{selectedSkin.id}</div>
+                              </div>
+                            </div>
+                          )}
+                          <div className="flex gap-2 mt-2">
+                            <input type="text" value={selectedSkin ? selectedSkin.id : ''} readOnly className="flex-1 input-modern rounded-xl px-4 py-3 text-sm opacity-70" placeholder="Selected skin ID" />
                             <CooldownButton
                               buttonId="setskin"
-                              onClick={() => handleCosmeticUpdate('skin')}
+                              onClick={handleSetSkin}
                               className="btn-primary px-6 rounded-xl text-sm"
+                              disabled={!selectedSkin}
                             >
                               Set
                             </CooldownButton>
@@ -1658,12 +2049,12 @@
                           <label className="flex items-center gap-1 text-xs font-medium text-indigo-300 mb-2">
                             <i className="fas fa-shopping-bag"></i> Backbling
                           </label>
-                          <SearchInput type="backpack" placeholder="BID_138..." onSelect={(id) => document.getElementById('backpackInput').value = id} />
+                          <SearchInput type="backpack" placeholder="BID_138..." onSelect={(item) => document.getElementById('backpackInput').value = item.id} />
                           <div className="flex gap-2 mt-3">
                             <input type="text" placeholder="BID_138_Cuatro" id="backpackInput" className="flex-1 input-modern rounded-xl px-3 py-2 text-sm" />
                             <CooldownButton
                               buttonId="setbackpack"
-                              onClick={() => handleCosmeticUpdate('backpack')}
+                              onClick={handleSetBackpack}
                               className="btn-secondary px-3 rounded-xl text-sm"
                             >
                               Set
@@ -1675,7 +2066,7 @@
                           <label className="flex items-center gap-1 text-xs font-medium text-indigo-300 mb-2">
                             <i className="fas fa-pickaxe"></i> Pickaxe
                           </label>
-                          <SearchInput type="pickaxe" placeholder="Pickaxe_ID..." onSelect={(id) => document.getElementById('pickaxeInput').value = id} />
+                          <SearchInput type="pickaxe" placeholder="Pickaxe_ID..." onSelect={(item) => document.getElementById('pickaxeInput').value = item.id} />
                           <div className="flex gap-2 mt-3">
                             <input type="text" placeholder="Pickaxe_ID_015" id="pickaxeInput" className="flex-1 input-modern rounded-xl px-3 py-2 text-sm" />
                             <CooldownButton
@@ -1787,9 +2178,15 @@
 
                               <div className="flex items-center gap-2">
                                 <span className={`status-badge ${
-                                  inM ? 'status-ingame' : sit ? 'status-offline' : rdy ? 'status-online' : 'status-offline'
+                                  inM ? 'status-ingame' : 
+                                  sit ? 'status-sitout' : 
+                                  rdy ? 'status-ready' : 
+                                  'status-notready'
                                 }`}>
-                                  {inM ? 'IN MATCH' : sit ? 'SIT OUT' : rdy ? 'READY' : 'NOT READY'}
+                                  {inM ? 'IN MATCH' : 
+                                   sit ? 'SIT OUT' : 
+                                   rdy ? 'READY' : 
+                                   'NOT READY'}
                                 </span>
                                 
                                 {!isMe && (
@@ -1827,33 +2224,25 @@
                             </div>
 
                             <div className="pt-3 border-t border-indigo-500/20">
-                              <div className="grid grid-cols-4 gap-3">
-                                <div className="flex flex-col items-center">
+                              <div className="cosmetic-grid">
+                                <div className="cosmetic-item">
                                   <CosmeticImage id={cosmetics.skin} type="skin" />
-                                  <span className="text-[10px] text-indigo-300 mt-1 truncate w-full text-center">
-                                    {cosmetics.skinId || 'None'}
-                                  </span>
+                                  <span>{cosmetics.skinId || 'None'}</span>
                                 </div>
                                 
-                                <div className="flex flex-col items-center">
+                                <div className="cosmetic-item">
                                   <CosmeticImage id={cosmetics.backpack} type="backpack" />
-                                  <span className="text-[10px] text-indigo-300 mt-1 truncate w-full text-center">
-                                    {cosmetics.backpack?.split(':')[1]?.split('/').pop()?.split('.')[0] || 'None'}
-                                  </span>
+                                  <span>{cosmetics.backpack?.split(':')[1]?.split('/').pop()?.split('.')[0] || 'None'}</span>
                                 </div>
                                 
-                                <div className="flex flex-col items-center">
+                                <div className="cosmetic-item">
                                   <CosmeticImage id={cosmetics.pickaxe} type="pickaxe" />
-                                  <span className="text-[10px] text-indigo-300 mt-1 truncate w-full text-center">
-                                    {cosmetics.pickaxe?.split(':')[1]?.split('/').pop()?.split('.')[0] || 'None'}
-                                  </span>
+                                  <span>{cosmetics.pickaxe?.split(':')[1]?.split('/').pop()?.split('.')[0] || 'None'}</span>
                                 </div>
                                 
-                                <div className="flex flex-col items-center">
+                                <div className="cosmetic-item">
                                   <CosmeticImage id={cosmetics.emote} type="emote" />
-                                  <span className="text-[10px] text-indigo-300 mt-1 truncate w-full text-center">
-                                    {cosmetics.emoteId || 'None'}
-                                  </span>
+                                  <span>{cosmetics.emoteId || 'None'}</span>
                                 </div>
                               </div>
                             </div>
