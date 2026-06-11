@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ghost Equip • FN Party Manager</title>
-  <meta name="description" content="Ghost Equip - Premium Fortnite Party Manager. Manage your party, cosmetics, and lobby settings." />
+  <title>Ghost Equip • Locker Builder</title>
+  <meta name="description" content="Ghost Equip - Fortnite cosmetics browser and local locker builder." />
   <script src="https://cdn.tailwindcss.com"></script>
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -62,7 +62,6 @@
       color: var(--text-muted);
     }
 
-    /* === AMBIENT BACKGROUND === */
     .ambient-bg {
       position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
     }
@@ -121,7 +120,6 @@
 
     #root { position: relative; z-index: 1; }
 
-    /* === GLASS PANELS === */
     .panel {
       background: var(--bg-card);
       backdrop-filter: blur(24px) saturate(1.1);
@@ -133,6 +131,7 @@
       border-color: var(--border-active);
       box-shadow: var(--glow-primary);
     }
+
     .panel-inner {
       background: rgba(6, 8, 16, 0.65);
       border: 1px solid var(--border-dim);
@@ -144,8 +143,7 @@
       background: rgba(10, 13, 23, 0.75);
     }
 
-    /* === INPUTS === */
-    .input-field {
+    .input-field, .select-field {
       background: rgba(6, 8, 16, 0.75);
       border: 1.5px solid var(--border-dim);
       color: var(--text-primary);
@@ -157,14 +155,14 @@
       transition: all 0.3s ease;
       outline: none;
     }
-    .input-field:focus {
+    .input-field:focus, .select-field:focus {
       border-color: var(--accent-primary);
       box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1), 0 0 24px rgba(99, 102, 241, 0.08);
       background: rgba(12, 14, 24, 0.95);
     }
     .input-field::placeholder { color: var(--text-muted); }
+    .select-field option { background: #0c1020; color: white; }
 
-    /* === BUTTONS === */
     .btn {
       font-family: 'Rajdhani', sans-serif;
       font-weight: 700;
@@ -192,7 +190,6 @@
     }
     .btn:hover::before { opacity: 1; }
     .btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none !important; }
-    .btn:disabled::before { display: none; }
 
     .btn-cyan {
       background: linear-gradient(135deg, #6366f1, #818cf8);
@@ -213,52 +210,28 @@
       border: 1px solid var(--border-dim);
       color: var(--text-secondary);
     }
-    .btn-ghost:hover:not(:disabled) { background: rgba(99, 102, 241, 0.12); border-color: var(--border-active); color: var(--text-primary); transform: translateY(-1px); }
+    .btn-ghost:hover:not(:disabled) {
+      background: rgba(99, 102, 241, 0.12);
+      border-color: var(--border-active);
+      color: var(--text-primary);
+      transform: translateY(-1px);
+    }
 
     .btn-danger {
       background: rgba(244, 63, 94, 0.1);
       border: 1px solid rgba(244, 63, 94, 0.18);
       color: var(--accent-red);
     }
-    .btn-danger:hover:not(:disabled) { background: rgba(244, 63, 94, 0.18); border-color: rgba(244, 63, 94, 0.35); transform: translateY(-1px); }
+    .btn-danger:hover:not(:disabled) { background: rgba(244, 63, 94, 0.18); }
 
     .btn-success {
       background: rgba(52, 211, 153, 0.1);
       border: 1px solid rgba(52, 211, 153, 0.18);
       color: var(--accent-emerald);
     }
-    .btn-success:hover:not(:disabled) { background: rgba(52, 211, 153, 0.18); border-color: rgba(52, 211, 153, 0.35); transform: translateY(-1px); }
+    .btn-success:hover:not(:disabled) { background: rgba(52, 211, 153, 0.18); }
 
-    .btn-amber {
-      background: rgba(251, 191, 36, 0.1);
-      border: 1px solid rgba(251, 191, 36, 0.18);
-      color: var(--accent-amber);
-    }
-    .btn-amber:hover:not(:disabled) { background: rgba(251, 191, 36, 0.18); border-color: rgba(251, 191, 36, 0.35); transform: translateY(-1px); }
-
-    /* === COOLDOWN === */
-    @keyframes cooldown { from { width: 100%; } to { width: 0%; } }
-    .cd-bar {
-      position: absolute; bottom: 0; left: 0; height: 2px;
-      background: linear-gradient(90deg, var(--accent-red), var(--accent-orange));
-      animation: cooldown 10s linear forwards;
-      border-radius: 0 0 12px 12px;
-    }
-    .cd-overlay {
-      position: absolute; inset: 0;
-      background: rgba(0,0,0,0.65);
-      backdrop-filter: blur(3px);
-      display: flex; align-items: center; justify-content: center;
-      font-family: 'Orbitron', sans-serif;
-      font-size: 13px; font-weight: 700;
-      color: var(--accent-red);
-      border-radius: inherit;
-    }
-
-    /* === SEARCH DROPDOWN === */
-    .search-wrap { position: relative; z-index: 1; }
-    .search-wrap.open { z-index: 999999; }
-    @keyframes dropIn { from { opacity: 0; transform: translateY(-8px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    .search-wrap { position: relative; z-index: 2; }
     .search-drop {
       position: absolute; top: calc(100% + 8px); left: 0; width: 100%;
       background: rgba(8, 10, 18, 0.98);
@@ -266,12 +239,8 @@
       border: 1.5px solid var(--border-active);
       border-radius: 14px;
       box-shadow: 0 20px 60px rgba(0,0,0,0.8), 0 0 40px rgba(99, 102, 241, 0.08);
-      max-height: 300px; overflow-y: auto; z-index: 999999;
-      animation: dropIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      max-height: 320px; overflow-y: auto; z-index: 9999;
     }
-    .search-drop::-webkit-scrollbar { width: 4px; }
-    .search-drop::-webkit-scrollbar-track { background: transparent; }
-    .search-drop::-webkit-scrollbar-thumb { background: rgba(99, 102, 241, 0.3); border-radius: 10px; }
     .search-item {
       display: flex; align-items: center; gap: 12px;
       padding: 10px 16px; cursor: pointer;
@@ -279,28 +248,34 @@
       transition: all 0.2s ease;
     }
     .search-item:last-child { border-bottom: none; }
-    .search-item:hover {
+    .search-item:hover, .search-item.active {
       background: linear-gradient(90deg, rgba(99, 102, 241, 0.1), transparent);
       padding-left: 20px;
     }
-    .search-item img { width: 42px; height: 42px; border-radius: 10px; object-fit: cover; border: 1px solid rgba(255,255,255,0.05); }
+    .search-item img {
+      width: 42px; height: 42px; border-radius: 10px; object-fit: cover;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
 
-    /* === STATUS BADGES === */
     .badge {
       font-family: 'Rajdhani', sans-serif;
-      font-weight: 700; font-size: 10px; letter-spacing: 1.2px;
-      text-transform: uppercase; padding: 4px 10px; border-radius: 8px;
-      display: inline-flex; align-items: center; gap: 4px;
+      font-weight: 700;
+      font-size: 10px;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
     }
     .badge-ready { background: rgba(52, 211, 153, 0.1); color: var(--accent-emerald); border: 1px solid rgba(52, 211, 153, 0.2); }
-    .badge-notready { background: rgba(100, 116, 139, 0.1); color: var(--text-muted); border: 1px solid rgba(100, 116, 139, 0.15); }
-    .badge-sitout { background: rgba(251, 191, 36, 0.1); color: var(--accent-amber); border: 1px solid rgba(251, 191, 36, 0.2); }
-    .badge-ingame { background: rgba(59, 130, 246, 0.1); color: var(--accent-blue); border: 1px solid rgba(59, 130, 246, 0.2); }
-    .badge-leader { background: rgba(251, 191, 36, 0.12); color: var(--accent-amber); border: 1px solid rgba(251, 191, 36, 0.25); }
+    .badge-local { background: rgba(99,102,241,0.1); color: var(--accent-primary); border: 1px solid rgba(99,102,241,0.2); }
+    .badge-streamer { background: rgba(217,70,239,0.1); color: var(--accent-fuchsia); border: 1px solid rgba(217,70,239,0.2); }
+    .badge-private { background: rgba(251,191,36,0.1); color: var(--accent-amber); border: 1px solid rgba(251,191,36,0.2); }
 
-    /* === SELECTED PREVIEW === */
     .selected-preview {
-      display: flex; align-items: center; gap: 14px;
+      display: flex; align-items: center; justify-content: space-between; gap: 14px;
       padding: 12px; background: rgba(99, 102, 241, 0.04);
       border: 1px solid rgba(99, 102, 241, 0.12);
       border-radius: 12px; margin-top: 10px;
@@ -310,67 +285,34 @@
       border-color: rgba(99, 102, 241, 0.25);
       background: rgba(99, 102, 241, 0.06);
     }
-    .selected-preview img { width: 52px; height: 52px; border-radius: 12px; object-fit: cover; border: 1px solid rgba(255,255,255,0.06); }
+    .selected-preview img {
+      width: 52px; height: 52px; border-radius: 12px; object-fit: cover;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
 
-    /* === COSMETIC GRID === */
-    .cos-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    .cos-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
     .cos-cell {
       display: flex; flex-direction: column; align-items: center; text-align: center;
-      padding: 8px 4px; background: rgba(0,0,0,0.25); border-radius: 10px; gap: 5px;
+      padding: 10px 6px; background: rgba(0,0,0,0.25); border-radius: 10px; gap: 6px;
       border: 1px solid transparent;
       transition: all 0.3s;
+      min-height: 112px;
+      justify-content: center;
     }
     .cos-cell:hover {
       border-color: rgba(99, 102, 241, 0.12);
       background: rgba(99, 102, 241, 0.04);
     }
-    .cos-cell img { width: 46px; height: 46px; border-radius: 10px; object-fit: cover; }
-    .cos-cell span { font-size: 10px; color: var(--text-muted); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
-    /* === ANIMATIONS === */
-    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    @keyframes slideInR { from { opacity: 0; transform: translateX(16px); } to { opacity: 1; transform: translateX(0); } }
-    @keyframes slideOutR { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(16px); } }
-    @keyframes pulse-glow { 0%,100% { box-shadow: 0 0 16px rgba(99,102,241,0.15); } 50% { box-shadow: 0 0 36px rgba(99,102,241,0.3); } }
-    @keyframes shimmer {
-      0% { background-position: -200% 0; }
-      100% { background-position: 200% 0; }
-    }
-    @keyframes gradientShift {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-    @keyframes breathe {
-      0%, 100% { opacity: 0.5; }
-      50% { opacity: 1; }
+    .cos-cell img { width: 52px; height: 52px; border-radius: 10px; object-fit: cover; }
+    .cos-cell span {
+      font-size: 10px; color: var(--text-muted); max-width: 100%;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     }
 
-    .anim-up { animation: fadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-    .anim-in { animation: fadeIn 0.4s ease forwards; }
-    .anim-slide { animation: slideInR 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-    .toast-in { animation: slideInR 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-    .toast-out { animation: slideOutR 0.25s ease forwards; }
-
-    .spinner {
-      width: 36px; height: 36px;
-      border: 3px solid rgba(99,102,241,0.1);
-      border-top-color: var(--accent-primary);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
-
-    .shimmer-text {
-      background: linear-gradient(90deg, var(--accent-primary), var(--accent-violet), var(--accent-fuchsia), var(--accent-primary));
-      background-size: 200% auto;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      animation: shimmer 4s linear infinite;
-    }
-
-    /* === TAB INDICATOR === */
     .tab-btn {
       position: relative; padding: 11px 16px; border-radius: 12px;
       font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 13px;
@@ -386,32 +328,7 @@
       border-left: 3px solid var(--accent-primary);
       box-shadow: inset 0 0 20px rgba(99, 102, 241, 0.03);
     }
-    .tab-btn .tab-icon { width: 20px; text-align: center; font-size: 13px; }
 
-    /* === SCROLLBAR === */
-    ::-webkit-scrollbar { width: 4px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: rgba(99, 102, 241, 0.25); border-radius: 4px; }
-
-    /* === RESPONSIVE === */
-    @media (max-width: 1024px) {
-      .cos-grid { grid-template-columns: repeat(2, 1fr); }
-    }
-
-    /* === MEMBER HOVER ACTIONS === */
-    .member-actions { opacity: 0; transition: opacity 0.25s; }
-    .member-row:hover .member-actions { opacity: 1; }
-
-    /* === INVITE SECTION === */
-    .invite-tag {
-      display: inline-flex; align-items: center; gap: 6px;
-      background: rgba(99, 102, 241, 0.06);
-      border: 1px solid rgba(99, 102, 241, 0.12);
-      border-radius: 10px; padding: 5px 12px;
-      font-size: 12px; color: var(--accent-primary);
-    }
-
-    /* === ACCENT BAR ON SECTIONS === */
     .section-bar { position: relative; padding-left: 18px; }
     .section-bar::before {
       content: ''; position: absolute; left: 0; top: 10px; bottom: 10px;
@@ -426,7 +343,6 @@
     .section-bar.red::before { background: linear-gradient(180deg, var(--accent-red), var(--accent-fuchsia)); }
     .section-bar.blue::before { background: linear-gradient(180deg, var(--accent-blue), var(--accent-cyan)); }
 
-    /* === HEADER GRADIENT BAR === */
     .header-bar {
       height: 2px;
       background: linear-gradient(90deg, transparent, var(--accent-primary), var(--accent-violet), var(--accent-fuchsia), transparent);
@@ -435,23 +351,6 @@
       border-radius: 0 0 16px 16px;
     }
 
-    /* === ONLINE INDICATOR === */
-    .online-dot {
-      width: 8px; height: 8px;
-      background: var(--accent-emerald);
-      border-radius: 50%;
-      border: 2px solid var(--bg-primary);
-      animation: breathe 2s ease-in-out infinite;
-    }
-
-    /* === STAGGER ANIMATION === */
-    .stagger-1 { animation-delay: 0.05s; }
-    .stagger-2 { animation-delay: 0.1s; }
-    .stagger-3 { animation-delay: 0.15s; }
-    .stagger-4 { animation-delay: 0.2s; }
-    .stagger-5 { animation-delay: 0.25s; }
-
-    /* === LOGO === */
     .logo-icon {
       width: 44px; height: 44px; border-radius: 12px;
       background: linear-gradient(135deg, #6366f1, #8b5cf6, #d946ef);
@@ -460,6 +359,120 @@
       display: flex; align-items: center; justify-content: center;
       box-shadow: 0 0 24px rgba(99, 102, 241, 0.25);
       position: relative;
+    }
+
+    .online-dot {
+      width: 8px; height: 8px;
+      background: var(--accent-emerald);
+      border-radius: 50%;
+      border: 2px solid var(--bg-primary);
+      animation: breathe 2s ease-in-out infinite;
+    }
+
+    .shimmer-text {
+      background: linear-gradient(90deg, var(--accent-primary), var(--accent-violet), var(--accent-fuchsia), var(--accent-primary));
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: shimmer 4s linear infinite;
+    }
+
+    .spinner {
+      width: 36px; height: 36px;
+      border: 3px solid rgba(99,102,241,0.1);
+      border-top-color: var(--accent-primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    .toast-in { animation: slideInR 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .toast-out { animation: slideOutR 0.25s ease forwards; }
+
+    @keyframes slideInR {
+      from { opacity: 0; transform: translateX(16px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes slideOutR {
+      from { opacity: 1; transform: translateX(0); }
+      to { opacity: 0; transform: translateX(16px); }
+    }
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    @keyframes breathe {
+      0%, 100% { opacity: 0.5; }
+      50% { opacity: 1; }
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .anim-up { animation: fadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+    .empty-state {
+      text-align: center;
+      padding: 38px 20px;
+      color: var(--text-muted);
+    }
+
+    .member-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 16px;
+    }
+
+    .segmented {
+      display: inline-flex;
+      gap: 6px;
+      padding: 6px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border-dim);
+      border-radius: 14px;
+      flex-wrap: wrap;
+    }
+    .segmented button {
+      background: transparent;
+      color: var(--text-muted);
+      border: none;
+      padding: 9px 14px;
+      border-radius: 10px;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+    .segmented button.active {
+      color: white;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      box-shadow: 0 6px 18px rgba(99,102,241,0.25);
+    }
+
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(99, 102, 241, 0.25); border-radius: 4px; }
+
+    @media (max-width: 1024px) {
+      .layout-main { grid-template-columns: 1fr !important; }
+      .cos-grid { grid-template-columns: repeat(2, 1fr); }
+      .stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
+      .two-col { grid-template-columns: 1fr !important; }
+    }
+
+    @media (max-width: 640px) {
+      .stats-grid { grid-template-columns: 1fr !important; }
+      .cos-grid { grid-template-columns: repeat(2, 1fr); }
     }
   </style>
 </head>
@@ -471,9 +484,8 @@
   <div id="root"><div style="min-height:100vh;display:flex;align-items:center;justify-content:center"><div class="spinner"></div></div></div>
 
   <script>
-    // Generate floating particles
     const particlesEl = document.getElementById('particles');
-    for(let i = 0; i < 30; i++) {
+    for (let i = 0; i < 30; i++) {
       const p = document.createElement('div');
       p.className = 'particle';
       p.style.left = Math.random() * 100 + '%';
@@ -487,895 +499,808 @@
   </script>
 
   <script type="text/babel">
-    const { useState, useEffect, useCallback, useRef, useMemo } = React;
+    const { useState, useEffect, useMemo, useRef } = React;
 
-    /* ================================================================
-       CONSTANTS & CONFIG
-    ================================================================ */
-    const CORS_PROXIES = [
-      { make: url => `https://corsproxy.io/?url=${encodeURIComponent(url)}` },
-      { make: url => `https://corsproxy.io/?${encodeURIComponent(url)}` },
-      { make: url => `https://cors.bridged.cc/${url}` },
-      { make: url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}` },
-    ];
-    let bestProxy = 0; // index of last working proxy
-
-    const ACCT = "https://account-public-service-prod.ol.epicgames.com";
-    const PARTY = "https://party-service-prod.ol.epicgames.com";
     const FNAPI = "https://fortnite-api.com";
-    const CONTENT = "https://content-service.bfda.live.use1a.on.epicgames.com";
-    const FRIENDS = "https://friends-public-service-prod.ol.epicgames.com";
 
-    const PC_CL = btoa("34a02cf8f4414e29b15921876da36f9a:daafbccc737745039dffe53d94fc76cf");
-    const FN_CL = btoa("ec684b8c687f479fadea3cb2ad83f5c6:e1f31c211f28413186262d37a13fc84d");
-
-    const PLATS = { WIN:"PC", MAC:"Mac", PSN:"PlayStation", XBL:"Xbox", SWT:"Switch", IOS:"Mobile", AND:"Android", GFN:"Cloud" };
-    const PLAT_ICO = { WIN:"fa-desktop", MAC:"fa-apple", PSN:"fa-playstation", XBL:"fa-xbox", SWT:"fa-gamepad", IOS:"fa-mobile-screen", AND:"fa-mobile-screen", GFN:"fa-cloud" };
-
-    /* ================================================================
-       COOLDOWN MANAGER
-    ================================================================ */
-    class CooldownMgr {
-      constructor() { this.cd = new Map(); this.ls = new Set(); this.iv = null; }
-      listen(fn) { this.ls.add(fn); return () => this.ls.delete(fn); }
-      notify() { const o = {}; const n = Date.now(); this.cd.forEach((e,k)=>{ if(e>n) o[k]=Math.ceil((e-n)/1000); else this.cd.delete(k); }); this.ls.forEach(f=>f(o)); }
-      set(id) { this.cd.set(id, Date.now()+10000); this.notify(); if(!this.iv) this.iv=setInterval(()=>{ let c=0; this.cd.forEach((e)=>{ if(e>Date.now()) c++; }); this.notify(); if(!c){clearInterval(this.iv);this.iv=null;} },1000); }
-      get() { const o={}; const n=Date.now(); this.cd.forEach((e,k)=>{ if(e>n) o[k]=Math.ceil((e-n)/1000); }); return o; }
-    }
-    const cdMgr = new CooldownMgr();
-
-    /* ================================================================
-       UTILITIES
-    ================================================================ */
-    const DB = { save:(k,d)=>localStorage.setItem(k,JSON.stringify(d)), load:(k)=>JSON.parse(localStorage.getItem(k)||"null") };
-    const tokenCache = new Map();
-    const cosCache = new Map();
-    const uuid = ()=>[...Array(32)].map(()=>Math.floor(Math.random()*16).toString(16)).join('').toUpperCase();
-    const sj = async r=>{ try{return await r.json();}catch{return {};} };
-
-    // Multi-proxy fetch with automatic fallback
-    const pf = async (url, opts={}) => {
-      const order = [bestProxy, ...CORS_PROXIES.map((_,i)=>i).filter(i=>i!==bestProxy)];
-      let lastErr;
-      for (const idx of order) {
+    const DB = {
+      save: (k, d) => localStorage.setItem(k, JSON.stringify(d)),
+      load: (k, fallback = null) => {
         try {
-          const proxyUrl = CORS_PROXIES[idx].make(url);
-          const controller = new AbortController();
-          const timeout = setTimeout(() => controller.abort(), 12000);
-          const r = await fetch(proxyUrl, {...opts, signal: controller.signal});
-          clearTimeout(timeout);
-          if(r.status===429) throw new Error("Rate limited");
-          // Proxy worked — remember it
-          bestProxy = idx;
-          return r;
-        } catch(e) {
-          lastErr = e;
-          console.warn(`Proxy ${idx} failed:`, e.message);
-          continue;
+          const raw = localStorage.getItem(k);
+          return raw ? JSON.parse(raw) : fallback;
+        } catch {
+          return fallback;
         }
       }
-      throw new Error(lastErr?.message || "All proxies failed — check your connection");
     };
 
-    const ep = async (url, cl, data) => {
-      const r = await pf(url, { method:"POST", headers:{"Authorization":`Basic ${cl}`,"Content-Type":"application/x-www-form-urlencoded"}, body:new URLSearchParams(data).toString() });
-      const d = await sj(r); if(!r.ok) throw new Error(d.errorMessage||d.error_description||"Auth failed"); return d;
-    };
+    let _tid = 0, _ltm = 0, _lmsg = "";
 
-    const refreshTok = async (a) => {
-      if(!a) return a;
-      if(Date.now()>a.tokenExpiresAt-300000) {
-        const r = await ep(`${ACCT}/account/api/oauth/token`,PC_CL,{grant_type:"refresh_token",refresh_token:a.refreshToken});
-        return {...a, accessToken:r.access_token, refreshToken:r.refresh_token, tokenExpiresAt:Date.now()+(r.expires_in*1000)};
-      }
-      return a;
-    };
+    function Toasts() {
+      const [list, setList] = useState([]);
+      const [exit, setExit] = useState(new Set());
 
-    const pm = (m,k) => { try { const v=m?.meta?.[k]; if(!v) return {}; return JSON.parse(v); } catch{return {};} };
-    const dn = m => m?.meta?.["urn:epic:member:dn_s"]||m?.account_id?.slice(0,8)||"?";
-    const gp = m => { const d=pm(m,"Default:PlatformData_j"); return d?.PlatformData?.platform?.platformDescription?.name||m?.connections?.[0]?.meta?.["urn:epic:conn:platform_s"]||"WIN"; };
-    const gl = m => pm(m,"Default:BattlePassInfo_j")?.BattlePassInfo?.passLevel||1;
-    const gc = m => pm(m,"Default:AthenaCosmeticLoadout_j")?.AthenaCosmeticLoadout?.cosmeticStats?.find(x=>x.statName==="TotalVictoryCrowns")?.statValue||0;
-
-    const getCos = m => {
-      const l = pm(m,"Default:AthenaCosmeticLoadout_j")?.AthenaCosmeticLoadout||{};
-      const e = pm(m,"Default:FrontendEmote_j")?.FrontendEmote||{};
-      return {
-        skin:l.characterPrimaryAssetId||"None", backpack:l.backpackDef||"None",
-        pickaxe:l.pickaxeDef||"None", emote:e.pickable||"None",
-        skinId:l.characterPrimaryAssetId?.replace("AthenaCharacter:","").replace(/\/BRCosmetics.*\//,"").replace(".",""),
-        emoteId:e.pickable?.replace(/\/BRCosmetics.*Dances\//,"").replace(".",""),
-        fullLoadout:l
-      };
-    };
-
-    const getCosImg = async (id, type) => {
-      if(!id||id==="None") return null;
-      const ck=`${type}_${id}`;
-      if(cosCache.has(ck)) return cosCache.get(ck);
-      try {
-        let t="outfit"; if(type==="emote")t="emote"; if(type==="backpack")t="backpack"; if(type==="pickaxe")t="pickaxe";
-        let cid=id; if(cid.includes(":"))cid=cid.split(":")[1]; if(cid.includes("/"))cid=cid.split("/").pop().split(".")[0];
-        const r=await(await fetch(`${FNAPI}/v2/cosmetics/br/search?id=${encodeURIComponent(cid)}&type=${t}`)).json();
-        if(r.data?.images){ const u=r.data.images.smallIcon||r.data.images.icon; cosCache.set(ck,u); return u; }
-      } catch{}
-      return null;
-    };
-
-    const getReadiness = m => {
-      const rd=m.meta?.["Default:GameReadiness_s"]||"";
-      const ls=m.meta?.["Default:Location_s"]||"";
-      if(rd==="Playing"||ls==="InGame") return "ingame";
-      if(rd==="SittingOut") return "sitout";
-      if(rd==="Ready") return "ready";
-      return "notready";
-    };
-
-    /* ================================================================
-       TOAST SYSTEM
-    ================================================================ */
-    let _tid=0, _ltm=0, _lmsg="";
-    function Toasts(){
-      const [list,setList]=useState([]); const [exit,setExit]=useState(new Set());
-      useEffect(()=>{
-        window._toast=t=>{
-          const n=Date.now(); if(t.msg===_lmsg&&n-_ltm<2000)return; _ltm=n;_lmsg=t.msg;
-          setList(p=>[...p,t]);
-          setTimeout(()=>{setExit(p=>new Set([...p,t.id])); setTimeout(()=>{setList(p=>p.filter(x=>x.id!==t.id)); setExit(p=>{const s=new Set(p);s.delete(t.id);return s;});},250);},3000);
+      useEffect(() => {
+        window._toast = t => {
+          const n = Date.now();
+          if (t.msg === _lmsg && n - _ltm < 1500) return;
+          _ltm = n;
+          _lmsg = t.msg;
+          setList(p => [...p, t]);
+          setTimeout(() => {
+            setExit(p => new Set([...p, t.id]));
+            setTimeout(() => {
+              setList(p => p.filter(x => x.id !== t.id));
+              setExit(p => {
+                const s = new Set(p);
+                s.delete(t.id);
+                return s;
+              });
+            }, 250);
+          }, 2600);
         };
-        return ()=>{window._toast=null;};
-      },[]);
-      return <div style={{position:'fixed',bottom:20,right:20,zIndex:99999,display:'flex',flexDirection:'column',gap:8}}>
-        {list.map(t=><div key={t.id} className={`panel ${exit.has(t.id)?'toast-out':'toast-in'}`} style={{padding:'12px 18px',display:'flex',alignItems:'center',gap:10,borderColor:t.type==='er'?'rgba(244,63,94,0.25)':'rgba(52,211,153,0.25)',minWidth:220}}>
-          <div style={{width:24,height:24,borderRadius:8,background:t.type==='er'?'rgba(244,63,94,0.12)':'rgba(52,211,153,0.12)',display:'flex',alignItems:'center',justifyContent:'center'}}>
-            <i className={`fas ${t.type==='er'?'fa-circle-xmark':'fa-circle-check'}`} style={{color:t.type==='er'?'var(--accent-red)':'var(--accent-emerald)',fontSize:12}}></i>
+        return () => { window._toast = null; };
+      }, []);
+
+      return (
+        <div style={{ position: 'fixed', bottom: 20, right: 20, zIndex: 99999, display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {list.map(t => (
+            <div
+              key={t.id}
+              className={`panel ${exit.has(t.id) ? 'toast-out' : 'toast-in'}`}
+              style={{ padding: '12px 18px', display: 'flex', alignItems: 'center', gap: 10, borderColor: t.type === 'er' ? 'rgba(244,63,94,0.25)' : 'rgba(52,211,153,0.25)', minWidth: 220 }}
+            >
+              <div style={{ width: 24, height: 24, borderRadius: 8, background: t.type === 'er' ? 'rgba(244,63,94,0.12)' : 'rgba(52,211,153,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <i className={`fas ${t.type === 'er' ? 'fa-circle-xmark' : 'fa-circle-check'}`} style={{ color: t.type === 'er' ? 'var(--accent-red)' : 'var(--accent-emerald)', fontSize: 12 }}></i>
+              </div>
+              <span style={{ fontSize: 13, fontWeight: 500 }}>{t.msg}</span>
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    const toast = {
+      s: m => window._toast?.({ id: ++_tid, msg: m, type: "ok" }),
+      e: m => window._toast?.({ id: ++_tid, msg: m, type: "er" })
+    };
+
+    function StatCard({ icon, label, value, color }) {
+      return (
+        <div className="panel-inner" style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{ width: 36, height: 36, borderRadius: 10, background: `${color}12`, display: 'flex', alignItems: 'center', justifyContent: 'center', border: `1px solid ${color}25` }}>
+            <i className={`fas ${icon}`} style={{ fontSize: 13, color: color }}></i>
           </div>
-          <span style={{fontSize:13,fontWeight:500}}>{t.msg}</span>
-        </div>)}
-      </div>;
-    }
-    const toast={s:m=>window._toast?.({id:++_tid,msg:m,type:"ok"}),e:m=>window._toast?.({id:++_tid,msg:m,type:"er"})};
-
-    /* ================================================================
-       COOLDOWN BUTTON
-    ================================================================ */
-    function CdBtn({id,onClick,children,className="",disabled,variant="ghost",title:t}){
-      const [cds,setCds]=useState({});
-      useEffect(()=>{ const u=c=>setCds(c); u(cdMgr.get()); return cdMgr.listen(u); },[]);
-      const on=cds[id]>0;
-      const cls=variant==="cyan"?"btn-cyan":variant==="violet"?"btn-violet":variant==="danger"?"btn-danger":variant==="success"?"btn-success":variant==="amber"?"btn-amber":"btn-ghost";
-      return <button onClick={async e=>{if(on||disabled)return;cdMgr.set(id);if(onClick)await onClick(e);}} disabled={on||disabled} className={`btn ${cls} ${className}`} title={on?`${cds[id]}s`:t}>
-        {children}
-        {on&&<><div className="cd-overlay">{cds[id]}s</div><div className="cd-bar"/></>}
-      </button>;
+          <div>
+            <div style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: "'Rajdhani',sans-serif", fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1.5 }}>{label}</div>
+            <div style={{ fontSize: 16, fontWeight: 700, fontFamily: "'Orbitron',sans-serif", color: color }}>{value}</div>
+          </div>
+        </div>
+      );
     }
 
-    /* ================================================================
-       SEARCH INPUT
-    ================================================================ */
-    function SearchInput({type,placeholder,onSelect}){
-      const [q,setQ]=useState(""); const [res,setRes]=useState([]); const [op,setOp]=useState(false); const [ld,setLd]=useState(false);
-      const ref=useRef(); const iref=useRef();
+    function SelectedItemCard({ item, slot, onClear, onFavorite, isFavorite }) {
+      if (!item) return null;
+      return (
+        <div className="selected-preview">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14, minWidth: 0 }}>
+            <img src={item.images?.icon || item.images?.smallIcon} alt={item.name} />
+            <div style={{ minWidth: 0 }}>
+              <div style={{ fontSize: 14, fontWeight: 700 }}>{item.name}</div>
+              <div style={{ fontSize: 11, color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.id}</div>
+              <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 2, textTransform: 'capitalize' }}>{slot}</div>
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
+            <button className="btn btn-ghost" onClick={onFavorite}>
+              <i className={`fas ${isFavorite ? "fa-heart-circle-check" : "fa-heart"}`}></i>
+            </button>
+            <button className="btn btn-danger" onClick={onClear}>
+              <i className="fas fa-xmark"></i>
+            </button>
+          </div>
+        </div>
+      );
+    }
 
-      useEffect(()=>{
-        const t=setTimeout(async()=>{
-          if(q.length<2){setOp(false);return;}
+    function SearchInput({ type, placeholder, onSelect, filterFn }) {
+      const [q, setQ] = useState("");
+      const [res, setRes] = useState([]);
+      const [op, setOp] = useState(false);
+      const [ld, setLd] = useState(false);
+      const [hi, setHi] = useState(0);
+      const ref = useRef(null);
+
+      useEffect(() => {
+        const t = setTimeout(async () => {
+          if (q.trim().length < 2) {
+            setRes([]);
+            setOp(false);
+            return;
+          }
+
           setLd(true);
-          try{const r=await(await fetch(`${FNAPI}/v2/cosmetics/br/search/all?name=${encodeURIComponent(q)}&language=en&matchMethod=contains&type=${type}`)).json(); if(r.data?.length){setRes(r.data.slice(0,8));setOp(true);}else{setRes([]);setOp(false);}}
-          catch{setRes([]);setOp(false);}
-          setLd(false);
-        },350);
-        return ()=>clearTimeout(t);
-      },[q,type]);
-
-      useEffect(()=>{const h=e=>{if(ref.current&&!ref.current.contains(e.target))setOp(false);}; document.addEventListener('mousedown',h); return ()=>document.removeEventListener('mousedown',h);},[]);
-
-      return <div ref={ref} className={`search-wrap${op?' open':''}`}>
-        <div style={{position:'relative'}}>
-          <i className="fas fa-search" style={{position:'absolute',left:14,top:'50%',transform:'translateY(-50%)',color:'var(--text-muted)',fontSize:12,zIndex:2}}></i>
-          <input ref={iref} type="text" placeholder={placeholder} value={q} onChange={e=>setQ(e.target.value)} onFocus={()=>{if(q.length>=2&&res.length)setOp(true);}} className="input-field" style={{paddingLeft:38}} autoComplete="off" spellCheck="false"/>
-          {ld&&<i className="fas fa-spinner fa-spin" style={{position:'absolute',right:14,top:'50%',transform:'translateY(-50%)',color:'var(--accent-primary)',fontSize:13}}></i>}
-        </div>
-        {op&&res.length>0&&<div className="search-drop">
-          {res.map(s=><div key={s.id} className="search-item" onMouseDown={e=>{e.preventDefault();onSelect(s);setQ("");setOp(false);}}>
-            {(s.images?.smallIcon||s.images?.icon)&&<img src={s.images.smallIcon||s.images.icon} alt={s.name}/>}
-            <div style={{flex:1,minWidth:0}}>
-              <div style={{fontFamily:"'Rajdhani',sans-serif",fontWeight:700,fontSize:14,color:'var(--text-primary)'}}>{s.name}</div>
-              <div style={{fontSize:11,color:'var(--text-muted)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{s.id}</div>
-            </div>
-            {s.rarity?.displayValue&&<span style={{fontSize:10,color:'var(--text-muted)',padding:'2px 8px',background:'rgba(255,255,255,0.03)',borderRadius:6,border:'1px solid rgba(255,255,255,0.05)'}}>{s.rarity.displayValue}</span>}
-          </div>)}
-        </div>}
-      </div>;
-    }
-
-    /* ================================================================
-       COSMETIC IMAGE
-    ================================================================ */
-    function CosImg({id,type,size=42}){
-      const [url,setUrl]=useState(null); const [ld,setLd]=useState(true);
-      useEffect(()=>{if(!id||id==="None"){setLd(false);return;} getCosImg(id,type).then(u=>{setUrl(u);setLd(false);});},[id,type]);
-      const s={width:size,height:size,borderRadius:10,objectFit:'cover'};
-      if(ld) return <div style={{...s,background:'rgba(99,102,241,0.05)',display:'flex',alignItems:'center',justifyContent:'center'}}><i className="fas fa-spinner fa-spin" style={{color:'var(--accent-primary)',fontSize:10}}></i></div>;
-      if(url) return <img src={url} style={{...s,border:'1px solid rgba(255,255,255,0.05)'}} alt={type}/>;
-      return <div style={{...s,background:'rgba(99,102,241,0.05)',display:'flex',alignItems:'center',justifyContent:'center',color:'var(--text-muted)',fontSize:12}}><i className={`fas ${type==='skin'?'fa-user':type==='backpack'?'fa-bag-shopping':type==='pickaxe'?'fa-hammer':'fa-music'}`}></i></div>;
-    }
-
-    /* ================================================================
-       STAT CARD
-    ================================================================ */
-    function StatCard({icon, label, value, color}) {
-      return <div className="panel-inner" style={{padding:'14px 16px',display:'flex',alignItems:'center',gap:12}}>
-        <div style={{width:36,height:36,borderRadius:10,background:`${color}12`,display:'flex',alignItems:'center',justifyContent:'center',border:`1px solid ${color}25`}}>
-          <i className={`fas ${icon}`} style={{fontSize:13,color:color}}></i>
-        </div>
-        <div>
-          <div style={{fontSize:10,color:'var(--text-muted)',fontFamily:"'Rajdhani',sans-serif",fontWeight:600,textTransform:'uppercase',letterSpacing:1.5}}>{label}</div>
-          <div style={{fontSize:16,fontWeight:700,fontFamily:"'Orbitron',sans-serif",color:color}}>{value}</div>
-        </div>
-      </div>;
-    }
-
-    /* ================================================================
-       MAIN APP
-    ================================================================ */
-    function App(){
-      const [accounts,setAccts]=useState([]);
-      const [active,setActive]=useState(null);
-      const [party,setParty]=useState(null);
-      const [loading,setLd]=useState(false);
-      const [tab,setTab]=useState("match");
-      const [authCode,setAuthCode]=useState("");
-      const [busy,setBusy]=useState({});
-      const [level,setLv]=useState(100);
-      const [memberDetails,setMemberDetails]=useState({});
-      const [islandCode,setIslandCode]=useState("");
-      const [selectedSkin,setSelectedSkin]=useState(null);
-      const [selectedBackpack,setSelectedBackpack]=useState(null);
-      const [selectedPickaxe,setSelectedPickaxe]=useState(null);
-      const [selectedEmote,setSelectedEmote]=useState(null);
-      const [inviteUser,setInviteUser]=useState("");
-      const [bannerIcon,setBannerIcon]=useState("StandardBanner1");
-      const [bannerColor,setBannerColor]=useState("DefaultColor1");
-      const [crowns,setCrowns]=useState(0);
-
-      // Token refresh
-      useEffect(()=>{
-        if(!active) return;
-        const iv=setInterval(async()=>{
-          try{const r=await refreshTok(active); if(r!==active){setActive(r);const u=accounts.map(a=>a.accountId===r.accountId?r:a);setAccts(u);DB.save("accounts",u);}}
-          catch{toast.e("Session expired");setActive(null);setParty(null);}
-        },60000);
-        return ()=>clearInterval(iv);
-      },[active,accounts]);
-
-      useEffect(()=>{const s=DB.load("accounts");if(s?.length){setAccts(s);selectAccount(s[0]);}},[]);
-
-      useEffect(()=>{
-        if(!party?.members) return;
-        const load=async()=>{const d={};for(const m of party.members) d[m.account_id]=getCos(m);setMemberDetails(d);};
-        load();
-      },[party]);
-
-      const removeAccount=id=>{const u=accounts.filter(x=>x.accountId!==id);setAccts(u);DB.save("accounts",u);if(active?.accountId===id){setActive(null);setParty(null);}toast.s("Account removed");};
-
-      const getFnTok=async(acct)=>{
-        let a=await refreshTok(acct);
-        if(a!==acct){setActive(a);const u=accounts.map(x=>x.accountId===a.accountId?a:x);setAccts(u);DB.save("accounts",u);acct=a;}
-        const c=tokenCache.get(a.accountId);
-        if(c&&c.exp>Date.now()) return c.tok;
-        const ex=await sj(await pf(`${ACCT}/account/api/oauth/exchange`,{headers:{Authorization:`Bearer ${a.accessToken}`}}));
-        if(!ex.code){removeAccount(a.accountId);throw new Error("Exchange failed");}
-        const fn=await ep(`${ACCT}/account/api/oauth/token`,FN_CL,{grant_type:"exchange_code",exchange_code:ex.code});
-        tokenCache.set(a.accountId,{tok:fn.access_token,exp:Date.now()+(fn.expires_in-60)*1000});
-        return fn.access_token;
-      };
-
-      const loadParty=async(a)=>{
-        setLd(true);
-        try{const t=await getFnTok(a);const r=await sj(await pf(`${PARTY}/party/api/v1/Fortnite/user/${a.accountId}`,{headers:{Authorization:`Bearer ${t}`}}));setParty(r.current?.[0]||null);}
-        catch(e){setParty(null);toast.e(e.message);}
-        finally{setLd(false);}
-      };
-
-      const selectAccount=async a=>{setActive(a);setParty(null);toast.s(`Welcome, ${a.displayName}`);await loadParty(a);};
-
-      const linkAccount=async()=>{
-        if(!authCode.trim())return; setLd(true);
-        try{
-          const r=await ep(`${ACCT}/account/api/oauth/token`,PC_CL,{grant_type:"authorization_code",code:authCode.trim()});
-          const a={accountId:r.account_id,displayName:r.displayName||r.account_id,accessToken:r.access_token,refreshToken:r.refresh_token,tokenExpiresAt:Date.now()+(r.expires_in*1000)};
-          const u=[...accounts.filter(x=>x.accountId!==a.accountId),a];setAccts(u);DB.save("accounts",u);setAuthCode("");selectAccount(a);
-        }catch(e){toast.e(e.message);}finally{setLd(false);}
-      };
-
-      const getLatestRev=async()=>{
-        try{const t=await getFnTok(active);const r=await sj(await pf(`${PARTY}/party/api/v1/Fortnite/user/${active.accountId}`,{headers:{Authorization:`Bearer ${t}`}}));
-        const p=r.current?.[0];if(p){const mm=p.members.find(m=>m.account_id===active.accountId);return{partyRev:p.revision,memberRev:mm?.revision||0,party:p};}
-        }catch{}return{partyRev:0,memberRev:0,party:null};
-      };
-
-      const doAction=async(type,payload,msg)=>{
-        setBusy(p=>({...p,[type]:true}));
-        try{
-          if(!party?.id) throw new Error("No party found");
-          let a=await refreshTok(active);if(a!==active){setActive(a);const u=accounts.map(x=>x.accountId===a.accountId?a:x);setAccts(u);DB.save("accounts",u);}
-          const t=await getFnTok(a);
-          const rv=await sj(await pf(`${PARTY}/party/api/v1/Fortnite/user/${active.accountId}`,{headers:{Authorization:`Bearer ${t}`}}));
-          const pty=rv.current?.[0]; if(!pty) throw new Error("Party not found");
-          const pId=pty.id, myRev=pty.members?.find(m=>m.account_id===active.accountId)?.revision||0, pRev=pty.revision||0;
-          let url=`${PARTY}/party/api/v1/Fortnite/parties/${pId}/members/${active.accountId}/meta`, method="PATCH", body=null;
-
-          if(type==="meta"||type==="party_meta"){
-            const isP=type==="party_meta"; if(isP)url=`${PARTY}/party/api/v1/Fortnite/parties/${pId}/meta`;
-            const upd={}; const src=isP?pty:pty.members.find(m=>m.account_id===active.accountId);
-            for(const[k,v]of Object.entries(payload)){if(typeof v==='function'){let o={};if(src?.meta?.[k])try{o=JSON.parse(src.meta[k]);}catch{}upd[k]=JSON.stringify(v(o));}else upd[k]=v;}
-            body={update:upd,delete:[],revision:isP?pRev:myRev};
-          } else if(type==="promote"){url=`${PARTY}/party/api/v1/Fortnite/parties/${pId}/members/${payload.target}/promote`;method="POST";body={};
-          } else if(type==="kick"){url=`${PARTY}/party/api/v1/Fortnite/parties/${pId}/members/${payload.target}`;method="DELETE";
-          } else if(type==="invite"){url=`${PARTY}/party/api/v1/Fortnite/parties/${pId}/invites/${payload.target}?sendPing=true`;method="POST";body={};
+          try {
+            const r = await fetch(`${FNAPI}/v2/cosmetics/br/search/all?name=${encodeURIComponent(q)}&language=en&matchMethod=contains&type=${type}`);
+            const d = await r.json();
+            let items = Array.isArray(d.data) ? d.data : [];
+            if (filterFn) items = items.filter(filterFn);
+            items = items.slice(0, 10);
+            setRes(items);
+            setHi(0);
+            setOp(items.length > 0);
+          } catch {
+            setRes([]);
+            setOp(false);
+          } finally {
+            setLd(false);
           }
+        }, 250);
 
-          const opts={method,headers:{Authorization:`Bearer ${t}`}};
-          if(body){opts.headers["Content-Type"]="application/json";opts.body=JSON.stringify(body);}
-          const r=await pf(url,opts);
-          if(r.status===404){if(msg)toast.s(msg);setTimeout(()=>loadParty(active),600);return;}
-          if(!r.ok){const e=await sj(r);throw new Error(e.errorMessage||"Failed");}
-          if(msg)toast.s(msg);setTimeout(()=>loadParty(active),600);
-        }catch(e){toast.e(e.message);}finally{setBusy(p=>({...p,[type]:false}));}
-      };
+        return () => clearTimeout(t);
+      }, [q, type]);
 
-      // === COPY LOCKER ===
-      const copyLocker=async(tid)=>{
-        const tm=party?.members?.find(m=>m.account_id===tid);if(!tm){toast.e("Not found");return;}
-        const tc=memberDetails[tid]||getCos(tm);const tn=dn(tm);const tl=gl(tm);
-        try{
-          await doAction("meta",{"Default:FrontendEmote_j":()=>({FrontendEmote:{pickable:"None",emoteEKey:"",emoteSection:-1,multipurposeEmoteData:-1}})},null);
-          await new Promise(r=>setTimeout(r,300));
-          await doAction("meta",{"Default:AthenaCosmeticLoadout_j":o=>{return{AthenaCosmeticLoadout:{...tc.fullLoadout,randomDefaultCosmeticHash:Math.floor(Math.random()*2147483647)}};}},null);
-          await new Promise(r=>setTimeout(r,500));
-          if(tc.emote!=="None") await doAction("meta",{"Default:FrontendEmote_j":()=>({FrontendEmote:{pickable:tc.emote,emoteEKey:"",emoteSection:-2,multipurposeEmoteData:-1}})},null);
-          await doAction("meta",{"Default:BattlePassInfo_j":JSON.stringify({BattlePassInfo:{bHasPurchasedPass:true,passLevel:tl}}),"Default:AthenaBannerInfo_j":JSON.stringify({AthenaBannerInfo:{bannerIconId:"StandardBanner1",bannerColorId:"DefaultColor1",seasonLevel:tl}})},null);
-          toast.s(`Copied ${tn}'s locker`);
-        }catch(e){toast.e(e.message);}
-      };
-
-      // === SET SKIN ===
-      const handleSetSkin=async()=>{
-        if(!selectedSkin){toast.e("Select a skin first");return;}
-        const{memberRev}=await getLatestRev();
-        // fortnite-api returns id like "CID_XXX", party uses "AthenaCharacter:CID_XXX"
-        const sid = selectedSkin.id;
-        const fid = sid.startsWith("AthenaCharacter:") ? sid : `AthenaCharacter:${sid}`;
-        const cm=party.members.find(m=>m.account_id===active.accountId);
-        const cl=pm(cm,"Default:AthenaCosmeticLoadout_j")?.AthenaCosmeticLoadout||{};
-        const up={
-          "Default:AthenaCosmeticLoadout_j":JSON.stringify({
-            AthenaCosmeticLoadout:{
-              ...cl,
-              characterPrimaryAssetId: fid,
-              randomDefaultCosmeticHash:Math.floor(Math.random()*2147483647)
-            }
-          }),
-          "Default:AthenaCosmeticLoadoutVariants_j":JSON.stringify({
-            AthenaCosmeticLoadoutVariants:{vL:{},vD:{athenaCharacter:{i:["0|0"]}},fT:false}
-          })
+      useEffect(() => {
+        const onDoc = e => {
+          if (ref.current && !ref.current.contains(e.target)) setOp(false);
         };
-        try{
-          const t=await getFnTok(active);
-          const r=await pf(`${PARTY}/party/api/v1/Fortnite/parties/${party.id}/members/${active.accountId}/meta`,{
-            method:"PATCH",
-            headers:{Authorization:`Bearer ${t}`,"Content-Type":"application/json"},
-            body:JSON.stringify({update:up,delete:[],revision:memberRev})
-          });
-          if(r.ok){
-            toast.s(`Skin → ${selectedSkin.name}`);
-            setTimeout(()=>loadParty(active),800);
-          } else {
-            const e=await sj(r);
-            if(e.errorCode?.includes("stale_revision")){
-              toast.s("Retrying...");
-              setTimeout(()=>handleSetSkin(),500);
-            } else toast.e(e.errorMessage||"Failed to set skin");
-          }
-        }catch(e){toast.e(e.message);}
+        document.addEventListener("mousedown", onDoc);
+        return () => document.removeEventListener("mousedown", onDoc);
+      }, []);
+
+      const choose = item => {
+        onSelect(item);
+        setQ("");
+        setRes([]);
+        setOp(false);
       };
 
-      // === SET BACKPACK ===
-      const handleSetBackpack=async()=>{
-        if(!selectedBackpack){toast.e("Select a backbling first");return;}
-        const{memberRev}=await getLatestRev();
-        // Party data uses: /BRCosmetics/Athena/Items/Cosmetics/Backpacks/BID_XXX.BID_XXX
-        const bid = selectedBackpack.id;
-        const fp = `/BRCosmetics/Athena/Items/Cosmetics/Backpacks/${bid}.${bid}`;
-        const cm=party.members.find(m=>m.account_id===active.accountId);
-        const cl=pm(cm,"Default:AthenaCosmeticLoadout_j")?.AthenaCosmeticLoadout||{};
-        try{
-          const t=await getFnTok(active);
-          const r=await pf(`${PARTY}/party/api/v1/Fortnite/parties/${party.id}/members/${active.accountId}/meta`,{
-            method:"PATCH",
-            headers:{Authorization:`Bearer ${t}`,"Content-Type":"application/json"},
-            body:JSON.stringify({
-              update:{
-                "Default:AthenaCosmeticLoadout_j":JSON.stringify({
-                  AthenaCosmeticLoadout:{
-                    ...cl,
-                    backpackDef:fp,
-                    randomDefaultCosmeticHash:Math.floor(Math.random()*2147483647)
-                  }
-                })
-              },
-              delete:[],
-              revision:memberRev
-            })
-          });
-          if(r.ok){
-            toast.s(`Backbling → ${selectedBackpack.name}`);
-            setTimeout(()=>loadParty(active),800);
-          } else {
-            const e=await sj(r);
-            if(e.errorCode?.includes("stale_revision")){
-              toast.s("Retrying...");setTimeout(()=>handleSetBackpack(),500);
-            } else toast.e(e.errorMessage||"Failed");
-          }
-        }catch(e){toast.e(e.message);}
-      };
-
-      // === SET PICKAXE ===
-      const handleSetPickaxe=async()=>{
-        if(!selectedPickaxe){toast.e("Select a pickaxe first");return;}
-        const{memberRev}=await getLatestRev();
-        // Party data uses: /BRCosmetics/Athena/Items/Cosmetics/Pickaxes/Pickaxe_XXX.Pickaxe_XXX
-        const pid = selectedPickaxe.id;
-        const fp = `/BRCosmetics/Athena/Items/Cosmetics/Pickaxes/${pid}.${pid}`;
-        const cm=party.members.find(m=>m.account_id===active.accountId);
-        const cl=pm(cm,"Default:AthenaCosmeticLoadout_j")?.AthenaCosmeticLoadout||{};
-        try{
-          const t=await getFnTok(active);
-          const r=await pf(`${PARTY}/party/api/v1/Fortnite/parties/${party.id}/members/${active.accountId}/meta`,{
-            method:"PATCH",
-            headers:{Authorization:`Bearer ${t}`,"Content-Type":"application/json"},
-            body:JSON.stringify({
-              update:{
-                "Default:AthenaCosmeticLoadout_j":JSON.stringify({
-                  AthenaCosmeticLoadout:{
-                    ...cl,
-                    pickaxeDef:fp,
-                    randomDefaultCosmeticHash:Math.floor(Math.random()*2147483647)
-                  }
-                })
-              },
-              delete:[],
-              revision:memberRev
-            })
-          });
-          if(r.ok){
-            toast.s(`Pickaxe → ${selectedPickaxe.name}`);
-            setTimeout(()=>loadParty(active),800);
-          } else {
-            const e=await sj(r);
-            if(e.errorCode?.includes("stale_revision")){
-              toast.s("Retrying...");setTimeout(()=>handleSetPickaxe(),500);
-            } else toast.e(e.errorMessage||"Failed");
-          }
-        }catch(e){toast.e(e.message);}
-      };
-
-      // === EMOTE ===
-      const handleEmote=async(stop=false)=>{
-        if(stop){await doAction("meta",{"Default:FrontendEmote_j":()=>({FrontendEmote:{pickable:"None",emoteEKey:"",emoteSection:-1,multipurposeEmoteData:-1}})},"Emote stopped");return;}
-        if(!selectedEmote){toast.e("Select an emote first");return;}
-        let fid=selectedEmote.id;if(!fid.startsWith("/BRCosmetics/"))fid=`/BRCosmetics/Athena/Items/Cosmetics/Dances/${fid}.${fid}`;
-        await doAction("meta",{"Default:FrontendEmote_j":()=>({FrontendEmote:{pickable:fid,emoteEKey:"",emoteSection:-2,multipurposeEmoteData:-1}})},"Playing emote");
-      };
-
-      // === SET LEVEL ===
-      const handleSetLevel=async()=>{
-        await doAction("meta",{"Default:BattlePassInfo_j":JSON.stringify({BattlePassInfo:{bHasPurchasedPass:true,passLevel:level}}),"Default:AthenaBannerInfo_j":JSON.stringify({AthenaBannerInfo:{bannerIconId:bannerIcon,bannerColorId:bannerColor,seasonLevel:level}})},`Level → ${level}`);
-      };
-
-      // === SET CROWNS ===
-      const handleSetCrowns=async()=>{
-        const cm=party.members.find(m=>m.account_id===active.accountId);const cl=pm(cm,"Default:AthenaCosmeticLoadout_j")?.AthenaCosmeticLoadout||{};
-        const stats=cl.cosmeticStats?.map(s=>s.statName==="TotalVictoryCrowns"?{...s,statValue:crowns}:s)||[{statName:"TotalVictoryCrowns",statValue:crowns}];
-        await doAction("meta",{"Default:AthenaCosmeticLoadout_j":o=>{const c=o.AthenaCosmeticLoadout||{};return{AthenaCosmeticLoadout:{...c,cosmeticStats:stats,randomDefaultCosmeticHash:Math.floor(Math.random()*2147483647)}};}},`Crowns → ${crowns}`);
-      };
-
-      // === INVITE ===
-      const handleInvite=async()=>{
-        if(!inviteUser.trim())return;
-        try{
-          const t=await getFnTok(active);
-          const lr=await sj(await pf(`${ACCT}/account/api/public/account/displayName/${encodeURIComponent(inviteUser.trim())}`,{headers:{Authorization:`Bearer ${t}`}}));
-          if(!lr.id){toast.e("User not found");return;}
-          await doAction("invite",{target:lr.id},`Invited ${inviteUser}`);
-          setInviteUser("");
-        }catch(e){toast.e(e.message);}
-      };
-
-      // === ISLAND LAUNCH ===
-      const launchIsland=async()=>{
-        if(!islandCode.trim()||!active) return;
-        const sm=party?.members||[];const isL=sm.find(m=>m.account_id===active.accountId)?.role==="CAPTAIN";
-        if(!isL){toast.e("Only leader can launch");return;}
-        try{
-          const t=await getFnTok(active);const cc=islandCode.trim().replace(/[^0-9-]/g,'');
-          if(cc.length<4)throw new Error("Invalid code");
-          const r=await pf(`${CONTENT}/api/content/v2/launch/link/${cc}`,{method:"POST",headers:{Authorization:`Bearer ${t}`,"Content-Type":"application/json"},body:JSON.stringify({})});
-          const d=await sj(r);
-          if(r.ok||d.status==="notified"){toast.s(`Launched → ${cc}`);setIslandCode("");}else throw new Error(d.errorMessage||"Failed");
-        }catch(e){toast.e(e.message);}
-      };
-
-      // === FAKE MATCH ===
-      const fakeMatch=async()=>{
-        const s=uuid();
-        await doAction("meta",{"Default:GameReadiness_s":"Playing","Default:Location_s":"InGame","Default:PackedState_j":o=>{if(o.PackedState)o.PackedState.location="InGame";return o;},"Default:MatchmakingInfo_j":o=>{if(!o.MatchmakingInfo)o.MatchmakingInfo={};o.MatchmakingInfo.readyStatus="NotReady";o.MatchmakingInfo.worldSessionId=s;o.MatchmakingInfo.travelId=s;return o;}},"In match");
-      };
-
-      const leaveMatch=async()=>{
-        await doAction("meta",{"Default:GameReadiness_s":"NotReady","Default:Location_s":"PreLobby","Default:PackedState_j":o=>{if(o.PackedState)o.PackedState.location="PreLobby";return o;},"Default:MatchmakingInfo_j":o=>{if(o.MatchmakingInfo)o.MatchmakingInfo.readyStatus="NotReady";return o;}},"Left match");
-      };
-
-      // === READINESS ===
-      const setReady=async(state)=>{
-        const map={Ready:"Ready",NotReady:"NotReady",SittingOut:"SittingOut"};
-        await doAction("meta",{"Default:GameReadiness_s":map[state]||"NotReady","Default:Location_s":"PreLobby","Default:PackedState_j":o=>{if(o.PackedState)o.PackedState.location="PreLobby";return o;},"Default:MatchmakingInfo_j":o=>{if(o.MatchmakingInfo)o.MatchmakingInfo.readyStatus=map[state]||"NotReady";return o;}},state);
-      };
-
-      /* ================================================================
-         LOGIN SCREEN
-      ================================================================ */
-      if(!active) return <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',padding:20}}>
-        <div className="panel anim-up" style={{maxWidth:440,width:'100%',overflow:'hidden'}}>
-          <div className="header-bar"></div>
-          <div style={{padding:'36px 36px 32px'}}>
-            <div style={{textAlign:'center',marginBottom:32}}>
-              <div className="logo-icon" style={{margin:'0 auto 18px'}}>
-                <i className="fas fa-ghost" style={{fontSize:20,color:'white'}}></i>
-              </div>
-              <h1 className="shimmer-text display-font" style={{fontSize:24}}>GHOST EQUIP</h1>
-              <p style={{fontSize:12,color:'var(--text-muted)',marginTop:8,fontFamily:"'Rajdhani',sans-serif",letterSpacing:2.5,textTransform:'uppercase'}}>Fortnite Party Manager</p>
-            </div>
-
-            {accounts.length>0&&<div style={{marginBottom:24}}>
-              <div className="label-font" style={{marginBottom:10}}>Saved Accounts</div>
-              <div style={{display:'flex',flexDirection:'column',gap:6}}>
-                {accounts.map(a=><div key={a.accountId} onClick={()=>selectAccount(a)} className="panel-inner" style={{padding:'12px 16px',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'space-between',transition:'all 0.2s'}}>
-                  <div style={{display:'flex',alignItems:'center',gap:12}}>
-                    <div style={{width:34,height:34,borderRadius:10,background:'linear-gradient(135deg,#6366f1,#8b5cf6)',display:'flex',alignItems:'center',justifyContent:'center'}}><i className="fas fa-user" style={{fontSize:11,color:'white'}}></i></div>
-                    <span style={{fontSize:14,fontWeight:600}}>{a.displayName}</span>
-                  </div>
-                  <button onClick={e=>{e.stopPropagation();removeAccount(a.accountId);}} className="btn btn-danger" style={{padding:'5px 10px',fontSize:10}}><i className="fas fa-trash"></i></button>
-                </div>)}
-              </div>
-            </div>}
-
-            <div style={{display:'flex',flexDirection:'column',gap:12}}>
-              <a href="https://www.epicgames.com/id/api/redirect?clientId=34a02cf8f4414e29b15921876da36f9a&responseType=code" target="_blank" className="btn btn-ghost" style={{width:'100%',textDecoration:'none',padding:13}}><i className="fas fa-external-link-alt"></i> Get Auth Code</a>
-              <div style={{display:'flex',gap:8}}>
-                <input type="text" placeholder="Paste authorization code..." value={authCode} onChange={e=>setAuthCode(e.target.value)} onKeyDown={e=>e.key==="Enter"&&linkAccount()} className="input-field" style={{flex:1}}/>
-                <button onClick={linkAccount} disabled={loading||!authCode.trim()} className="btn btn-cyan" style={{minWidth:70}}>{loading?<i className="fas fa-spinner fa-spin"></i>:"Link"}</button>
-              </div>
-              <div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:6,marginTop:2}}>
-                <div style={{width:16,height:16,borderRadius:6,background:'rgba(99,102,241,0.08)',display:'flex',alignItems:'center',justifyContent:'center'}}><i className="fas fa-shield-halved" style={{fontSize:8,color:'var(--accent-primary)'}}></i></div>
-                <p style={{fontSize:11,color:'var(--text-muted)'}}>Tokens stored locally in your browser</p>
-              </div>
-            </div>
+      return (
+        <div ref={ref} className="search-wrap">
+          <div style={{ position: 'relative' }}>
+            <i className="fas fa-search" style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', fontSize: 12, zIndex: 2 }}></i>
+            <input
+              type="text"
+              placeholder={placeholder}
+              value={q}
+              onChange={e => setQ(e.target.value)}
+              onFocus={() => res.length && setOp(true)}
+              onKeyDown={e => {
+                if (!op || !res.length) return;
+                if (e.key === "ArrowDown") {
+                  e.preventDefault();
+                  setHi(v => Math.min(v + 1, res.length - 1));
+                } else if (e.key === "ArrowUp") {
+                  e.preventDefault();
+                  setHi(v => Math.max(v - 1, 0));
+                } else if (e.key === "Enter") {
+                  e.preventDefault();
+                  choose(res[hi]);
+                } else if (e.key === "Escape") {
+                  setOp(false);
+                }
+              }}
+              className="input-field"
+              style={{ paddingLeft: 38 }}
+              autoComplete="off"
+              spellCheck="false"
+            />
+            {ld && <i className="fas fa-spinner fa-spin" style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--accent-primary)', fontSize: 13 }}></i>}
           </div>
+
+          {op && res.length > 0 && (
+            <div className="search-drop">
+              {res.map((s, i) => (
+                <div
+                  key={s.id}
+                  className={`search-item ${i === hi ? 'active' : ''}`}
+                  onMouseDown={e => {
+                    e.preventDefault();
+                    choose(s);
+                  }}
+                >
+                  {(s.images?.smallIcon || s.images?.icon) && <img src={s.images.smallIcon || s.images.icon} alt={s.name} />}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontFamily: "'Rajdhani',sans-serif", fontWeight: 700, fontSize: 14 }}>{s.name}</div>
+                    <div style={{ fontSize: 11, color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.id}</div>
+                  </div>
+                  {s.rarity?.displayValue && (
+                    <span style={{ fontSize: 10, color: 'var(--text-muted)', padding: '2px 8px', background: 'rgba(255,255,255,0.03)', borderRadius: 6, border: '1px solid rgba(255,255,255,0.05)' }}>
+                      {s.rarity.displayValue}
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
-      </div>;
+      );
+    }
 
-      /* ================================================================
-         MAIN DASHBOARD
-      ================================================================ */
-      const sm=party?.members||[];
-      const isCap=sm.find(m=>m.account_id===active.accountId)?.role==="CAPTAIN";
-      const myMember=sm.find(m=>m.account_id===active.accountId);
-      const myReadiness=myMember?getReadiness(myMember):"notready";
+    function App() {
+      const [tab, setTab] = useState("locker");
+      const [favorites, setFavorites] = useState(DB.load("favorites", []));
+      const [presets, setPresets] = useState(DB.load("presets", []));
+      const [recent, setRecent] = useState(DB.load("recent", []));
+      const [streamerMode, setStreamerMode] = useState(DB.load("streamerMode", false));
+      const [partyPrivacy, setPartyPrivacy] = useState(DB.load("partyPrivacy", "Friends"));
+      const [playlistMode, setPlaylistMode] = useState(DB.load("playlistMode", "Battle Royale"));
+      const [matchKey, setMatchKey] = useState(DB.load("matchKey", ""));
+      const [notes, setNotes] = useState(DB.load("notes", ""));
+      const [builder, setBuilder] = useState(DB.load("builder", {
+        skin: null,
+        backpack: null,
+        pickaxe: null,
+        emote: null,
+        level: 100,
+        crowns: 0,
+        bannerIcon: "StandardBanner1",
+        bannerColor: "DefaultColor1"
+      }));
 
-      const TABS=[
-        {id:"match",icon:"fa-crosshairs",label:"Match"},
-        {id:"locker",icon:"fa-shirt",label:"Locker"},
-        {id:"stats",icon:"fa-chart-bar",label:"Profile"},
-        {id:"members",icon:"fa-users",label:`Members (${sm.length})`},
-        {id:"islands",icon:"fa-globe",label:"Islands"},
+      const mockMembers = useMemo(() => {
+        const base = [
+          { id: 1, name: "GhostLead", platform: "PC", role: "Leader", status: "Ready", level: 231, crowns: 12 },
+          { id: 2, name: "NovaPulse", platform: "PlayStation", role: "Member", status: "Idle", level: 148, crowns: 4 },
+          { id: 3, name: "CipherVex", platform: "Xbox", role: "Member", status: "Sit Out", level: 96, crowns: 0 },
+          { id: 4, name: "EchoRift", platform: "Mobile", role: "Member", status: "In Match", level: 312, crowns: 22 }
+        ];
+        return base.map(m => ({
+          ...m,
+          safeName: streamerMode ? `${m.name.slice(0, 1)}***` : m.name
+        }));
+      }, [streamerMode]);
+
+      useEffect(() => DB.save("favorites", favorites), [favorites]);
+      useEffect(() => DB.save("presets", presets), [presets]);
+      useEffect(() => DB.save("recent", recent), [recent]);
+      useEffect(() => DB.save("streamerMode", streamerMode), [streamerMode]);
+      useEffect(() => DB.save("partyPrivacy", partyPrivacy), [partyPrivacy]);
+      useEffect(() => DB.save("playlistMode", playlistMode), [playlistMode]);
+      useEffect(() => DB.save("matchKey", matchKey), [matchKey]);
+      useEffect(() => DB.save("notes", notes), [notes]);
+      useEffect(() => DB.save("builder", builder), [builder]);
+
+      const TABS = [
+        { id: "locker", icon: "fa-shirt", label: "Locker" },
+        { id: "presets", icon: "fa-layer-group", label: `Presets (${presets.length})` },
+        { id: "favorites", icon: "fa-heart", label: `Favorites (${favorites.length})` },
+        { id: "party", icon: "fa-users", label: "Party" },
+        { id: "settings", icon: "fa-sliders", label: "Settings" }
       ];
 
-      return <div style={{minHeight:'100vh',padding:'16px',maxWidth:1260,margin:'0 auto'}}>
-        {/* HEADER */}
-        <div className="panel anim-up" style={{marginBottom:18,overflow:'hidden'}}>
-          <div style={{padding:'14px 22px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-            <div style={{display:'flex',alignItems:'center',gap:14}}>
-              <div className="logo-icon">
-                <i className="fas fa-ghost" style={{fontSize:17,color:'white'}}></i>
-                <div className="online-dot" style={{position:'absolute',bottom:-2,right:-2}}></div>
-              </div>
-              <div>
-                <h1 className="shimmer-text display-font" style={{fontSize:16}}>GHOST EQUIP</h1>
-                <div style={{fontSize:12,color:'var(--text-muted)',display:'flex',alignItems:'center',gap:8,marginTop:1}}>
-                  <span style={{display:'flex',alignItems:'center',gap:5}}><i className="fas fa-circle" style={{fontSize:4,color:'var(--accent-emerald)'}}></i>{active.displayName}</span>
-                  {isCap&&<span className="badge badge-leader" style={{padding:'2px 7px'}}><i className="fas fa-crown" style={{fontSize:7}}></i>Leader</span>}
-                  <span className={`badge badge-${myReadiness}`} style={{padding:'2px 7px'}}>
-                    {myReadiness==="ingame"?"In Match":myReadiness==="sitout"?"Sit Out":myReadiness==="ready"?"Ready":"Idle"}
-                  </span>
+      const setSlot = (slot, item) => {
+        setBuilder(prev => ({ ...prev, [slot]: item }));
+        setRecent(prev => {
+          const key = `${slot}:${item.id}`;
+          const next = [{ key, slot, item }, ...prev.filter(x => x.key !== key)].slice(0, 16);
+          return next;
+        });
+        toast.s(`${slot} selected`);
+      };
+
+      const clearSlot = slot => {
+        setBuilder(prev => ({ ...prev, [slot]: null }));
+        toast.s(`${slot} cleared`);
+      };
+
+      const favKey = (item, slot = "item") => `${slot}:${item.id}`;
+
+      const isFavorite = (item, slot) => favorites.some(x => x.key === favKey(item, slot));
+
+      const toggleFavorite = (item, slot) => {
+        const key = favKey(item, slot);
+        const exists = favorites.some(x => x.key === key);
+        const next = exists
+          ? favorites.filter(x => x.key !== key)
+          : [{ key, slot, item }, ...favorites];
+        setFavorites(next);
+        toast.s(exists ? "Removed from favorites" : "Added to favorites");
+      };
+
+      const savePreset = () => {
+        const count = presets.length + 1;
+        const preset = {
+          id: crypto.randomUUID(),
+          name: `Preset ${count}`,
+          createdAt: Date.now(),
+          data: builder
+        };
+        setPresets(prev => [preset, ...prev]);
+        toast.s("Preset saved");
+      };
+
+      const loadPreset = preset => {
+        setBuilder(preset.data);
+        toast.s(`${preset.name} loaded`);
+      };
+
+      const deletePreset = id => {
+        setPresets(prev => prev.filter(p => p.id !== id));
+        toast.s("Preset deleted");
+      };
+
+      const exportPreset = () => {
+        const blob = new Blob([JSON.stringify(builder, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "ghost-equip-preset.json";
+        a.click();
+        URL.revokeObjectURL(url);
+        toast.s("Preset exported");
+      };
+
+      const importPreset = e => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          try {
+            const data = JSON.parse(reader.result);
+            setBuilder(prev => ({ ...prev, ...data }));
+            toast.s("Preset imported");
+          } catch {
+            toast.e("Invalid preset file");
+          }
+        };
+        reader.readAsText(file);
+      };
+
+      const clearAll = () => {
+        setBuilder(prev => ({
+          ...prev,
+          skin: null,
+          backpack: null,
+          pickaxe: null,
+          emote: null
+        }));
+        toast.s("Loadout cleared");
+      };
+
+      const previewableEmote = emote => Boolean(
+        emote && (emote.images?.icon || emote.images?.smallIcon || emote.video)
+      );
+
+      const totalCrowns = mockMembers.reduce((n, m) => n + m.crowns, 0);
+      const readyCount = mockMembers.filter(m => m.status === "Ready").length;
+      const inMatchCount = mockMembers.filter(m => m.status === "In Match").length;
+
+      return (
+        <div style={{ minHeight: '100vh', padding: '16px', maxWidth: 1260, margin: '0 auto' }}>
+          <div className="panel anim-up" style={{ marginBottom: 18, overflow: 'hidden' }}>
+            <div style={{ padding: '14px 22px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 14, flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                <div className="logo-icon">
+                  <i className="fas fa-ghost" style={{ fontSize: 17, color: 'white' }}></i>
+                  <div className="online-dot" style={{ position: 'absolute', bottom: -2, right: -2 }}></div>
+                </div>
+                <div>
+                  <h1 className="shimmer-text display-font" style={{ fontSize: 16 }}>GHOST EQUIP</h1>
+                  <div style={{ fontSize: 12, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 8, marginTop: 1, flexWrap: 'wrap' }}>
+                    <span className="badge badge-local"><i className="fas fa-hard-drive"></i>Local Builder</span>
+                    <span className="badge badge-private"><i className="fas fa-lock"></i>{partyPrivacy}</span>
+                    {streamerMode && <span className="badge badge-streamer"><i className="fas fa-eye-slash"></i>Streamer Mode</span>}
+                  </div>
                 </div>
               </div>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                <button className="btn btn-ghost" onClick={clearAll}><i className="fas fa-broom"></i>Clear</button>
+                <button className="btn btn-ghost" onClick={exportPreset}><i className="fas fa-file-export"></i>Export</button>
+                <label className="btn btn-ghost" style={{ cursor: 'pointer' }}>
+                  <i className="fas fa-file-import"></i>Import
+                  <input type="file" accept=".json,application/json" hidden onChange={importPreset} />
+                </label>
+                <button className="btn btn-cyan" onClick={savePreset}><i className="fas fa-floppy-disk"></i>Save Preset</button>
+              </div>
             </div>
-            <div style={{display:'flex',gap:8}}>
-              <button onClick={()=>loadParty(active)} disabled={loading} className="btn btn-ghost" style={{fontSize:12}}><i className={`fas fa-sync-alt${loading?' fa-spin':''}`} style={{fontSize:11}}></i>Refresh</button>
-              <button onClick={()=>{setActive(null);setParty(null);}} className="btn btn-danger" style={{fontSize:12}}><i className="fas fa-right-from-bracket" style={{fontSize:11}}></i>Exit</button>
-            </div>
+            <div className="header-bar"></div>
           </div>
-          <div className="header-bar"></div>
-        </div>
 
-        {!party?<div className="panel anim-up" style={{padding:56,textAlign:'center'}}>
-          <div style={{width:64,height:64,margin:'0 auto 16px',borderRadius:16,background:'rgba(99,102,241,0.06)',display:'flex',alignItems:'center',justifyContent:'center',border:'1px solid rgba(99,102,241,0.1)'}}><i className="fas fa-gamepad" style={{fontSize:24,color:'var(--accent-primary)',opacity:0.5}}></i></div>
-          <h2 className="display-font" style={{fontSize:18,color:'var(--accent-primary)',marginBottom:8}}>No Active Party</h2>
-          <p style={{fontSize:13,color:'var(--text-muted)',marginBottom:24}}>Launch Fortnite and join a lobby to get started</p>
-          <button onClick={()=>loadParty(active)} className="btn btn-cyan"><i className="fas fa-sync-alt"></i>Check Again</button>
-        </div>:
-
-        <div style={{display:'grid',gridTemplateColumns:'210px 1fr',gap:18}}>
-          {/* SIDEBAR */}
-          <div className="panel anim-up" style={{padding:10,alignSelf:'start',position:'sticky',top:16}}>
-            <div style={{display:'flex',flexDirection:'column',gap:3}}>
-              {TABS.map(t=><button key={t.id} onClick={()=>setTab(t.id)} className={`tab-btn${tab===t.id?' active':''}`}>
-                <span className="tab-icon"><i className={`fas ${t.icon}`}></i></span>
-                <span>{t.label}</span>
-              </button>)}
-            </div>
-            {/* Mini party info */}
-            <div style={{borderTop:'1px solid var(--border-dim)',marginTop:12,paddingTop:12,paddingLeft:4,paddingRight:4}}>
-              <div style={{fontSize:10,color:'var(--text-muted)',fontFamily:"'Rajdhani',sans-serif",fontWeight:600,textTransform:'uppercase',letterSpacing:1.5,marginBottom:8}}>Party ({sm.length}/16)</div>
-              <div style={{display:'flex',flexWrap:'wrap',gap:4}}>
-                {sm.slice(0,8).map(m=>{
-                  const st=getReadiness(m);
-                  const colors={ready:'var(--accent-emerald)',notready:'var(--text-muted)',sitout:'var(--accent-amber)',ingame:'var(--accent-blue)'};
-                  return <div key={m.account_id} title={dn(m)} style={{width:24,height:24,borderRadius:6,background:m.account_id===active.accountId?'linear-gradient(135deg,#6366f1,#8b5cf6)':'rgba(255,255,255,0.04)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:9,fontWeight:700,color:m.account_id===active.accountId?'white':'var(--text-muted)',border:`1px solid ${colors[st]}25`,position:'relative'}}>
-                    {dn(m).charAt(0).toUpperCase()}
-                    <div style={{position:'absolute',bottom:-1,right:-1,width:6,height:6,borderRadius:'50%',background:colors[st],border:'1.5px solid var(--bg-primary)'}}></div>
-                  </div>;
-                })}
-                {sm.length>8&&<div style={{width:24,height:24,borderRadius:6,background:'rgba(255,255,255,0.03)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:9,color:'var(--text-muted)'}}>+{sm.length-8}</div>}
-              </div>
-            </div>
+          <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 18 }}>
+            <StatCard icon="fa-users" label="Party Size" value={mockMembers.length} color="var(--accent-primary)" />
+            <StatCard icon="fa-user-check" label="Ready" value={readyCount} color="var(--accent-emerald)" />
+            <StatCard icon="fa-crown" label="Crowns" value={totalCrowns} color="var(--accent-amber)" />
+            <StatCard icon="fa-gamepad" label="In Match" value={inMatchCount} color="var(--accent-blue)" />
           </div>
 
-          {/* CONTENT */}
-          <div style={{display:'flex',flexDirection:'column',gap:14}} className="anim-slide">
-
-            {/* === MATCH TAB === */}
-            {tab==="match"&&<>
-              <div className="panel section-bar emerald" style={{padding:22}}>
-                <div className="label-font" style={{marginBottom:14}}>Readiness</div>
-                <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10}}>
-                  <CdBtn id="rdy" onClick={()=>setReady("Ready")} variant="success"><i className="fas fa-check"></i> Ready</CdBtn>
-                  <CdBtn id="nrdy" onClick={()=>setReady("NotReady")}><i className="fas fa-xmark"></i> Not Ready</CdBtn>
-                  <CdBtn id="sit" onClick={()=>setReady("SittingOut")} variant="amber"><i className="fas fa-moon"></i> Sit Out</CdBtn>
-                  <CdBtn id="stnd" onClick={()=>setReady("NotReady")} variant="ghost"><i className="fas fa-person"></i> Stand In</CdBtn>
-                </div>
+          <div className="layout-main" style={{ display: 'grid', gridTemplateColumns: '210px 1fr', gap: 18 }}>
+            <div className="panel" style={{ padding: 10, alignSelf: 'start', position: 'sticky', top: 16 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                {TABS.map(t => (
+                  <button key={t.id} onClick={() => setTab(t.id)} className={`tab-btn${tab === t.id ? ' active' : ''}`}>
+                    <span style={{ width: 20, textAlign: 'center', fontSize: 13 }}><i className={`fas ${t.icon}`}></i></span>
+                    <span>{t.label}</span>
+                  </button>
+                ))}
               </div>
 
-              <div className="panel section-bar violet" style={{padding:22}}>
-                <div className="label-font" style={{marginBottom:14}}>Fake Match</div>
-                <div style={{display:'flex',gap:10}}>
-                  <CdBtn id="fmatch" onClick={fakeMatch} variant="violet" className="flex-1"><i className="fas fa-play"></i> Enter Match</CdBtn>
-                  <CdBtn id="lmatch" onClick={leaveMatch} className="flex-1"><i className="fas fa-door-open"></i> Leave Match</CdBtn>
+              <div style={{ borderTop: '1px solid var(--border-dim)', marginTop: 12, paddingTop: 12, paddingLeft: 4, paddingRight: 4 }}>
+                <div style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: "'Rajdhani',sans-serif", fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>Selected Loadout</div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                  {["skin", "backpack", "pickaxe", "emote"].map(slot => (
+                    <div key={slot} title={builder[slot]?.name || `No ${slot}`} style={{
+                      width: 34, height: 34, borderRadius: 8,
+                      background: builder[slot]?.images?.icon ? `url(${builder[slot].images.icon}) center/cover` : 'rgba(255,255,255,0.04)',
+                      border: '1px solid rgba(255,255,255,0.06)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      color: 'var(--text-muted)', fontSize: 11
+                    }}>
+                      {!builder[slot] && <i className={`fas ${
+                        slot === 'skin' ? 'fa-user' :
+                        slot === 'backpack' ? 'fa-bag-shopping' :
+                        slot === 'pickaxe' ? 'fa-hammer' : 'fa-music'
+                      }`}></i>}
+                    </div>
+                  ))}
                 </div>
               </div>
+            </div>
 
-              <div className="panel section-bar primary" style={{padding:22}}>
-                <div className="label-font" style={{marginBottom:14}}>Invite Player</div>
-                <div style={{display:'flex',gap:10}}>
-                  <div style={{flex:1,position:'relative'}}>
-                    <i className="fas fa-user-plus" style={{position:'absolute',left:14,top:'50%',transform:'translateY(-50%)',color:'var(--text-muted)',fontSize:12}}></i>
-                    <input type="text" placeholder="Epic display name..." value={inviteUser} onChange={e=>setInviteUser(e.target.value)} onKeyDown={e=>e.key==="Enter"&&handleInvite()} className="input-field" style={{paddingLeft:38}}/>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              {tab === "locker" && (
+                <>
+                  <div className="panel" style={{ padding: '12px 18px', background: 'rgba(99,102,241,0.03)', borderColor: 'rgba(99,102,241,0.1)' }}>
+                    <p style={{ fontSize: 12, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                      <i className="fas fa-info-circle" style={{ color: 'var(--accent-primary)' }}></i>
+                      This version is a local builder only. It saves presets, favorites, privacy preferences, streamer mode, and cosmetic selections in your browser.
+                    </p>
                   </div>
-                  <CdBtn id="invite" onClick={handleInvite} variant="cyan" disabled={!inviteUser.trim()}><i className="fas fa-paper-plane"></i> Invite</CdBtn>
-                </div>
-              </div>
-            </>}
 
-            {/* === LOCKER TAB === */}
-            {tab==="locker"&&<>
-              <div className="panel" style={{padding:'12px 18px',background:'rgba(99,102,241,0.03)',borderColor:'rgba(99,102,241,0.1)'}}>
-                <p style={{fontSize:12,color:'var(--text-muted)',display:'flex',alignItems:'center',gap:8}}>
-                  <i className="fas fa-info-circle" style={{color:'var(--accent-primary)'}}></i>
-                  Set to <span style={{color:'var(--accent-amber)',fontWeight:600}}>Sit Out</span> or <span style={{color:'var(--text-secondary)',fontWeight:600}}>Not Ready</span> before changing cosmetics
-                </p>
-              </div>
-
-              {/* SKIN */}
-              <div className="panel section-bar violet" style={{padding:22}}>
-                <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:12}}>
-                  <div style={{width:28,height:28,borderRadius:8,background:'rgba(139,92,246,0.1)',display:'flex',alignItems:'center',justifyContent:'center'}}>
-                    <i className="fas fa-user" style={{fontSize:11,color:'var(--accent-violet)'}}></i>
-                  </div>
-                  <div className="label-font" style={{margin:0}}>Skin</div>
-                </div>
-                <SearchInput type="outfit" placeholder="Search skins..." onSelect={setSelectedSkin}/>
-                {selectedSkin&&<div className="selected-preview"><img src={selectedSkin.images?.icon||selectedSkin.images?.smallIcon} alt=""/><div><div style={{fontSize:14,fontWeight:700}}>{selectedSkin.name}</div><div style={{fontSize:11,color:'var(--text-muted)'}}>{selectedSkin.id}</div></div></div>}
-                <div style={{marginTop:12}}><CdBtn id="setskin" onClick={handleSetSkin} variant="violet" disabled={!selectedSkin}><i className="fas fa-check"></i> Set Skin</CdBtn></div>
-              </div>
-
-              {/* BACKPACK */}
-              <div className="panel section-bar cyan" style={{padding:22}}>
-                <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:12}}>
-                  <div style={{width:28,height:28,borderRadius:8,background:'rgba(56,189,248,0.1)',display:'flex',alignItems:'center',justifyContent:'center'}}>
-                    <i className="fas fa-bag-shopping" style={{fontSize:11,color:'var(--accent-cyan)'}}></i>
-                  </div>
-                  <div className="label-font" style={{margin:0}}>Backbling</div>
-                </div>
-                <SearchInput type="backpack" placeholder="Search backblings..." onSelect={setSelectedBackpack}/>
-                {selectedBackpack&&<div className="selected-preview"><img src={selectedBackpack.images?.icon||selectedBackpack.images?.smallIcon} alt=""/><div><div style={{fontSize:14,fontWeight:700}}>{selectedBackpack.name}</div><div style={{fontSize:11,color:'var(--text-muted)'}}>{selectedBackpack.id}</div></div></div>}
-                <div style={{marginTop:12}}><CdBtn id="setbp" onClick={handleSetBackpack} variant="cyan" disabled={!selectedBackpack}><i className="fas fa-check"></i> Set Backbling</CdBtn></div>
-              </div>
-
-              {/* PICKAXE */}
-              <div className="panel section-bar fuchsia" style={{padding:22}}>
-                <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:12}}>
-                  <div style={{width:28,height:28,borderRadius:8,background:'rgba(217,70,239,0.1)',display:'flex',alignItems:'center',justifyContent:'center'}}>
-                    <i className="fas fa-hammer" style={{fontSize:11,color:'var(--accent-fuchsia)'}}></i>
-                  </div>
-                  <div className="label-font" style={{margin:0}}>Pickaxe</div>
-                </div>
-                <SearchInput type="pickaxe" placeholder="Search pickaxes..." onSelect={setSelectedPickaxe}/>
-                {selectedPickaxe&&<div className="selected-preview"><img src={selectedPickaxe.images?.icon||selectedPickaxe.images?.smallIcon} alt=""/><div><div style={{fontSize:14,fontWeight:700}}>{selectedPickaxe.name}</div><div style={{fontSize:11,color:'var(--text-muted)'}}>{selectedPickaxe.id}</div></div></div>}
-                <div style={{marginTop:12}}><CdBtn id="setpk" onClick={handleSetPickaxe} variant="violet" disabled={!selectedPickaxe}><i className="fas fa-check"></i> Set Pickaxe</CdBtn></div>
-              </div>
-
-              {/* EMOTE */}
-              <div className="panel section-bar amber" style={{padding:22}}>
-                <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:12}}>
-                  <div style={{width:28,height:28,borderRadius:8,background:'rgba(251,191,36,0.1)',display:'flex',alignItems:'center',justifyContent:'center'}}>
-                    <i className="fas fa-music" style={{fontSize:11,color:'var(--accent-amber)'}}></i>
-                  </div>
-                  <div className="label-font" style={{margin:0}}>Emote</div>
-                </div>
-                <SearchInput type="emote" placeholder="Search emotes..." onSelect={setSelectedEmote}/>
-                {selectedEmote&&<div className="selected-preview"><img src={selectedEmote.images?.icon||selectedEmote.images?.smallIcon} alt=""/><div><div style={{fontSize:14,fontWeight:700}}>{selectedEmote.name}</div><div style={{fontSize:11,color:'var(--text-muted)'}}>{selectedEmote.id}</div></div></div>}
-                <div style={{display:'flex',gap:10,marginTop:12}}>
-                  <CdBtn id="playem" onClick={()=>handleEmote(false)} variant="cyan" disabled={!selectedEmote}><i className="fas fa-play"></i> Play</CdBtn>
-                  <CdBtn id="stopem" onClick={()=>handleEmote(true)} variant="danger"><i className="fas fa-stop"></i> Stop</CdBtn>
-                </div>
-              </div>
-            </>}
-
-            {/* === PROFILE TAB === */}
-            {tab==="stats"&&<>
-              <div className="panel section-bar amber" style={{padding:22}}>
-                <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:14}}>
-                  <div style={{width:28,height:28,borderRadius:8,background:'rgba(251,191,36,0.1)',display:'flex',alignItems:'center',justifyContent:'center'}}>
-                    <i className="fas fa-star" style={{fontSize:11,color:'var(--accent-amber)'}}></i>
-                  </div>
-                  <div className="label-font" style={{margin:0}}>Season Level</div>
-                </div>
-                <div style={{display:'flex',gap:10,maxWidth:380}}>
-                  <input type="number" min="1" max="5000" value={level} onChange={e=>setLv(Number(e.target.value))} className="input-field" style={{flex:1,textAlign:'center',fontFamily:"'Orbitron',sans-serif",fontWeight:600}}/>
-                  <CdBtn id="setlvl" onClick={handleSetLevel} variant="amber"><i className="fas fa-star"></i> Set</CdBtn>
-                </div>
-              </div>
-
-              <div className="panel section-bar amber" style={{padding:22}}>
-                <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:14}}>
-                  <div style={{width:28,height:28,borderRadius:8,background:'rgba(251,191,36,0.1)',display:'flex',alignItems:'center',justifyContent:'center'}}>
-                    <i className="fas fa-crown" style={{fontSize:11,color:'var(--accent-amber)'}}></i>
-                  </div>
-                  <div className="label-font" style={{margin:0}}>Victory Crowns</div>
-                </div>
-                <div style={{display:'flex',gap:10,maxWidth:380}}>
-                  <input type="number" min="0" max="9999" value={crowns} onChange={e=>setCrowns(Number(e.target.value))} className="input-field" style={{flex:1,textAlign:'center',fontFamily:"'Orbitron',sans-serif",fontWeight:600}}/>
-                  <CdBtn id="setcrowns" onClick={handleSetCrowns} variant="amber"><i className="fas fa-crown"></i> Set</CdBtn>
-                </div>
-              </div>
-
-              <div className="panel section-bar blue" style={{padding:22}}>
-                <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:14}}>
-                  <div style={{width:28,height:28,borderRadius:8,background:'rgba(59,130,246,0.1)',display:'flex',alignItems:'center',justifyContent:'center'}}>
-                    <i className="fas fa-flag" style={{fontSize:11,color:'var(--accent-blue)'}}></i>
-                  </div>
-                  <div className="label-font" style={{margin:0}}>Banner</div>
-                </div>
-                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,maxWidth:500}}>
-                  <div>
-                    <div style={{fontSize:10,color:'var(--text-muted)',marginBottom:5,fontFamily:"'Rajdhani',sans-serif",fontWeight:600,textTransform:'uppercase',letterSpacing:1}}>Icon ID</div>
-                    <input type="text" value={bannerIcon} onChange={e=>setBannerIcon(e.target.value)} className="input-field" placeholder="StandardBanner1"/>
-                  </div>
-                  <div>
-                    <div style={{fontSize:10,color:'var(--text-muted)',marginBottom:5,fontFamily:"'Rajdhani',sans-serif",fontWeight:600,textTransform:'uppercase',letterSpacing:1}}>Color ID</div>
-                    <input type="text" value={bannerColor} onChange={e=>setBannerColor(e.target.value)} className="input-field" placeholder="DefaultColor1"/>
-                  </div>
-                </div>
-                <div style={{marginTop:12}}><CdBtn id="setbanner" onClick={handleSetLevel} variant="ghost"><i className="fas fa-flag"></i> Apply Banner</CdBtn></div>
-              </div>
-            </>}
-
-            {/* === MEMBERS TAB === */}
-            {tab==="members"&&<div className="panel section-bar emerald" style={{padding:22}}>
-              <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:14}}>
-                <div className="label-font">Party Members ({sm.length}/16)</div>
-                <button onClick={()=>loadParty(active)} disabled={loading} className="btn btn-ghost" style={{padding:'6px 12px',fontSize:11}}><i className={`fas fa-sync-alt${loading?' fa-spin':''}`} style={{fontSize:10}}></i></button>
-              </div>
-              {sm.length===0?<div style={{textAlign:'center',padding:40,color:'var(--text-muted)'}}>
-                <div style={{width:52,height:52,margin:'0 auto 12px',borderRadius:14,background:'rgba(99,102,241,0.05)',display:'flex',alignItems:'center',justifyContent:'center'}}><i className="fas fa-users-slash" style={{fontSize:20,opacity:0.4}}></i></div>
-                <span style={{fontSize:13}}>No members in party</span>
-              </div>:
-              <div style={{display:'flex',flexDirection:'column',gap:10}}>
-                {sm.map((m,idx)=>{
-                  const nm=dn(m),cr=gc(m),pl=gp(m),lv=gl(m),cos=memberDetails[m.account_id]||getCos(m);
-                  const st=getReadiness(m);const isMe=m.account_id===active.accountId;
-                  return <div key={m.account_id} className="panel-inner member-row" style={{padding:16,animationDelay:`${idx*0.05}s`}}>
-                    <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:12}}>
-                      <div style={{display:'flex',alignItems:'center',gap:12}}>
-                        <div style={{width:38,height:38,borderRadius:10,background:isMe?'linear-gradient(135deg,#6366f1,#8b5cf6)':'rgba(99,102,241,0.06)',display:'flex',alignItems:'center',justifyContent:'center',position:'relative',border:isMe?'none':'1px solid rgba(255,255,255,0.04)'}}>
-                          <i className={`fab ${PLAT_ICO[pl]||'fa-desktop'}`} style={{fontSize:14,color:isMe?'white':'var(--text-muted)'}}></i>
-                          {m.role==="CAPTAIN"&&<div style={{position:'absolute',top:-5,right:-5,width:16,height:16,background:'linear-gradient(135deg,#fbbf24,#f59e0b)',borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',boxShadow:'0 0 8px rgba(251,191,36,0.3)'}}><i className="fas fa-crown" style={{fontSize:6,color:'#451a03'}}></i></div>}
+                  <div className="two-col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+                    <div className="panel section-bar violet" style={{ padding: 22 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                        <div style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(139,92,246,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <i className="fas fa-user" style={{ fontSize: 11, color: 'var(--accent-violet)' }}></i>
                         </div>
-                        <div>
-                          <div style={{display:'flex',alignItems:'center',gap:7}}>
-                            <span style={{fontSize:14,fontWeight:700}}>{nm}</span>
-                            {isMe&&<span style={{fontSize:9,color:'white',background:'linear-gradient(135deg,#6366f1,#818cf8)',padding:'1px 6px',borderRadius:4,fontWeight:700,letterSpacing:0.5}}>YOU</span>}
-                            {cr>0&&<span style={{fontSize:10,background:'rgba(251,191,36,0.1)',color:'var(--accent-amber)',padding:'2px 7px',borderRadius:6,border:'1px solid rgba(251,191,36,0.15)',fontWeight:700}}><i className="fas fa-crown" style={{fontSize:7,marginRight:3}}></i>{cr}</span>}
+                        <div className="label-font" style={{ margin: 0 }}>Skin</div>
+                      </div>
+                      <SearchInput type="outfit" placeholder="Search skins..." onSelect={item => setSlot("skin", item)} />
+                      <SelectedItemCard
+                        item={builder.skin}
+                        slot="skin"
+                        onClear={() => clearSlot("skin")}
+                        onFavorite={() => toggleFavorite(builder.skin, "skin")}
+                        isFavorite={builder.skin ? isFavorite(builder.skin, "skin") : false}
+                      />
+                    </div>
+
+                    <div className="panel section-bar cyan" style={{ padding: 22 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                        <div style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(56,189,248,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <i className="fas fa-bag-shopping" style={{ fontSize: 11, color: 'var(--accent-cyan)' }}></i>
+                        </div>
+                        <div className="label-font" style={{ margin: 0 }}>Backbling</div>
+                      </div>
+                      <SearchInput type="backpack" placeholder="Search backblings..." onSelect={item => setSlot("backpack", item)} />
+                      <SelectedItemCard
+                        item={builder.backpack}
+                        slot="backpack"
+                        onClear={() => clearSlot("backpack")}
+                        onFavorite={() => toggleFavorite(builder.backpack, "backpack")}
+                        isFavorite={builder.backpack ? isFavorite(builder.backpack, "backpack") : false}
+                      />
+                    </div>
+
+                    <div className="panel section-bar fuchsia" style={{ padding: 22 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                        <div style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(217,70,239,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <i className="fas fa-hammer" style={{ fontSize: 11, color: 'var(--accent-fuchsia)' }}></i>
+                        </div>
+                        <div className="label-font" style={{ margin: 0 }}>Pickaxe</div>
+                      </div>
+                      <SearchInput type="pickaxe" placeholder="Search pickaxes..." onSelect={item => setSlot("pickaxe", item)} />
+                      <SelectedItemCard
+                        item={builder.pickaxe}
+                        slot="pickaxe"
+                        onClear={() => clearSlot("pickaxe")}
+                        onFavorite={() => toggleFavorite(builder.pickaxe, "pickaxe")}
+                        isFavorite={builder.pickaxe ? isFavorite(builder.pickaxe, "pickaxe") : false}
+                      />
+                    </div>
+
+                    <div className="panel section-bar amber" style={{ padding: 22 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                        <div style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(251,191,36,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <i className="fas fa-music" style={{ fontSize: 11, color: 'var(--accent-amber)' }}></i>
+                        </div>
+                        <div className="label-font" style={{ margin: 0 }}>Emote</div>
+                      </div>
+                      <SearchInput
+                        type="emote"
+                        placeholder="Search emotes..."
+                        onSelect={item => setSlot("emote", item)}
+                        filterFn={previewableEmote}
+                      />
+                      <SelectedItemCard
+                        item={builder.emote}
+                        slot="emote"
+                        onClear={() => clearSlot("emote")}
+                        onFavorite={() => toggleFavorite(builder.emote, "emote")}
+                        isFavorite={builder.emote ? isFavorite(builder.emote, "emote") : false}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="panel section-bar blue" style={{ padding: 22 }}>
+                    <div className="label-font" style={{ marginBottom: 14 }}>Current Loadout Preview</div>
+                    <div className="cos-grid">
+                      <div className="cos-cell">
+                        {builder.skin?.images?.icon ? <img src={builder.skin.images.icon} alt="" /> : <i className="fas fa-user" style={{ fontSize: 24, color: 'var(--text-muted)' }}></i>}
+                        <strong style={{ fontSize: 11 }}>{builder.skin?.name || 'No Skin'}</strong>
+                        <span>{builder.skin?.id || 'Empty'}</span>
+                      </div>
+                      <div className="cos-cell">
+                        {builder.backpack?.images?.icon ? <img src={builder.backpack.images.icon} alt="" /> : <i className="fas fa-bag-shopping" style={{ fontSize: 24, color: 'var(--text-muted)' }}></i>}
+                        <strong style={{ fontSize: 11 }}>{builder.backpack?.name || 'No Backbling'}</strong>
+                        <span>{builder.backpack?.id || 'Empty'}</span>
+                      </div>
+                      <div className="cos-cell">
+                        {builder.pickaxe?.images?.icon ? <img src={builder.pickaxe.images.icon} alt="" /> : <i className="fas fa-hammer" style={{ fontSize: 24, color: 'var(--text-muted)' }}></i>}
+                        <strong style={{ fontSize: 11 }}>{builder.pickaxe?.name || 'No Pickaxe'}</strong>
+                        <span>{builder.pickaxe?.id || 'Empty'}</span>
+                      </div>
+                      <div className="cos-cell">
+                        {builder.emote?.images?.icon ? <img src={builder.emote.images.icon} alt="" /> : <i className="fas fa-music" style={{ fontSize: 24, color: 'var(--text-muted)' }}></i>}
+                        <strong style={{ fontSize: 11 }}>{builder.emote?.name || 'No Emote'}</strong>
+                        <span>{builder.emote?.id || 'Empty'}</span>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {tab === "presets" && (
+                <div className="panel section-bar emerald" style={{ padding: 22 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, gap: 10, flexWrap: 'wrap' }}>
+                    <div className="label-font">Saved Presets</div>
+                    <button className="btn btn-cyan" onClick={savePreset}><i className="fas fa-floppy-disk"></i>Save Current</button>
+                  </div>
+
+                  {presets.length === 0 ? (
+                    <div className="empty-state">
+                      <div style={{ width: 52, height: 52, margin: '0 auto 12px', borderRadius: 14, background: 'rgba(99,102,241,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <i className="fas fa-layer-group" style={{ fontSize: 20, opacity: 0.4 }}></i>
+                      </div>
+                      <span style={{ fontSize: 13 }}>No presets saved yet</span>
+                    </div>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                      {presets.map(p => (
+                        <div key={p.id} className="panel-inner" style={{ padding: 14 }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                            <div>
+                              <div style={{ fontSize: 14, fontWeight: 700 }}>{p.name}</div>
+                              <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+                                {new Date(p.createdAt).toLocaleString()}
+                              </div>
+                            </div>
+                            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                              <button className="btn btn-ghost" onClick={() => loadPreset(p)}><i className="fas fa-upload"></i>Load</button>
+                              <button className="btn btn-danger" onClick={() => deletePreset(p.id)}><i className="fas fa-trash"></i>Delete</button>
+                            </div>
                           </div>
-                          <div style={{fontSize:11,color:'var(--text-muted)',marginTop:1}}>{PLATS[pl]||pl} · Lv.{lv}</div>
+                          <div className="cos-grid" style={{ marginTop: 12 }}>
+                            {["skin", "backpack", "pickaxe", "emote"].map(slot => (
+                              <div key={slot} className="cos-cell">
+                                {p.data?.[slot]?.images?.icon
+                                  ? <img src={p.data[slot].images.icon} alt="" />
+                                  : <i className={`fas ${
+                                    slot === 'skin' ? 'fa-user' :
+                                    slot === 'backpack' ? 'fa-bag-shopping' :
+                                    slot === 'pickaxe' ? 'fa-hammer' : 'fa-music'
+                                  }`} style={{ fontSize: 24, color: 'var(--text-muted)' }}></i>}
+                                <strong style={{ fontSize: 11 }}>{p.data?.[slot]?.name || `No ${slot}`}</strong>
+                                <span>{slot}</span>
+                              </div>
+                            ))}
+                          </div>
                         </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {tab === "favorites" && (
+                <div className="panel section-bar red" style={{ padding: 22 }}>
+                  <div className="label-font" style={{ marginBottom: 14 }}>Favorites</div>
+                  {favorites.length === 0 ? (
+                    <div className="empty-state">
+                      <div style={{ width: 52, height: 52, margin: '0 auto 12px', borderRadius: 14, background: 'rgba(99,102,241,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <i className="fas fa-heart" style={{ fontSize: 20, opacity: 0.4 }}></i>
                       </div>
-                      <div style={{display:'flex',alignItems:'center',gap:6}}>
-                        <span className={`badge badge-${st}`}>{st==="ingame"?"In Match":st==="sitout"?"Sit Out":st==="ready"?"Ready":"Idle"}</span>
-                        <div className="member-actions" style={{display:'flex',gap:4}}>
-                          {!isMe&&<CdBtn id={`cp_${m.account_id}`} onClick={()=>copyLocker(m.account_id)} variant="ghost" className="btn" style={{padding:'5px 10px',fontSize:10}} title="Copy Locker"><i className="fas fa-copy"></i></CdBtn>}
-                          {isCap&&!isMe&&<>
-                            <CdBtn id={`pm_${m.account_id}`} onClick={()=>doAction("promote",{target:m.account_id},`${nm} promoted`)} variant="amber" className="btn" style={{padding:'5px 10px',fontSize:10}} title="Promote"><i className="fas fa-crown"></i></CdBtn>
-                            <CdBtn id={`kk_${m.account_id}`} onClick={()=>doAction("kick",{target:m.account_id},`${nm} kicked`)} variant="danger" className="btn" style={{padding:'5px 10px',fontSize:10}} title="Kick"><i className="fas fa-xmark"></i></CdBtn>
-                          </>}
+                      <span style={{ fontSize: 13 }}>No favorites yet</span>
+                    </div>
+                  ) : (
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 12 }}>
+                      {favorites.map(f => (
+                        <div key={f.key} className="panel-inner" style={{ padding: 14 }}>
+                          <div style={{ display: 'flex', gap: 12 }}>
+                            {(f.item.images?.icon || f.item.images?.smallIcon) && (
+                              <img src={f.item.images.icon || f.item.images.smallIcon} alt={f.item.name} style={{ width: 56, height: 56, borderRadius: 12, objectFit: 'cover' }} />
+                            )}
+                            <div style={{ minWidth: 0, flex: 1 }}>
+                              <div style={{ fontSize: 14, fontWeight: 700 }}>{f.item.name}</div>
+                              <div style={{ fontSize: 11, color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{f.item.id}</div>
+                              <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 4, textTransform: 'capitalize' }}>{f.slot}</div>
+                            </div>
+                          </div>
+                          <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
+                            <button className="btn btn-cyan" onClick={() => setSlot(f.slot, f.item)}><i className="fas fa-plus"></i>Select</button>
+                            <button className="btn btn-danger" onClick={() => toggleFavorite(f.item, f.slot)}><i className="fas fa-heart-crack"></i>Remove</button>
+                          </div>
                         </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {recent.length > 0 && (
+                    <div style={{ marginTop: 18 }}>
+                      <div className="label-font" style={{ marginBottom: 10 }}>Recent Selections</div>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 10 }}>
+                        {recent.slice(0, 8).map(r => (
+                          <div key={r.key} className="panel-inner" style={{ padding: 12, display: 'flex', alignItems: 'center', gap: 10 }}>
+                            {(r.item.images?.smallIcon || r.item.images?.icon) && (
+                              <img src={r.item.images.smallIcon || r.item.images.icon} alt="" style={{ width: 42, height: 42, borderRadius: 10, objectFit: 'cover' }} />
+                            )}
+                            <div style={{ minWidth: 0, flex: 1 }}>
+                              <div style={{ fontSize: 13, fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.item.name}</div>
+                              <div style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'capitalize' }}>{r.slot}</div>
+                            </div>
+                            <button className="btn btn-ghost" style={{ padding: '8px 10px' }} onClick={() => setSlot(r.slot, r.item)}>
+                              <i className="fas fa-plus"></i>
+                            </button>
+                          </div>
+                        ))}
                       </div>
                     </div>
-                    <div style={{borderTop:'1px solid var(--border-dim)',paddingTop:12}}>
-                      <div className="cos-grid">
-                        <div className="cos-cell"><CosImg id={cos.skin} type="skin"/><span>{cos.skinId||'None'}</span></div>
-                        <div className="cos-cell"><CosImg id={cos.backpack} type="backpack"/><span>{cos.backpack?.split('/').pop()?.split('.')[0]||'None'}</span></div>
-                        <div className="cos-cell"><CosImg id={cos.pickaxe} type="pickaxe"/><span>{cos.pickaxe?.split('/').pop()?.split('.')[0]||'None'}</span></div>
-                        <div className="cos-cell"><CosImg id={cos.emote} type="emote"/><span>{cos.emoteId||'None'}</span></div>
-                      </div>
+                  )}
+                </div>
+              )}
+
+              {tab === "party" && (
+                <>
+                  <div className="panel section-bar emerald" style={{ padding: 22 }}>
+                    <div className="label-font" style={{ marginBottom: 14 }}>Party Overview</div>
+                    <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 12 }}>
+                      <span className="badge badge-private"><i className="fas fa-lock"></i>{partyPrivacy}</span>
+                      <span className="badge badge-local"><i className="fas fa-map"></i>{playlistMode}</span>
+                      {streamerMode && <span className="badge badge-streamer"><i className="fas fa-user-secret"></i>Name Masking On</span>}
                     </div>
-                  </div>;
-                })}
-              </div>}
-            </div>}
-
-            {/* === ISLANDS TAB === */}
-            {tab==="islands"&&<>
-              <div className="panel section-bar emerald" style={{padding:22}}>
-                <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:14}}>
-                  <div style={{width:28,height:28,borderRadius:8,background:'rgba(52,211,153,0.1)',display:'flex',alignItems:'center',justifyContent:'center'}}>
-                    <i className="fas fa-rocket" style={{fontSize:11,color:'var(--accent-emerald)'}}></i>
+                    <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+                      Playlist, privacy, matchmaking key, and streamer mode here are local planning settings for the UI only.
+                    </p>
                   </div>
-                  <div className="label-font" style={{margin:0}}>Island Launcher</div>
-                </div>
-                {!isCap&&<div style={{padding:'10px 14px',background:'rgba(244,63,94,0.04)',border:'1px solid rgba(244,63,94,0.1)',borderRadius:10,marginBottom:14,display:'flex',alignItems:'center',gap:8}}>
-                  <i className="fas fa-triangle-exclamation" style={{color:'var(--accent-red)',fontSize:12}}></i>
-                  <p style={{fontSize:12,color:'var(--accent-red)'}}>Only the party leader can launch islands</p>
-                </div>}
-                <div style={{display:'flex',gap:10}}>
-                  <div style={{flex:1,position:'relative'}}>
-                    <i className="fas fa-globe" style={{position:'absolute',left:14,top:'50%',transform:'translateY(-50%)',color:'var(--text-muted)',fontSize:12}}></i>
-                    <input type="text" value={islandCode} onChange={e=>setIslandCode(e.target.value)} placeholder="1234-5678-9012" className="input-field" style={{paddingLeft:38,fontFamily:'monospace',letterSpacing:1}} disabled={!isCap}/>
-                  </div>
-                  <CdBtn id="launch" onClick={launchIsland} variant="cyan" disabled={!islandCode.trim()||!isCap}><i className="fas fa-rocket"></i> Launch</CdBtn>
-                </div>
-              </div>
-            </>}
 
+                  <div className="panel section-bar blue" style={{ padding: 22 }}>
+                    <div className="label-font" style={{ marginBottom: 14 }}>Mock Party Members</div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                      {mockMembers.map(m => (
+                        <div key={m.id} className="panel-inner member-row">
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                            <div style={{ width: 40, height: 40, borderRadius: 10, background: m.role === "Leader" ? 'linear-gradient(135deg,#6366f1,#8b5cf6)' : 'rgba(99,102,241,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              <i className={`fas ${
+                                m.platform === 'PC' ? 'fa-desktop' :
+                                m.platform === 'PlayStation' ? 'fa-gamepad' :
+                                m.platform === 'Xbox' ? 'fa-xbox' : 'fa-mobile-screen'
+                              }`} style={{ color: m.role === "Leader" ? 'white' : 'var(--text-muted)' }}></i>
+                            </div>
+                            <div>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                                <span style={{ fontSize: 14, fontWeight: 700 }}>{m.safeName}</span>
+                                {m.role === "Leader" && <span className="badge badge-private"><i className="fas fa-crown"></i>Leader</span>}
+                              </div>
+                              <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{m.platform} · Lv.{m.level} · {m.crowns} crowns</div>
+                            </div>
+                          </div>
+                          <div>
+                            <span className={`badge ${m.status === 'Ready' ? 'badge-ready' : 'badge-local'}`}>{m.status}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {tab === "settings" && (
+                <>
+                  <div className="panel section-bar primary" style={{ padding: 22 }}>
+                    <div className="label-font" style={{ marginBottom: 14 }}>Playlist</div>
+                    <div className="segmented">
+                      {["Battle Royale", "Zero Build", "Creative", "Festival"].map(mode => (
+                        <button
+                          key={mode}
+                          className={playlistMode === mode ? "active" : ""}
+                          onClick={() => {
+                            setPlaylistMode(mode);
+                            toast.s(`Playlist set to ${mode}`);
+                          }}
+                        >
+                          {mode}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="panel section-bar amber" style={{ padding: 22 }}>
+                    <div className="label-font" style={{ marginBottom: 14 }}>Custom Matchmaking Key</div>
+                    <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+                      <input
+                        className="input-field"
+                        placeholder="Enter local planning key..."
+                        value={matchKey}
+                        onChange={e => setMatchKey(e.target.value)}
+                        style={{ maxWidth: 360 }}
+                      />
+                      <button className="btn btn-ghost" onClick={() => { setMatchKey(""); toast.s("Matchmaking key cleared"); }}>
+                        <i className="fas fa-xmark"></i>Clear
+                      </button>
+                    </div>
+                    <p style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 10 }}>
+                      Stored locally as a notes/planning field only.
+                    </p>
+                  </div>
+
+                  <div className="panel section-bar violet" style={{ padding: 22 }}>
+                    <div className="label-font" style={{ marginBottom: 14 }}>Party Privacy</div>
+                    <select
+                      className="select-field"
+                      value={partyPrivacy}
+                      onChange={e => {
+                        setPartyPrivacy(e.target.value);
+                        toast.s(`Privacy set to ${e.target.value}`);
+                      }}
+                      style={{ maxWidth: 320 }}
+                    >
+                      <option>Public</option>
+                      <option>Friends</option>
+                      <option>Private</option>
+                    </select>
+                  </div>
+
+                  <div className="panel section-bar fuchsia" style={{ padding: 22 }}>
+                    <div className="label-font" style={{ marginBottom: 14 }}>Ghost Mode Replacement</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                      <button
+                        className={`btn ${streamerMode ? 'btn-violet' : 'btn-ghost'}`}
+                        onClick={() => {
+                          setStreamerMode(v => !v);
+                          toast.s(!streamerMode ? "Streamer mode enabled" : "Streamer mode disabled");
+                        }}
+                      >
+                        <i className={`fas ${streamerMode ? 'fa-eye-slash' : 'fa-eye'}`}></i>
+                        {streamerMode ? 'Hide Names On' : 'Hide Names Off'}
+                      </button>
+                    </div>
+                    <p style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 10 }}>
+                      This masks player names in the UI for streaming and screenshots.
+                    </p>
+                  </div>
+
+                  <div className="panel section-bar blue" style={{ padding: 22 }}>
+                    <div className="label-font" style={{ marginBottom: 14 }}>Notes</div>
+                    <textarea
+                      className="input-field"
+                      value={notes}
+                      onChange={e => setNotes(e.target.value)}
+                      placeholder="Add local squad notes, drop plans, item combos, or event reminders..."
+                      style={{ minHeight: 140, resize: 'vertical' }}
+                    />
+                  </div>
+                </>
+              )}
+            </div>
           </div>
-        </div>}
-        <Toasts/>
-      </div>;
+
+          <Toasts />
+        </div>
+      );
     }
 
-    ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
   </script>
 </body>
 </html>
