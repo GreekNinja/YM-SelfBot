@@ -492,7 +492,14 @@
     /* ================================================================
        CONSTANTS & CONFIG
     ================================================================ */
-    const CORS = "https://corsproxy.io/?";
+    const CORS_PROXIES = [
+      { make: url => `https://corsproxy.io/?url=${encodeURIComponent(url)}` },
+      { make: url => `https://corsproxy.io/?${encodeURIComponent(url)}` },
+      { make: url => `https://cors.bridged.cc/${url}` },
+      { make: url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}` },
+    ];
+    let bestProxy = 0; // index of last working proxy
+
     const ACCT = "https://account-public-service-prod.ol.epicgames.com";
     const PARTY = "https://party-service-prod.ol.epicgames.com";
     const FNAPI = "https://fortnite-api.com";
@@ -526,9 +533,28 @@
     const uuid = ()=>[...Array(32)].map(()=>Math.floor(Math.random()*16).toString(16)).join('').toUpperCase();
     const sj = async r=>{ try{return await r.json();}catch{return {};} };
 
+    // Multi-proxy fetch with automatic fallback
     const pf = async (url, opts={}) => {
-      try { const r = await fetch(CORS+encodeURIComponent(url), opts); if(r.status===429) throw new Error("Rate limited"); return r; }
-      catch(e) { throw new Error(e.message||"Network error"); }
+      const order = [bestProxy, ...CORS_PROXIES.map((_,i)=>i).filter(i=>i!==bestProxy)];
+      let lastErr;
+      for (const idx of order) {
+        try {
+          const proxyUrl = CORS_PROXIES[idx].make(url);
+          const controller = new AbortController();
+          const timeout = setTimeout(() => controller.abort(), 12000);
+          const r = await fetch(proxyUrl, {...opts, signal: controller.signal});
+          clearTimeout(timeout);
+          if(r.status===429) throw new Error("Rate limited");
+          // Proxy worked — remember it
+          bestProxy = idx;
+          return r;
+        } catch(e) {
+          lastErr = e;
+          console.warn(`Proxy ${idx} failed:`, e.message);
+          continue;
+        }
+      }
+      throw new Error(lastErr?.message || "All proxies failed — check your connection");
     };
 
     const ep = async (url, cl, data) => {
@@ -814,19 +840,23 @@
         }catch(e){toast.e(e.message);}
       };
 
-      // === SET SKIN (FIXED) ===
+      // === SET SKIN (FIXED — uses definitionPath or AthenaCharacter:ID) ===
       const handleSetSkin=async()=>{
         if(!selectedSkin){toast.e("Select a skin first");return;}
         const{memberRev}=await getLatestRev();
-        // Use the correct format: AthenaCharacter:CID_XXX
-        let fid = `AthenaCharacter:${selectedSkin.id}`;
+        // The fortnite-api returns id like "CID_XXX", we need "AthenaCharacter:CID_XXX"
+        const sid = selectedSkin.id;
+        let fid = sid.startsWith("AthenaCharacter:") ? sid : `AthenaCharacter:${sid}`;
         const cm=party.members.find(m=>m.account_id===active.accountId);
         const cl=pm(cm,"Default:AthenaCosmeticLoadout_j")?.AthenaCosmeticLoadout||{};
+        // Build the full path for backendValue if the API has it
+        const defPath = selectedSkin.definitionPath || selectedSkin.path;
         const up={
           "Default:AthenaCosmeticLoadout_j":JSON.stringify({
             AthenaCosmeticLoadout:{
               ...cl,
-              characterPrimaryAssetId:fid,
+              characterPrimaryAssetId: fid,
+              characterDef: defPath ? defPath : `FortniteGame/Content/Athena/Items/Cosmetics/Characters/${sid}.${sid}`,
               randomDefaultCosmeticHash:Math.floor(Math.random()*2147483647)
             }
           }),
@@ -854,12 +884,21 @@
         }catch(e){toast.e(e.message);}
       };
 
-      // === SET BACKPACK (FIXED) ===
+      // === SET BACKPACK (FIXED — uses definitionPath from API) ===
       const handleSetBackpack=async()=>{
         if(!selectedBackpack){toast.e("Select a backbling first");return;}
         const{memberRev}=await getLatestRev();
-        // Use correct path format from the API
-        let fp = `/BRCosmetics/Athena/Items/Cosmetics/Backpacks/${selectedBackpack.id}.${selectedBackpack.id}`;
+        const bid = selectedBackpack.id;
+        // Build the correct /Game/ or /BRCosmetics/ path
+        let fp;
+        if (selectedBackpack.definitionPath || selectedBackpack.path) {
+          // Use the exact path from the API response
+          const rawPath = selectedBackpack.definitionPath || selectedBackpack.path;
+          // Strip leading /Game/ or FortniteGame/Content/ if present, keep what comes after
+          fp = rawPath;
+        } else {
+          fp = `/BRCosmetics/Athena/Items/Cosmetics/Backpacks/${bid}.${bid}`;
+        }
         const cm=party.members.find(m=>m.account_id===active.accountId);
         const cl=pm(cm,"Default:AthenaCosmeticLoadout_j")?.AthenaCosmeticLoadout||{};
         try{
@@ -893,12 +932,17 @@
         }catch(e){toast.e(e.message);}
       };
 
-      // === SET PICKAXE (FIXED) ===
+      // === SET PICKAXE (FIXED — uses definitionPath from API) ===
       const handleSetPickaxe=async()=>{
         if(!selectedPickaxe){toast.e("Select a pickaxe first");return;}
         const{memberRev}=await getLatestRev();
-        // Use correct path format
-        let fp = `/BRCosmetics/Athena/Items/Cosmetics/Pickaxes/${selectedPickaxe.id}.${selectedPickaxe.id}`;
+        const pid = selectedPickaxe.id;
+        let fp;
+        if (selectedPickaxe.definitionPath || selectedPickaxe.path) {
+          fp = selectedPickaxe.definitionPath || selectedPickaxe.path;
+        } else {
+          fp = `/BRCosmetics/Athena/Items/Cosmetics/Pickaxes/${pid}.${pid}`;
+        }
         const cm=party.members.find(m=>m.account_id===active.accountId);
         const cl=pm(cm,"Default:AthenaCosmeticLoadout_j")?.AthenaCosmeticLoadout||{};
         try{
