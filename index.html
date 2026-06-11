@@ -840,23 +840,20 @@
         }catch(e){toast.e(e.message);}
       };
 
-      // === SET SKIN (FIXED — uses definitionPath or AthenaCharacter:ID) ===
+      // === SET SKIN ===
       const handleSetSkin=async()=>{
         if(!selectedSkin){toast.e("Select a skin first");return;}
         const{memberRev}=await getLatestRev();
-        // The fortnite-api returns id like "CID_XXX", we need "AthenaCharacter:CID_XXX"
+        // fortnite-api returns id like "CID_XXX", party uses "AthenaCharacter:CID_XXX"
         const sid = selectedSkin.id;
-        let fid = sid.startsWith("AthenaCharacter:") ? sid : `AthenaCharacter:${sid}`;
+        const fid = sid.startsWith("AthenaCharacter:") ? sid : `AthenaCharacter:${sid}`;
         const cm=party.members.find(m=>m.account_id===active.accountId);
         const cl=pm(cm,"Default:AthenaCosmeticLoadout_j")?.AthenaCosmeticLoadout||{};
-        // Build the full path for backendValue if the API has it
-        const defPath = selectedSkin.definitionPath || selectedSkin.path;
         const up={
           "Default:AthenaCosmeticLoadout_j":JSON.stringify({
             AthenaCosmeticLoadout:{
               ...cl,
               characterPrimaryAssetId: fid,
-              characterDef: defPath ? defPath : `FortniteGame/Content/Athena/Items/Cosmetics/Characters/${sid}.${sid}`,
               randomDefaultCosmeticHash:Math.floor(Math.random()*2147483647)
             }
           }),
@@ -884,21 +881,13 @@
         }catch(e){toast.e(e.message);}
       };
 
-      // === SET BACKPACK (FIXED — uses definitionPath from API) ===
+      // === SET BACKPACK ===
       const handleSetBackpack=async()=>{
         if(!selectedBackpack){toast.e("Select a backbling first");return;}
         const{memberRev}=await getLatestRev();
+        // Party data uses: /BRCosmetics/Athena/Items/Cosmetics/Backpacks/BID_XXX.BID_XXX
         const bid = selectedBackpack.id;
-        // Build the correct /Game/ or /BRCosmetics/ path
-        let fp;
-        if (selectedBackpack.definitionPath || selectedBackpack.path) {
-          // Use the exact path from the API response
-          const rawPath = selectedBackpack.definitionPath || selectedBackpack.path;
-          // Strip leading /Game/ or FortniteGame/Content/ if present, keep what comes after
-          fp = rawPath;
-        } else {
-          fp = `/BRCosmetics/Athena/Items/Cosmetics/Backpacks/${bid}.${bid}`;
-        }
+        const fp = `/BRCosmetics/Athena/Items/Cosmetics/Backpacks/${bid}.${bid}`;
         const cm=party.members.find(m=>m.account_id===active.accountId);
         const cl=pm(cm,"Default:AthenaCosmeticLoadout_j")?.AthenaCosmeticLoadout||{};
         try{
@@ -932,17 +921,13 @@
         }catch(e){toast.e(e.message);}
       };
 
-      // === SET PICKAXE (FIXED — uses definitionPath from API) ===
+      // === SET PICKAXE ===
       const handleSetPickaxe=async()=>{
         if(!selectedPickaxe){toast.e("Select a pickaxe first");return;}
         const{memberRev}=await getLatestRev();
+        // Party data uses: /BRCosmetics/Athena/Items/Cosmetics/Pickaxes/Pickaxe_XXX.Pickaxe_XXX
         const pid = selectedPickaxe.id;
-        let fp;
-        if (selectedPickaxe.definitionPath || selectedPickaxe.path) {
-          fp = selectedPickaxe.definitionPath || selectedPickaxe.path;
-        } else {
-          fp = `/BRCosmetics/Athena/Items/Cosmetics/Pickaxes/${pid}.${pid}`;
-        }
+        const fp = `/BRCosmetics/Athena/Items/Cosmetics/Pickaxes/${pid}.${pid}`;
         const cm=party.members.find(m=>m.account_id===active.accountId);
         const cl=pm(cm,"Default:AthenaCosmeticLoadout_j")?.AthenaCosmeticLoadout||{};
         try{
